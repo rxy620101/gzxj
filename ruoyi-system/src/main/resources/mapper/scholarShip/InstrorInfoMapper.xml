@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.scholarShip.mapper.InstrorInfoMapper">
+    
+    <resultMap type="InstrorInfo" id="InstrorInfoResult">
+        <result property="id"    column="id"    />
+        <result property="instructorId"    column="instructor_id"    />
+        <result property="instructorName"    column="instructor_name"    />
+        <result property="sex" column="sex"/>
+        <result property="collegeId"    column="college_id"    />
+        <result property="collegeName"    column="name"    />
+        <result property="guideGrade"    column="guide_grade"    />
+        <result property="guideMajorIds"    column="guide_majorIds"    />
+        <result property="tel"    column="tel"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="email"    column="email"    />
+    </resultMap>
+
+    <sql id="selectInstrorInfoVo">
+        select a.id, a.instructor_id, a.instructor_name,a.college_id, tel, a.status, a.del_flag, a.create_by, a.create_time, a.update_by, a.update_time, a.remark,
+                a.guide_grade, a.guide_majorIds, u.name,a.sex,a.email
+        from instror_info a  join college_major u on a.college_id=u.college_id
+    </sql>
+
+    <select id="selectInstrorInfoList" parameterType="InstrorInfo" resultMap="InstrorInfoResult">
+        <include refid="selectInstrorInfoVo"/>
+        <where>  
+            <if test="instructorId != null  and instructorId != ''"> and instructor_id = #{instructorId}</if>
+            <if test="sex != null  and sex != ''">and sex = #{sex}</if>
+             <if test="instructorName !=null and instructorName !='' ">and instructor_name like concat('%', #{instructorName}, '%')</if>
+            <if test="guideGrade != null  and guideGrade != ''"> and a.guide_grade = #{guideGrade}</if>
+             <if test="collegeId != null and collegeId != '' ">
+                 and guide_majorIds like concat('%', #{collegeId}, '%')
+                 or a.college_id=#{collegeId}
+                 OR a.college_id IN
+                 ( SELECT t.college_id FROM college_major t WHERE find_in_set(#{collegeId}, ancestors) )
+             </if>
+             and a.del_flag=0
+        </where>
+    </select>
+    
+    <select id="selectInstrorInfoById" parameterType="Long" resultMap="InstrorInfoResult">
+        <include refid="selectInstrorInfoVo"/>
+        where instructor_id = #{instructorId} and a.del_flag=0
+    </select>
+        
+    <insert id="insertInstrorInfo" parameterType="InstrorInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into instror_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="instructorId != null">instructor_id,</if>
+            <if test="instructorName !=null">instructor_name,</if>
+            <if test="sex != null  and sex != ''">sex,</if>
+            <if test="collegeId != null">college_id,</if>
+            <if test="guideMajorIds != null "> guide_majorIds,</if>
+            <if test="guideGrade != null "> guide_grade, </if>
+            <if test="tel != null">tel,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="instructorId != null">#{instructorId},</if>
+            <if test="instructorName !=null">#{instructorName},</if>
+            <if test="sex != null  and sex != ''">#{sex},</if>
+            <if test="collegeId != null">#{collegeId},</if>
+            <if test="guideMajorIds != null "> #{guideMajorIds},</if>
+            <if test="guideGrade != null "> #{guideGrade}, </if>
+            <if test="tel != null">#{tel},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateInstrorInfo" parameterType="InstrorInfo">
+        update instror_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="collegeId != null">college_id = #{collegeId},</if>
+            <if test="sex != null  and sex != ''"> sex=#{sex},</if>
+            <if test="instructorName !=null">instructor_name=#{instructorName},</if>
+            <if test="guideMajorIds != null "> guide_majorIds=#{guideMajorIds},</if>
+            <if test="guideGrade != null "> guide_grade=#{guideGrade}, </if>
+            <if test="tel != null">tel = #{tel},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="email != null">email = #{email},</if>
+        </trim>
+        where   instructor_id = #{instructorId}
+    </update>
+
+    <update id="deleteInstrorInfoById" parameterType="Long">
+        update instror_info set del_flag=2
+        where instructor_id = #{id}
+    </update>
+
+    <delete id="deleteInstrorInfoByIds" parameterType="String">
+        update instror_info set del_flag=2
+        where instructor_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="checkId" parameterType="String" resultType="int">
+        select count(1)
+         from  instror_info
+         where instructor_id = #{id}
+    </select>
+</mapper>

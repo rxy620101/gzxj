@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.MajorCourseMapper">
+    
+    <resultMap type="MajorCourse" id="MajorCourseResult">
+        <result property="collegeId"    column="college_id"    />
+        <result property="courseId"    column="course_id"    />
+    </resultMap>
+
+
+    <insert id="batchMajorCourse" parameterType="MajorCourse">
+        insert into major_course(college_id, course_id) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.collegeId},#{item.courseId})
+        </foreach>
+    </insert>
+
+    <insert id="addMajorCourse" parameterType="MajorCourse">
+        insert into major_course(college_id, course_id) values (#{collegeId},#{courseId})
+    </insert>
+
+    <delete id="deleteMajorCourseByCouseId" parameterType="Long">
+        delete from major_course where course_id = #{coseId}
+    </delete>
+
+    <delete id="deleteMajorCourse" parameterType="MajorCourse">
+        delete from major_course where course_id = #{coseId}
+        <if test="collegeId != null and collegeId != ''">
+            and college_id=#{collegeId}
+        </if>
+    </delete>
+
+    <delete id="deleteMajorCourses" >
+        delete from major_course where course_id in
+        <foreach item="coseId" collection="coseIds" open="(" separator="," close=")">
+            #{coseId}
+        </foreach>
+        <if test="collegeId != null and collegeId != ''">
+            and college_id=#{collegeId}
+        </if>
+    </delete>
+</mapper>

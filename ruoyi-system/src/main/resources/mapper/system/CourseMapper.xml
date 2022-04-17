@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CourseMapper">
+
+    <resultMap type="Course" id="CourseResult">
+        <result property="coseId" column="cose_id"/>
+        <result property="coseName" column="cose_name"/>
+        <result property="startYear" column="start_year"/>
+        <result property="validTerm" column="valid_term"/>
+        <result property="grade" column="grade"></result>
+        <result property="credit" column="credit"></result>
+        <result property="courseType" column="course_type"></result>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="course_flag"/>
+        <collection property="majors" javaType="java.util.List" resultMap="majorsResult"/>
+    </resultMap>
+    <resultMap type="SysColleageMajor" id="majorsResult">
+        <id property="collegeId" column="college_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="ancestors" column="ancestors"/>
+        <result property="name" column="name"/>
+        <result property="orderNum" column="order_num"/>
+        <result property="status" column="major_status"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectCourseVo">
+        select a.cose_id,
+               a.cose_name,
+               a.start_year,
+               a.valid_term,
+               a.status,
+               a.create_by,
+               a.create_time,
+               a.update_by,
+               a.update_time,
+               a.remark,
+               a.grade,
+               a.credit,
+               a.course_type,
+               a.del_flag as course_flag,
+               u.college_id,
+               u.parent_id,
+               u.ancestors,
+               u.name,
+               u.order_num,
+               u.status   as major_status,
+               u.del_flag
+        from course a
+                 left join major_course b on a.cose_id = b.course_id
+                 left join college_major u on b.college_id = u.college_id
+    </sql>
+
+    <select id="selectCourseList" parameterType="Course" resultMap="CourseResult">
+        select a.cose_id,a.cose_name, a.start_year, a.valid_term,a.status,a.create_by,a.create_time,a.update_by,a.update_time,a.remark,a.grade,a.del_flag as course_flag,a.credit,a.course_type
+        from course a
+        left join major_course b on a.cose_id=b.course_id
+        left join college_major u on b.college_id=u.college_id
+        <where>
+            <if test="coseName != null  and coseName != ''">and cose_name like concat('%', #{coseName}, '%')</if>
+            <if test="startYear != null  and startYear != ''">and start_year = #{startYear}</if>
+            <if test="validTerm != null  and validTerm != ''">and valid_term = #{validTerm}</if>
+            <if test="grade != null  and grade != ''">and grade = #{grade}</if>
+            <if test="credit != null  and credit != ''">and credit = #{credit}</if>
+            <if test="courseType != null  and courseType != ''">and course_type = #{courseType}</if>
+            <if test="status != null  and status != ''">and a.status = #{status}</if>
+            <if test="params.collegeId != null and params.collegeId != ''">
+                and (u.college_id = #{params.collegeId} OR u.college_id IN
+                ( SELECT t.college_id FROM college_major t WHERE find_in_set(#{params.collegeId}, ancestors) ))
+            </if>
+            and a.del_flag=0
+        </where>
+    </select>
+
+    <select id="selectCourseByCoseId" parameterType="Long" resultMap="CourseResult">
+        <include refid="selectCourseVo"/>
+        where a.cose_id = #{coseId} and a.del_flag=0
+    </select>
+
+    <select id="checkCourseUnique" parameterType="Course" resultType="int">
+        select count(1)
+        from course
+        where cose_name = #{coseName}
+          and start_year = #{startYear}
+          and valid_term = #{validTerm}
+          and grade = #{grade}
+          and credit = #{credit}
+          and course_type = #{courseType} limit 1
+    </select>
+
+    <select id="checkCourseUniqueByName" resultType="int">
+        select count(1)
+        from course a
+                 join major_course b on a.cose_id = b.course_id
+                 join college_major u on b.college_id = u.college_id
+        where cose_name = #{course.coseName}
+          and start_year = #{course.startYear}
+          and valid_term = #{course.validTerm}
+          and grade = #{course.grade}
+          and credit = #{course.credit}
+          and course_type = #{course.courseType}
+          and u.name = #{majorName} limit 1
+    </select>
+
+    <insert id="insertCourse" parameterType="Course" useGeneratedKeys="true" keyProperty="coseId">
+        insert into course
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="coseName != null and coseName != ''">cose_name,</if>
+            <if test="startYear != null and startYear != ''">start_year,</if>
+            <if test="validTerm != null and validTerm != ''">valid_term,</if>
+            <if test="grade != null and grade != ''">grade,</if>
+            <if test="credit != null  and credit != ''">credit,</if>
+            <if test="courseType != null  and courseType != ''">course_type,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="coseName != null and coseName != ''">#{coseName},</if>
+            <if test="startYear != null and startYear != ''">#{startYear},</if>
+            <if test="validTerm != null and validTerm != ''">#{validTerm},</if>
+            <if test="grade != null and grade != ''">#{grade},</if>
+            <if test="credit != null  and credit != ''">#{credit},</if>
+            <if test="courseType != null  and courseType != ''">#{courseType},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateCourse" parameterType="Course">
+        update course
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="coseName != null and coseName != ''">cose_name = #{coseName},</if>
+            <if test="startYear != null and startYear != ''">start_year = #{startYear},</if>
+            <if test="validTerm != null and validTerm != ''">valid_term = #{validTerm},</if>
+            <if test="grade != null and grade != ''">grade=#{grade},</if>
+            <if test="credit != null  and credit != ''">credit = #{credit},</if>
+            <if test="courseType != null  and courseType != ''">course_type = #{courseType},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where cose_id = #{coseId}
+    </update>
+
+    <update id="deleteCourseByCoseId" parameterType="Long">
+        update course
+        set del_flag=2
+        where cose_id = #{coseId}
+    </update>
+
+    <update id="deleteCourseByCoseIds" parameterType="Long">
+        update course set del_flag=2
+        where cose_id in
+        <foreach item="coseId" collection="array" open="(" separator="," close=")">
+            #{coseId}
+        </foreach>
+    </update>
+    <update id="updateCourseStatus" parameterType="Course">
+        update course
+        set status = #{status}
+        where cose_id = #{coseId}
+    </update>
+
+    <select id="selectIdByCourse" parameterType="Course" resultType="Long">
+        select cose_id
+        from course
+        where cose_name = #{coseName}
+          and start_year = #{startYear}
+          and valid_term = #{validTerm}
+          and grade = #{grade}
+          and credit = #{credit}
+          and course_type = #{courseType}
+    </select>
+</mapper>
