@@ -57,9 +57,29 @@ public class Course extends BaseEntity
     /** 专业对象 */
     private List<SysColleageMajor> majors;
 
+    //分数  ---该课程学生所获的分数
+    private Double score;
 
+    //学分  ---该课程学生所获的学分
+    private Double haveCredit;
 
-    public void setCoseId(Long coseId) 
+    public Double getHaveCredit() {
+        return haveCredit;
+    }
+
+    public void setHaveCredit(Double haveCredit) {
+        this.haveCredit = haveCredit;
+    }
+
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
+    }
+
+    public void setCoseId(Long coseId)
     {
         this.coseId = coseId;
     }

@@ -35,11 +35,11 @@ public class GradeInfo extends BaseEntity
 
     /** 分数 */
     @Excel(name = "分数")
-    private Long score;
+    private Double score;
 
     /** 课程所获学分 */
     @Excel(name = "课程所获学分")
-    private Long credit;
+    private Double credit;
 
     /** 删除标志（0代表存在 2代表删除） */
     private Long delFlag;
@@ -83,21 +83,21 @@ public class GradeInfo extends BaseEntity
     {
         return coseId;
     }
-    public void setScore(Long score) 
+    public void setScore(Double score)
     {
         this.score = score;
     }
 
-    public Long getScore() 
+    public Double getScore()
     {
         return score;
     }
-    public void setCredit(Long credit) 
+    public void setCredit(Double credit)
     {
         this.credit = credit;
     }
 
-    public Long getCredit() 
+    public Double getCredit()
     {
         return credit;
     }

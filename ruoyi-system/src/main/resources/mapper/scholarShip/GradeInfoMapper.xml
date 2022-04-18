@@ -31,7 +31,7 @@
     </resultMap>
 
     <sql id="selectGradeInfoVo">
-        select a.grade_id,
+        select distinct  a.grade_id,
                a.sno,
                a.stu_name,
                a.cose_id,
@@ -54,7 +54,7 @@
                  join course b on a.cose_id = b.cose_id
                  join major_course c on b.cose_id = c.course_id
                  join college_major u on c.college_id = u.college_id
-                 join stu_info f on a.sno = f.sno
+                 join stu_info f on a.sno = f.sno and f.major_id=u.college_id
     </sql>
 
     <select id="selectGradeInfoList" parameterType="GradeInfo" resultMap="GradeInfoResult">
@@ -68,14 +68,14 @@
             <if test="credit != null ">and a.credit = #{credit}</if>
             <if test="params.startYear != null and params.startYear != ''">and b.start_year=#{params.startYear}</if>
             <if test="params.grade != null and params.grade != ''">and b.grade=#{params.grade}</if>
-            <if test="params.validTerm != null and params.validTerm != ''">and b.valid_term=#{params.valid_term}</if>
+            <if test="params.validTerm != null and params.validTerm != ''">and b.valid_term=#{params.validTerm}</if>
             <if test="params.majorName != null and params.majorName != ''">and u.name=#{params.majorName}</if>
-            <if test="params.majorNames != null and params.majorNames !=''">
-                and u.name in
-                <foreach item="major" collection="params.majorNames" open="(" separator="," close=")">
-                    #{major}
-                </foreach>
-            </if>
+<!--            <if test="params.majorNames != null and params.majorNames !=''">-->
+<!--                and u.name in-->
+<!--                <foreach item="major" collection="params.majorNames" open="(" separator="," close=")">-->
+<!--                    #{major}-->
+<!--                </foreach>-->
+<!--            </if>-->
             <if test="params.stuClass != null and params.stuClass !='' ">
                 and f.stuClass=#{params.stuClass} and f.major_id=#{params.stu.majorId}
             </if>

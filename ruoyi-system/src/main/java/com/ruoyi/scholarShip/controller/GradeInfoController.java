@@ -5,12 +5,13 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.utils.JsonUtil;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.scholarShip.domain.GradeInfo;
 import com.ruoyi.scholarShip.service.IGradeInfoService;
 import com.ruoyi.system.domain.Course;
+import com.ruoyi.system.service.ICourseService;
 import com.ruoyi.system.service.ISysColleageMajorService;
-import org.apache.commons.beanutils.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,8 @@ public class GradeInfoController extends BaseController {
     private IGradeInfoService gradeInfoService;
     @Autowired
     private ISysColleageMajorService sysColleageMajorService;
+    @Autowired
+    private ICourseService courseService;
 
     /**
      * 查询成绩信息列表
@@ -38,93 +41,80 @@ public class GradeInfoController extends BaseController {
     @PreAuthorize("@ss.hasPermi('grade:info:list')")
     @GetMapping("/list")
     public TableDataInfo list(GradeInfo gradeInfo) {   //获取专业名
-        String major = gradeInfo.getParams().get("majorNames").toString();
-        String[] majorNames = major.split(",");
-        Map<String, Object> map = new HashMap<>();
-        map.put("majorNames", majorNames);
-        gradeInfo.setParams(map);
+//        String major = gradeInfo.getParams().get("majorNames").toString();
+//        String[] majorNames = major.split(",");
+//        Map<String, Object> map = gradeInfo.getParams();
+//        map.put("majorNames", majorNames);
+//        gradeInfo.setParams(map);
         List<GradeInfo> list = gradeInfoService.selectGradeInfoList(gradeInfo);
-//         return getDataTable(list);
-        //将一个同学的成绩对应成一个list 降序排列 只能2.2.1.1 或者2.1
-        List<Map<String, Object>> allStuList = new ArrayList<>();
-        //冒泡法
-        for (int i = 0; i < list.size()-1; i++) {
-            //最外层返回的数据
-            Map<String, Object> stuList = new HashMap<>();
-            List<Map<String, Object>> courseList = new ArrayList<>();
-            //先判断最外层是否存在该学号,存在则直接跳过 ,不存在则存
-            String outsno=list.get(i).getSno();
-            if( ! allStuList.contains(list.get(i).getSno())){
-                //最里层对应的课程-成绩
-                Map<String, Object> courseMap = new HashMap<>();
-                stuList.put("sno",list.get(i).getSno());
-                stuList.put("stuName",list.get(i).getStuName());
-                courseMap.put("course",list.get(i).getCourse());
-                courseMap.put("soce",list.get(i).getScore());
-                courseList.add(courseMap);
-            }
-            //存在则直接跳过
-            else{
-                continue;
-            }
-            for(int j=i+1;j<list.size()-i-1;j++){
-               String inerSno=list.get(j).getSno();
-               if(inerSno.equals(outsno)){
-                   //最里层对应的课程-成绩
-                   Map<String, Object> courseMap = new HashMap<>();
-                   courseMap.put("course",list.get(i).getCourse());
-                   courseMap.put("soce",list.get(i).getScore());
-                   courseList.add(courseMap);
-               }
-            }
-            stuList.put("courseList",courseList);
-            allStuList.add(stuList);
+        if (list.size() == 0) {
+            //如果为0 ，返回对应的课程信息
+            Course course=new Course();
+            this.getCourse(gradeInfo,course);
+            List<Course> courseList = courseService.selectCourseList(course);
+            startPage();
+            return getDataTable(courseList);
+        } else {
 
-
-//            String before_sno = list.get(i).getSno();
-//            String after_sno = list.get(i + 1).getSno();
-//            //先判断第i个是否存在 不存在则先添加 每次只存一个
-//            if (!allStuList.contains(before_sno)) {
-//                stuList.put("sno", before_sno);
-//                stuList.put("stuName", list.get(i).getStuName());
-//                courseMap.put("courseInfo", list.get(i).getCourse());
-//                courseMap.put("score", list.get(i).getScore());
-//                courseList.add(courseMap);
-//                stuList.put("courseList", courseList);
-//            }
-//            if (before_sno.equals(after_sno)) {
-//                //相等只取其中一个  已存在 传入课程信息  1.1的情况
-//                courseMap.put("courseInfo", list.get(i + 1).getCourse());
-//                courseMap.put("score", list.get(i).getScore());
-//                courseList.add(courseMap);
-//                stuList.put("courseList", courseList);
-//
-//            } else {
-//                if (!allStuList.contains(before_sno)) {
-//                    // 1.2 的情况
-//                    courseMap.put("courseInfo", list.get(i).getCourse());
-//                    courseMap.put("score", list.get(i).getScore());
-//                    courseList.add(courseMap);
-//                    stuList.put("courseList", courseList);
-//                    stuList.put("sno", before_sno);
-//                    stuList.put("stuName", list.get(i).getStuName());
-//                }
-//                //存后面的
-//                courseMap.put("course", list.get(i + 1).getCourse());
-//                courseMap.put("score", list.get(i + 1).getScore());
-//                courseList.add(courseMap);
-//                stuList.put("courseList", courseList);
-//                stuList.put("sno", after_sno);
-//                stuList.put("stuName", list.get(i + 1).getStuName());
-//            }
-//            allStuList.add(stuList);
-//            //判断此时i的位置
-//            if (i == list.size() - 2) {
-//                break;
-//            }
+            //将一个同学的成绩对应成一个list 降序排列 只能2.2.1.1 或者2.1
+            List<Map<String, Object>> allStuList = new ArrayList<>();
+            //先存入第一个值
+            if (allStuList.size() == 0) {
+                Map<String, Object> firstSno = new HashMap<>();
+                List<Course> courseList = new ArrayList<>();
+                String sno = list.get(0).getSno();
+                this.addStuList(sno, firstSno, courseList, list, 0);
+                allStuList.add(firstSno);
+            }
+            int num = 0;
+            for (int i = 1; i <= list.size() - 1; i++) {
+                String sno = list.get(i).getSno();
+                Map<String, Object> stuMap = new HashMap<>();
+                List<Course> courseList = new ArrayList<Course>();
+                if (allStuList.get(num).get("sno").toString().equals(sno)) {
+                    //取出对应的map 和courseList
+                    stuMap = allStuList.get(num);
+                    //取出原有的值
+                    courseList = (List<Course>) allStuList.get(num).get("courseInfo");
+                    Course course = list.get(i).getCourse();
+                    course.setScore(list.get(i).getScore());
+                    course.setHaveCredit(list.get(i).getCredit());
+                    courseList.add(course);
+                    stuMap.put("courseInfo", courseList);
+                    allStuList.remove(num);
+                    allStuList.add(stuMap);
+                } else {
+                    //新增
+                    this.addStuList(sno, stuMap, courseList, list, i);
+                    allStuList.add(stuMap);
+                    num++;
+                }
+            }
+            startPage();
+            return getDataTable(allStuList);
         }
-        startPage();
-        return getDataTable(allStuList);
+    }
+
+    //新增一个stu
+    public void addStuList(String sno, Map<String, Object> stuMap, List<Course> courseList, List<GradeInfo> list, int index) {
+        stuMap.put("sno", sno);
+        stuMap.put("stuName", list.get(index).getStuName());
+        Course course = list.get(index).getCourse();
+        course.setScore(list.get(index).getScore());
+        course.setHaveCredit(list.get(index).getCredit());
+        courseList.add(course);
+        stuMap.put("courseInfo", courseList);
+
+    }
+    //查找课程信息
+    public void getCourse(GradeInfo gradeInfo,Course course){
+        String startYear=gradeInfo.getParams().get("startYear").toString();
+        String validTerm=gradeInfo.getParams().get("validTerm").toString();
+        String grade=gradeInfo.getParams().get("grade").toString();
+        course.setParams(gradeInfo.getParams());
+        course.setStartYear(startYear);
+        course.setValidTerm(validTerm);
+        course.setGrade(grade);
     }
 
     /**

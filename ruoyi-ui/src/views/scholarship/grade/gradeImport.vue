@@ -7,7 +7,7 @@
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch"
                  label-width="68px">
           <el-form-item label="专业名称" prop="majorName">
-            <el-select v-model="queryParams.majorName" placeholder="请选择专业名称" clearable
+            <el-select v-model="queryParams.majorName" placeholder="请选择专业名称"
             >
               <el-option
                 v-for="dict in majorOptions"
@@ -18,7 +18,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="学年" prop="startYear">
-            <el-select v-model="queryParams.startYear" placeholder="请选择学年" clearable>
+            <el-select v-model="queryParams.startYear" placeholder="请选择学年">
               <el-option
                 v-for="dict in yearsOptions"
                 :key="dict.id"
@@ -31,7 +31,6 @@
             <el-select
               v-model="queryParams.validTerm"
               placeholder="请选择学期"
-              clearable
               style="width: 240px"
             >
               <el-option
@@ -57,16 +56,6 @@
         </el-form>
 
         <el-row :gutter="10" class="mb8">
-          <!--<el-col :span="1.5">-->
-          <!--<el-button-->
-          <!--type="primary"-->
-          <!--plain-->
-          <!--icon="el-icon-plus"-->
-          <!--size="mini"-->
-          <!--@click="handleAdd"-->
-          <!--v-hasPermi="['stu:info:add']"-->
-          <!--&gt;新增-->
-          <!--</el-button>-->
           <el-col :span="1.5">
             <el-button
               type="danger"
@@ -104,14 +93,28 @@
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
         </el-row>
 
-        <el-table v-loading="loading" :data="gradeList" @selection-change="handleSelectionChange" :render-header="labelHead">
-          <el-table-column type="selection" width="50" align="center"/>
-          <el-table-column label="id" prop="id" v-if="false" width="20"></el-table-column>
-          <el-table-column label="学号" align="center" key="sno" prop="sno" v-if="columns[0].visible" width="100"/>
-          <el-table-column label="姓名" align="center" key="stuName" prop="stuName" v-if="columns[1].visible"
-                           :show-overflow-tooltip="true" width="80"/>
-          <el-table-column>
+        <el-table
+          v-loading="loading"
+          :data="gradeList"
+          @selection-change="handleSelectionChange"
+        >
+          <!--:default-sort = "{prop: 'totalCredit', order: 'descending'}"-->
 
+          <el-table-column type="selection" width="50" align="center"/>
+          <el-table-column
+            v-for="(item, index) in header"
+            :key="'s'+ index"
+            :prop="item.prop"
+            :label="item.label"
+            :width="item.width"
+            :show-overflow-tooltip="true"
+            v-if="columns[index].visible"
+            :sortable="item.sort !=null"
+            align="center"
+          >
+          </el-table-column>
+          <el-table-column
+            width="100">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -121,6 +124,14 @@
                 v-hasPermi="['grade:info:edit']"
               >修改
               </el-button>
+              <!--<el-button-->
+              <!--size="mini"-->
+              <!--type="text"-->
+              <!--icon="el-icon-more"-->
+              <!--@click="selectDetail(scope.row)"-->
+              <!--v-hasPermi="['grade:info:detail']"-->
+              <!--&gt;详情-->
+              <!--</el-button>-->
               <!--<el-button-->
               <!--size="mini"-->
               <!--type="text"-->
@@ -142,22 +153,22 @@
       </el-col>
     </el-row>
 
-    <!-- 添加或修改对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="学号" prop="sno">
-              <el-input v-model="form.sno" placeholder="请输入学号" :disabled="form.id != undefined"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
+    <!--&lt;!&ndash; 添加或修改对话框 &ndash;&gt;-->
+    <!--<el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>-->
+    <!--<el-form ref="form" :model="form" :rules="rules" label-width="80px">-->
+    <!--<el-row>-->
+    <!--<el-col :span="12">-->
+    <!--<el-form-item label="学号" prop="sno">-->
+    <!--<el-input v-model="form.sno" placeholder="请输入学号" :disabled="form.id != undefined"/>-->
+    <!--</el-form-item>-->
+    <!--</el-col>-->
+    <!--</el-row>-->
+    <!--</el-form>-->
+    <!--<div slot="footer" class="dialog-footer">-->
+    <!--<el-button type="primary" @click="submitForm">确 定</el-button>-->
+    <!--<el-button @click="cancel">取 消</el-button>-->
+    <!--</div>-->
+    <!--</el-dialog>-->
 
     <!-- 用户导入对话框 -->
     <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
@@ -191,6 +202,7 @@
         <el-button @click="upload.open = false">取 消</el-button>
       </div>
     </el-dialog>
+
   </div>
 </template>
 
@@ -219,9 +231,7 @@
         // 总条数
         total: 0,
         // 表格数据
-        gradeList: null,
-        //学科数据
-        courseList: null,
+        gradeList: [],
         // 弹出层标题
         title: "",
         // 是否显示弹出层
@@ -237,21 +247,21 @@
         majorOptions: [],
         //动态列头header
         header: [],
-        majorNames:null,
-        stuClass:undefined,
-        majorId:undefined,
-        //分数列表
-        scoreList:[],
-
+        //科目数据
+        subject: [],
+        majorNames: null,
+        //便于学生的过滤，学生只能查看本班级和本专业的
+        stuClass: undefined,
+        majorId: undefined,
         // 表单参数
-        form: {
-          id: undefined,
-          stuName: undefined,
-          collegeId: undefined,
-          majorId: undefined,
-          grade: undefined,
-          stuClass: undefined,
-        },
+        // form: {
+        //   id: undefined,
+        //   stuName: undefined,
+        //   collegeId: undefined,
+        //   majorId: undefined,
+        //   grade: undefined,
+        //   stuClass: undefined,
+        // },
         // 用户导入参数
         upload: {
           // 是否显示弹出层（用户导入）
@@ -267,78 +277,250 @@
           // 上传的地址
           url: process.env.VUE_APP_BASE_API + "/scholarShip/stuInfo/importData"
         },
+        //初始的major值
+        initMajor: undefined,
         // 查询参数
         queryParams: {
           pageNum: 1,
           pageSize: 10,
           stuName: undefined,
+          //默认选中值为第一个
           majorName: undefined,
           startYear: "2021-2022",
           validTerm: "1",
         },
         grade: undefined,
         // 列信息
-        columns: [
-          {key: 0, label: `学号`, visible: true},
-          {key: 1, label: `姓名`, visible: true},
-          {key: 2, label: `性别`, visible: true},
-          {key: 3, label: `学院`, visible: true},
-          {key: 4, label: `专业`, visible: true},
-          {key: 5, label: `年级`, visible: true},
-          {key: 6, label: `班级`, visible: true},
-          {key: 7, label: `入学时间`, visible: true},
-        ],
-        // 表单校验
-        rules: {},
+        columns: [],
+        // // 表单校验
+        // rules: {},
+        //查看详情
+        selectDetial: false,
+
       }
     },
 
     created() {
-      // this.getList();
       this.getInstructorInfo();
-      // this.getStuInfo();
-
     }
     ,
     methods: {
       //动态表头渲染
-      labelHead(h,{column,index}){
-        //let l = column.label.length;
-        //let f = 12; //每个字大小,其实是每个字的比例值,大概会比字体大小打差不多大
-        //column.minWidth = f * l; //字大小乘个数即长度 ,注意不要加px像素，这里minWidth只是一个比例值，不是真正的长度
-        //然后将列标题放在一个div块中，注意块的宽度一定要100%，否则表格显示不完全
-        return h('span',{class:'table-head',style:{width:'100%'}},[column.label])
+      /**
+       * 根据学科建立表头
+       * * 学号、姓名、【各个学科】、总分、平均分、名次
+       */
+      createTableHead() {
+        // 添加学生
+        let head = [
+          {
+            prop: 'sno',
+            label: '学号',
+            width: 110,
+            align: 'center',
+
+          },
+          {
+            prop: 'stuName',
+            label: '姓名',
+            width: 90
+          }]
+
+        // 添加科目
+        for (let key in this.subject) {
+          let sub = this.subject[key]
+          head.push({
+            prop: "sub_" + sub.id,
+            label: sub.coseName,
+            render: (h, params) => {
+              let texts = "111"
+              // if (params.row.name != null) {
+              //   if (params.row.time.length > 20) {
+              //     texts = params.row.name.substring(0, 20) + '...' // 进行数字截取或slice截取超过长度时以...表示
+              //   } else {
+              //     texts = params.row.name
+              //   }
+              // }
+              return h('Tooltip', {
+                props: {
+                  placement: 'bottom-start'
+                },
+              }, [texts,
+                h('span', {
+                  slot: 'content',
+                  style: {
+                    whiteSpace: 'normal',
+                    wordBreak: 'break-all'
+                  }
+                }, params.row.sno)
+              ])
+            }
+          })
+        }
+
+        head.push({
+          prop: 'totalScore',
+          label: '总分',
+          width: 80
+        })
+        head.push({
+          prop: 'totalCredit',
+          label: '总学分',
+          width: 110,
+          sort: true,
+        })
+        head.push({
+          prop: 'ranking',
+          label: '名次',
+          width: 50
+        })
+        return head
       },
+      // //动态适应表头宽度
+      // headSpanFit (h, { column, index }) {
+      //   let labelLong = column.label.length // 表头label长度
+      //   let size = 20 // 根据需要定义标尺，直接使用字体大小确定就行，也可以根据需要定义
+      //   column.minWidth = labelLong * size // 根据label长度计算该表头最终宽度
+      //   return h('span', { class: 'cell-content', style: { width: '100%' } }, [column.label])
+      // },
+
+      //获取列信息
+      getColumns() {
+        this.header.forEach((item, index) => {
+          let obj = {
+            key: index,
+            label: item.label,
+            visible: true,
+          }
+          this.columns.push(obj)
+        })
+
+      },
+
+      //查看课程的详细信息
+      selectDetail() {
+        this.selectDetial = ture;
+
+      },
+
       //添加参数
-      addParams(params,stu,startYear,majorName,validTerm) {
+      addParams(params, stu, startYear, majorName, validTerm) {
         let search = params;
         search.params = typeof (search.params) === 'object' && search.params !== null && !Array.isArray(search.params) ? search.params : {};
         search.params['startYear'] = startYear;
         search.params['grade'] = this.grade;
         search.params['majorName'] = majorName;
         search.params['validTerm'] = validTerm;
-        search.params['majorNames']=this.majorNames;
-        search.params['stuClass']=this.stuClass;
-        search.params['majorId']=this.majorId;
+        // search.params['majorNames'] = this.majorNames;
+        search.params['stuClass'] = this.stuClass;
+        search.params['majorId'] = this.majorId;
         return search;
       },
 
       /** 查询用户列表 */
       getList() {
+        this.header = [];
+        this.gradeList = [];
+        this.subject = [];
         this.loading = true;
-        listInfo(this.addParams(this.queryParams,this.stu,this.queryParams.startYear,this.queryParams.majorName,this.queryParams.validTerm)).then(response => {
-            this.gradeList = response.rows;
-            //动态生成表头和对应的数据项
-            this.gradeList[0].courseList.forEach(item=>{
-              //分数列表
-              this.scoreList.push(item.score);
+        listInfo(this.addParams(this.queryParams, this.stu, this.queryParams.startYear, this.queryParams.majorName, this.queryParams.validTerm)).then(response => {
+            let data = response.rows;
+            //无课程信息的
+            if (data.length == 0) {
+              this.$modal.msgError("暂无课程信息");
+            }
+            else if (data[0].coseId != null) {
+              //无学生成绩信息的，有课程的
+              data.forEach((item, index) => {
+                this.subject.push({
+                  id: index,
+                  coseId: item.coseId,
+                  coseName: item.coseName,
+                })
+              })
+              this.header = this.createTableHead();
+              this.getColumns();
+              console.log(this.column)
+            }
+            else {
+              //有学生成绩信息的
+              //动态生成表头
               //表头
-
-            })
+              data[0].courseInfo.forEach((item, index) => {
+                this.subject.push({
+                  id: index,
+                  coseId: item.coseId,
+                  coseName: item.coseName,
+                  // score:item.score,
+                  credit: item.credit,
+                  grade: item.grade,
+                })
+              })
+              this.header = this.createTableHead();
+              this.getColumns();
+              //数据项 {  [] }
+              data.forEach((val, index) => {
+                val.courseInfo.forEach((item, num) => {
+                  if (typeof this.gradeList[index] === 'undefined') {
+                    // 没有记录。创建一行学生成绩，加入固定列的数据
+                    this.gradeList[index] = {
+                      sno: val.sno, // 学生ID
+                      stuName: val.stuName, // 根据id获取学生姓名
+                      totalScore: 0, // 学生的各科总分，后续修改
+                      ranking: 1 // 名次，后续修改
+                    }
+                  }
+                  // 记录各科分数和学分
+                  this.gradeList[index]['sub_' + num] = item.score
+                  this.gradeList[index]['subCredit_' + num] = item.credit
+                  this.gradeList[index]['getCredit_' + num] = item.haveCredit
+                })
+              })
+              //计算总分和总学分
+              this.getTotalScore();
+              //计算排名
+              this.getRank();
+            }
             this.total = response.total;
             this.loading = false;
           }
         );
+
+      },
+      getTotalScore() {
+        // 计算总分、总学分
+        for (let key in this.gradeList) {
+          let code = this.gradeList[key]
+          // 遍历学科
+          let total = 0
+          let totalCredit = 0
+          for (let i in this.subject) {
+            let fenshu = code['sub_' + i]
+            let credit = code['getCredit_' + i]
+            if (typeof fenshu !== 'undefined') {
+              // 有成绩，计算总分和总学分
+              total += fenshu
+              totalCredit += credit;
+              // ave = Math.floor(total / count * 10) / 10 // 保留一位小数。
+              // // 如果保留两位小数的话可以这样 (total / count ).toFixed(2)
+            }
+          }
+          this.gradeList[key].totalScore = total
+          this.gradeList[key].totalCredit = totalCredit;
+        }
+
+      },
+      //计算排名
+      getRank() {
+        let _ranking = 0
+        this.gradeList.sort((a, b) => {
+          // 按照总分倒序
+          return b.totalScore - a.totalScore
+        }).forEach((item) => {
+          // 设置名次
+          _ranking++
+          this.gradeList.find((a) => a.sno === item.sno).ranking = _ranking
+        })
 
       },
       //获取辅导员信息,并返回专业和年级信息
@@ -346,26 +528,27 @@
         getInfo().then(res => {
           this.grade = res.data.guideGrade;
           let majorName = res.majorNames;
-          this.majorNames=res.majorNames.join(",");
+          this.majorNames = res.majorNames.join(",");
           //默认第一是值，第二个是索引
-           majorName.forEach((item, index) => {
+          majorName.forEach((item, index) => {
             let obj = {
               id: index,
               label: item
             };
             this.majorOptions.push(obj);
-            //默认选中值为第一个
-             this.queryParams.majorName=majorName[0]
+            //初始化专业项
+            this.queryParams.majorName = majorName[0]
+            this.initMajor = majorName[0]
           });
           this.getStuInfo();
         })
       },
       //获取学生信息
-      getStuInfo(){
-        getInfoBysno(Cookies.get("username")).then(res=>{
-          if(res.data!=null){
-            this.stuClass=res.data.stuClass;
-            this.majorId=res.data.majorId;
+      getStuInfo() {
+        getInfoBysno(Cookies.get("username")).then(res => {
+          if (res.data != null) {
+            this.stuClass = res.data.stuClass;
+            this.majorId = res.data.majorId;
           }
           this.getList()
 
@@ -377,22 +560,21 @@
         this.open = false;
         this.reset();
       }
-      ,
-      // 表单重置
-      reset() {
-        this.form = {
-          sno: undefined,
-          stuName: undefined,
-          sex: "0",
-          certNum: undefined,
-          collegeId: undefined,
-          majorId: undefined,
-          grade: undefined,
-          stuClass: undefined,
-          remark: undefined,
-        };
-        this.resetForm("form");
-      }
+      // // 表单重置
+      // reset() {
+      //   this.form = {
+      //     sno: undefined,
+      //     stuName: undefined,
+      //     sex: "0",
+      //     certNum: undefined,
+      //     collegeId: undefined,
+      //     majorId: undefined,
+      //     grade: undefined,
+      //     stuClass: undefined,
+      //     remark: undefined,
+      //   };
+      //   this.resetForm("form");
+      // }
       ,
       /** 搜索按钮操作 */
       handleQuery() {
@@ -403,6 +585,7 @@
       /** 重置按钮操作 */
       resetQuery() {
         this.resetForm("queryForm");
+        this.queryParams.majorName = this.initMajor;
         this.handleQuery();
       }
       ,
@@ -416,26 +599,26 @@
 
       /** 新增按钮操作 */
       handleAdd() {
-        this.reset();
-        this.open = true;
-        this.title = "添加学生基础信息";
+        // this.reset();
+        // this.open = true;
+        // this.title = "添加学生基础信息";
       }
       ,
       /** 修改按钮操作 */
       handleUpdate(row) {
-        this.reset();
-        //重新执行专业、年级的下拉框选项
-        this.getCollege(row.collegeId, 'form')
-        const stuId = row.id || this.ids;
-        getInfo(stuId).then(response => {
-          let data = response.data;
-          //将年级转为int
-          data.grade = parseInt(data.grade)
-          this.getGrade(data.grade, 'form')
-          this.form = data
-          this.open = true;
-          this.title = "修改学生基础信息";
-        });
+        // this.reset();
+        // //重新执行专业、年级的下拉框选项
+        // this.getCollege(row.collegeId, 'form')
+        // const stuId = row.id || this.ids;
+        // getInfo(stuId).then(response => {
+        //   let data = response.data;
+        //   //将年级转为int
+        //   data.grade = parseInt(data.grade)
+        //   this.getGrade(data.grade, 'form')
+        //   this.form = data
+        //   this.open = true;
+        //   this.title = "修改学生基础信息";
+        // });
       }
       ,
       /** 提交按钮 */
@@ -506,6 +689,7 @@
       submitFileForm() {
         this.$refs.upload.submit();
       }
+
     }
   };
 </script>
