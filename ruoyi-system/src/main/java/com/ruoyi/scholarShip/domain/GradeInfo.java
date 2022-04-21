@@ -92,9 +92,12 @@ public class GradeInfo extends BaseEntity
     {
         return score;
     }
-    public void setCredit(Double credit)
-    {
-        this.credit = credit;
+    public void setCredit(Double coseCredit)
+    {   //成绩绩点=分数/10-5
+        //该课程获得学分绩点=成绩绩点*课程学分
+        double gradeCredit=(this.score/10)-5;
+        this.credit= gradeCredit;
+
     }
 
     public Double getCredit()

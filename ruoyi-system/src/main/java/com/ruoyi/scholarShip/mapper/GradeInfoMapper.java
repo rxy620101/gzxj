@@ -4,6 +4,7 @@ package com.ruoyi.scholarShip.mapper;
 import com.ruoyi.scholarShip.domain.GradeInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 成绩信息Mapper接口
@@ -60,6 +61,9 @@ public interface GradeInfoMapper
      * @return 结果
      */
     public int deleteGradeInfoByGradeIds(Long[] gradeIds);
+
+    //根据map查询是否存在该课程成绩
+    public int selectGradeByMap(Map<String,Object> map);
 
 
 

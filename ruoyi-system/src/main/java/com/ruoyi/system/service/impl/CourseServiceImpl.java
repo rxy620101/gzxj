@@ -2,6 +2,7 @@ package com.ruoyi.system.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.StringUtils;
@@ -205,6 +206,10 @@ public class CourseServiceImpl implements ICourseService {
                 majorCourseMapper.batchMajorCourse(list);
             }
         }
+    }
+    @Override
+    public Long[] selectIdsByNames(String[] coseNames, Map<String,Object> map){
+        return courseMapper.selectIdsByNames(coseNames,map);
     }
 
     /**

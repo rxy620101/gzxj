@@ -44,3 +44,20 @@ export function delInfo(gradeId) {
     method: 'delete'
   })
 }
+// 获取表头信息
+export function getHeader(data) {
+  return request({
+    url: '/grade/info/getHeader',
+    method: 'post',
+    data:data
+  })
+}
+
+// 获取专业、学年、学期
+export function getParams(data) {
+  return request({
+    url: '/grade/info/getParams',
+    method: 'post',
+    data:data
+  })
+}

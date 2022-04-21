@@ -1,8 +1,10 @@
 package com.ruoyi.scholarShip.service;
 
 import com.ruoyi.scholarShip.domain.GradeInfo;
+import com.ruoyi.scholarShip.domain.InstrorInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 成绩信息Service接口
@@ -59,4 +61,19 @@ public interface IGradeInfoService
      * @return 结果
      */
     public int deleteGradeInfoByGradeId(Long gradeId);
+
+    //根据map查询是否存在该课程成绩
+    public int selectGradeByMap(Map<String,Object> map);
+
+    /**
+     * 导入成绩信息
+     *
+     * @param gradeList 数据列表
+     * @param isUpdateSupport 是否更新支持，如果已存在，则进行更新数据
+     * @param operName 操作用户
+     *  @param map 参数
+     * @Param titleNames 表头标题
+     * @return 结果
+     */
+    public String importGradeInfo(List<String[]> gradeList, Boolean isUpdateSupport, String operName, Map<String,Object> map,String[] titleNames);
 }

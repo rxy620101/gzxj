@@ -3,6 +3,7 @@ package com.ruoyi.scholarShip.controller;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.scholarShip.domain.util.GradeExcelUtil;
 import com.ruoyi.system.service.ISysColleageMajorService;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,7 +45,7 @@ public class InstrorInfoController extends BaseController
     /**
      * 查询辅导员基础信息列表
      */
-    @PreAuthorize("@ss.hasPermi('instructor:info:list')")
+   @PreAuthorize("@ss.hasPermi('instructor:info:list')")
     @GetMapping("/list")
     public TableDataInfo list(InstrorInfo instrorInfo)
     {
@@ -74,15 +75,23 @@ public class InstrorInfoController extends BaseController
     public AjaxResult getInfo(@PathVariable(value = "id",required = false) Long id)
     {
         if(id==null){
+            //一种 是个人基础信息  一种是学生成绩
         id=Long.valueOf(getUsername());
         InstrorInfo instrorInfo=instrorInfoService.selectInstrorInfoById((id));
-        AjaxResult ajaxResult=AjaxResult.success(instrorInfo);
-         //获取该辅导员指导的专业名称
-         Long[] majorIds=(Long[]) ConvertUtils.convert(instrorInfo.getGuideMajorIds().split(","),Long[].class);
-        String[] majorNames=sysColleageMajorService.selectMajorNames(majorIds);
-        ajaxResult.put("majorNames",majorNames);
-        return ajaxResult;
-    }
+        if(instrorInfo== null){
+            //学生登录调用
+            return AjaxResult.success(instrorInfo);
+        }
+        else{
+            AjaxResult ajaxResult=AjaxResult.success(instrorInfo);
+            //获取该辅导员指导的专业名称
+            Long[] majorIds=(Long[]) ConvertUtils.convert(instrorInfo.getGuideMajorIds().split(","),Long[].class);
+            String[] majorNames=sysColleageMajorService.selectMajorNames(majorIds);
+            ajaxResult.put("majorNames",majorNames);
+            return ajaxResult;
+        }
+        }
+
         return AjaxResult.success(instrorInfoService.selectInstrorInfoById(id));
     }
 

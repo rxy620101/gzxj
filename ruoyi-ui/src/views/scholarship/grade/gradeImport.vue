@@ -6,7 +6,7 @@
       <el-col :xs="24">
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch"
                  label-width="68px">
-          <el-form-item label="专业名称" prop="majorName">
+          <el-form-item label="专业名称" prop="majorName" v-if="stu=null">
             <el-select v-model="queryParams.majorName" placeholder="请选择专业名称"
             >
               <el-option
@@ -207,7 +207,15 @@
 </template>
 
 <script>
-  import {listInfo, getGradeInfo, delInfo, addInfo, updateInfo} from "@/api/scholarship/gradeInfo";
+  import {
+    listInfo,
+    getGradeInfo,
+    delInfo,
+    addInfo,
+    updateInfo,
+    getHeader,
+    getParams
+  } from "@/api/scholarship/gradeInfo";
   import {getInfo} from "@/api/scholarship/instrorInfo"
   import {getInfoBysno} from "@/api/scholarship/stuInfo"
   import {getToken} from "@/utils/auth";
@@ -251,8 +259,11 @@
         subject: [],
         majorNames: null,
         //便于学生的过滤，学生只能查看本班级和本专业的
+        stu:{
+        },
         stuClass: undefined,
         majorId: undefined,
+
         // 表单参数
         // form: {
         //   id: undefined,
@@ -275,7 +286,7 @@
           // 设置上传的请求头部
           headers: {Authorization: "Bearer " + getToken()},
           // 上传的地址
-          url: process.env.VUE_APP_BASE_API + "/scholarShip/stuInfo/importData"
+          url: process.env.VUE_APP_BASE_API + "/grade/info/importData"
         },
         //初始的major值
         initMajor: undefined,
@@ -288,14 +299,18 @@
           majorName: undefined,
           startYear: "2021-2022",
           validTerm: "1",
+          titleNames: [],
+          grade:undefined,
         },
-        grade: undefined,
+        //grade: undefined,
         // 列信息
         columns: [],
         // // 表单校验
         // rules: {},
-        //查看详情
-        selectDetial: false,
+        // //查看详情
+        // selectDetial: false,
+        //表头数据
+        titleNames: []
 
       }
     },
@@ -332,29 +347,6 @@
           head.push({
             prop: "sub_" + sub.id,
             label: sub.coseName,
-            render: (h, params) => {
-              let texts = "111"
-              // if (params.row.name != null) {
-              //   if (params.row.time.length > 20) {
-              //     texts = params.row.name.substring(0, 20) + '...' // 进行数字截取或slice截取超过长度时以...表示
-              //   } else {
-              //     texts = params.row.name
-              //   }
-              // }
-              return h('Tooltip', {
-                props: {
-                  placement: 'bottom-start'
-                },
-              }, [texts,
-                h('span', {
-                  slot: 'content',
-                  style: {
-                    whiteSpace: 'normal',
-                    wordBreak: 'break-all'
-                  }
-                }, params.row.sno)
-              ])
-            }
           })
         }
 
@@ -365,7 +357,7 @@
         })
         head.push({
           prop: 'totalCredit',
-          label: '总学分',
+          label: '总成绩绩点',
           width: 110,
           sort: true,
         })
@@ -397,18 +389,18 @@
 
       },
 
-      //查看课程的详细信息
-      selectDetail() {
-        this.selectDetial = ture;
-
-      },
+      // //查看课程的详细信息
+      // selectDetail() {
+      //   this.selectDetial = ture;
+      //
+      // },
 
       //添加参数
-      addParams(params, stu, startYear, majorName, validTerm) {
+      addParams(params, startYear, majorName, validTerm) {
         let search = params;
         search.params = typeof (search.params) === 'object' && search.params !== null && !Array.isArray(search.params) ? search.params : {};
         search.params['startYear'] = startYear;
-        search.params['grade'] = this.grade;
+        search.params['grade'] = this.queryParams.grade;
         search.params['majorName'] = majorName;
         search.params['validTerm'] = validTerm;
         // search.params['majorNames'] = this.majorNames;
@@ -423,7 +415,7 @@
         this.gradeList = [];
         this.subject = [];
         this.loading = true;
-        listInfo(this.addParams(this.queryParams, this.stu, this.queryParams.startYear, this.queryParams.majorName, this.queryParams.validTerm)).then(response => {
+        listInfo(this.addParams(this.queryParams, this.queryParams.startYear, this.queryParams.majorName, this.queryParams.validTerm)).then(response => {
             let data = response.rows;
             //无课程信息的
             if (data.length == 0) {
@@ -467,6 +459,7 @@
                       sno: val.sno, // 学生ID
                       stuName: val.stuName, // 根据id获取学生姓名
                       totalScore: 0, // 学生的各科总分，后续修改
+                      totalCredit:0,
                       ranking: 1 // 名次，后续修改
                     }
                   }
@@ -476,6 +469,7 @@
                   this.gradeList[index]['getCredit_' + num] = item.haveCredit
                 })
               })
+
               //计算总分和总学分
               this.getTotalScore();
               //计算排名
@@ -526,8 +520,10 @@
       //获取辅导员信息,并返回专业和年级信息
       getInstructorInfo() {
         getInfo().then(res => {
-          this.grade = res.data.guideGrade;
+          if(res.data!= null){
+          this.queryParams.grade=res.guideGrade;
           let majorName = res.majorNames;
+          //指导专业名称数组
           this.majorNames = res.majorNames.join(",");
           //默认第一是值，第二个是索引
           majorName.forEach((item, index) => {
@@ -540,6 +536,7 @@
             this.queryParams.majorName = majorName[0]
             this.initMajor = majorName[0]
           });
+          }
           this.getStuInfo();
         })
       },
@@ -547,8 +544,11 @@
       getStuInfo() {
         getInfoBysno(Cookies.get("username")).then(res => {
           if (res.data != null) {
-            this.stuClass = res.data.stuClass;
-            this.majorId = res.data.majorId;
+            this.stu=res.data;
+            this.queryParams.grade=res.data.grade;
+            this.stuClass=res.data.stuClass;
+            this.majorId=res.data.majorId;
+            this.$forceUpdate();
           }
           this.getList()
 
@@ -644,7 +644,7 @@
       ,
       /** 删除按钮操作 */
       handleDelete(row) {
-        const stuIds = row.id || this.ids;
+        const stuIds = row.sno || this.ids;
         this.$modal.confirm('是否确认删除学生编号为"' + stuIds + '"的数据项？').then(function () {
           return delInfo(stuIds);
         }).then(() => {
@@ -663,13 +663,40 @@
       ,
       /** 导入按钮操作 */
       handleImport() {
-        this.upload.title = "学生基础信息导入";
-        this.upload.open = true;
+        //获取学期信息
+        let term = null;
+        this.getDicts('valid_term').then((response) => {
+          response.data.forEach((item => {
+                if (this.queryParams.validTerm === item.dictValue) {
+                  term = item.dictLabel
+                }
+              }
+            )
+          );
+          this.$modal.confirm('确认导入"' + this.queryParams.majorName + " " + this.queryParams.startYear + "学年 " + term + '""的学生成绩吗？').then(() => {
+            this.upload.title = "学生成绩信息导入";
+            this.upload.open = true;
+
+          }).catch(() => {
+          })
+        });
+
       }
       ,
       /** 下载模板操作 */
       importTemplate() {
-        this.download('scholarShip/stuInfo/importTemplate', {}, `stuInfo_template_${new Date().getTime()}.xlsx`)
+        //先传递表头数据
+        let titleNames = []
+        this.header.forEach((item, index) => {
+          if (index < this.header.length - 3) {
+            titleNames.push(item.label)
+          }
+
+        })
+        getHeader(titleNames).then(res => {
+          this.download('grade/info/importTemplate', {}, `stuGrade_template_${new Date().getTime()}.xlsx`)
+        })
+
       },
       // 文件上传中处理
       handleFileUploadProgress(event, file, fileList) {
@@ -683,13 +710,23 @@
         this.$refs.upload.clearFiles();
         this.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", {dangerouslyUseHTMLString: true});
         this.getList();
-      }
-      ,
+      },
       // 提交上传文件
       submitFileForm() {
-        this.$refs.upload.submit();
-      }
+       //传入导入专业、学年、学期信息
+        this.queryParams.titleNames=[]
+        this.header.forEach((item,index)=>{
+          if(index< this.header.length-3){
+            this.queryParams.titleNames.push(item.label)
+          }
+        })
+        getHeader(this.queryParams.titleNames).then(response=>{
+          getParams(this.queryParams).then(res => {
+            this.$refs.upload.submit();
+          })
+        })
 
+      }
     }
   };
 </script>

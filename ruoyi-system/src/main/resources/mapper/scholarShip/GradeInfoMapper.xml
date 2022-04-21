@@ -28,6 +28,8 @@
         <result property="grade" column="grade"></result>
         <result property="credit" column="cose_credit"></result>
         <result property="courseType" column="course_type"></result>
+        <result property="haveCredit" column="stu_credit"></result>
+        <result property="score" column="cose_score"></result>
     </resultMap>
 
     <sql id="selectGradeInfoVo">
@@ -49,7 +51,9 @@
                b.valid_term,
                b.grade,
                b.credit  as cose_credit,
-               b.course_type
+               b.course_type,
+               a.credit as stu_credit,
+               a.score as cose_score
         from grade_info a
                  join course b on a.cose_id = b.cose_id
                  join major_course c on b.cose_id = c.course_id
@@ -77,7 +81,7 @@
 <!--                </foreach>-->
 <!--            </if>-->
             <if test="params.stuClass != null and params.stuClass !='' ">
-                and f.stuClass=#{params.stuClass} and f.major_id=#{params.stu.majorId}
+                and f.stu_class=#{params.stuClass}
             </if>
             <if test="params.majorId != null and params.majorId !='' ">
                  and f.major_id=#{params.majorId}
@@ -124,9 +128,6 @@
     <update id="updateGradeInfo" parameterType="GradeInfo">
         update grade_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="sno != null">sno = #{sno},</if>
-            <if test="stuName != null">stu_name = #{stuName},</if>
-            <if test="coseId != null">cose_id = #{coseId},</if>
             <if test="score != null">score = #{score},</if>
             <if test="credit != null">credit = #{credit},</if>
             <if test="delFlag != null">del_flag = #{delFlag},</if>
@@ -136,7 +137,7 @@
             <if test="remark != null">remark = #{remark},</if>
             update_time=sysdate()
         </trim>
-        where grade_id = #{gradeId}
+        where sno = #{sno} and cose_id = #{coseId}
     </update>
 
     <delete id="deleteGradeInfoByGradeId" parameterType="Long">
@@ -151,5 +152,11 @@
             #{gradeId}
         </foreach>
     </delete>
+
+    <select id="selectGradeByMap" resultType="int">
+        select count(1)
+                from grade_info a
+               where a.sno=#{sno} and a.cose_id=#{courseId} limit 1
+    </select>
 
 </mapper>

@@ -191,4 +191,19 @@
           and credit = #{credit}
           and course_type = #{courseType}
     </select>
+    <select id="selectIdsByNames" parameterType="String" resultType="Long">
+        select cose_id
+        from course  a
+        join major_course b on a.cose_id = b.course_id
+        join college_major u on b.college_id = u.college_id
+        where cose_name in
+        <foreach item="coseName" collection="coseNames" open="(" separator="," close=")">
+            #{coseName}
+        </foreach>
+        and start_year = #{map.startYear}
+        and valid_term = #{map.validTerm}
+        and grade = #{map.grade}
+        and u.name=#{map.majorName}
+    </select>
+
 </mapper>

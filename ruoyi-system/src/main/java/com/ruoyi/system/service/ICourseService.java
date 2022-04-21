@@ -1,7 +1,10 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.system.domain.Course;
+import org.apache.ibatis.annotations.Param;
 
 
 /**
@@ -97,6 +100,9 @@ public interface ICourseService
      * @return 结果
      */
     public String importCourse(List<Course> corseList, String operName);
+
+    //通过课程名称查询课程id
+    public Long[] selectIdsByNames(String[] coseNames, Map<String,Object> map);
 
 
 

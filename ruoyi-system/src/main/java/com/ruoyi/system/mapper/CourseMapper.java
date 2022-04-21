@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import com.ruoyi.common.core.domain.entity.SysMenu;
 import com.ruoyi.system.domain.Course;
@@ -104,6 +105,11 @@ public interface CourseMapper
      * @return 结果
      */
     public Long selectIdByCourse(Course course);
+
+    //通过课程名称查询课程id
+    public Long[] selectIdsByNames(@Param("coseNames") String[] coseNames, @Param("map") Map<String,Object> map);
+
+
 
 
 }

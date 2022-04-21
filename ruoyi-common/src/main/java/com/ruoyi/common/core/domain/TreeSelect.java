@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ruoyi.common.core.domain.entity.SysColleageMajor;
 import com.ruoyi.common.core.domain.entity.SysMenu;
+import com.ruoyi.scholarShip.domain.PrizeType;
 
 /**
  * Treeselect树结构实体类
@@ -44,6 +45,12 @@ public class TreeSelect implements Serializable
         this.label = menu.getMenuName();
         this.children = menu.getChildren().stream().map(TreeSelect::new).collect(Collectors.toList());
     }
+    public TreeSelect(PrizeType prizeType){
+        this.id = prizeType.getTypeId();
+        this.label = prizeType.getTypeName();
+        this.children = prizeType.getChildren().stream().map(TreeSelect::new).collect(Collectors.toList());
+    }
+
 
     public Long getId()
     {

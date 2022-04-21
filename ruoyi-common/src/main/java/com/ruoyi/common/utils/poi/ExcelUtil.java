@@ -265,7 +265,7 @@ public class ExcelUtil<T>
             {
                 Cell cell = heard.getCell(i);
                 if (StringUtils.isNotNull(cell))
-                {
+                {   //获取单元值 value是单元值，i是列的索引值
                     String value = this.getCellValue(heard, i).toString();
                     cellMap.put(value, i);
                 }
@@ -511,6 +511,7 @@ public class ExcelUtil<T>
 
     /**
      * 对list数据源将其里面的数据导入到excel表单
+     * //导出空数据（模板）
      * 
      * @return 结果
      */
@@ -533,7 +534,7 @@ public class ExcelUtil<T>
 
     /**
      * 对list数据源将其里面的数据导入到excel表单
-     * 
+     *  //导出表格数据
      * @return 结果
      */
     public AjaxResult exportExcel()

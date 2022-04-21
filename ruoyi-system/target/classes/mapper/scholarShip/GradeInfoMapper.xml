@@ -28,10 +28,12 @@
         <result property="grade" column="grade"></result>
         <result property="credit" column="cose_credit"></result>
         <result property="courseType" column="course_type"></result>
+        <result property="haveCredit" column="stu_credit"></result>
+        <result property="score" column="cose_score"></result>
     </resultMap>
 
     <sql id="selectGradeInfoVo">
-        select a.grade_id,
+        select distinct  a.grade_id,
                a.sno,
                a.stu_name,
                a.cose_id,
@@ -49,12 +51,14 @@
                b.valid_term,
                b.grade,
                b.credit  as cose_credit,
-               b.course_type
+               b.course_type,
+               a.credit as stu_credit,
+               a.score as cose_score
         from grade_info a
                  join course b on a.cose_id = b.cose_id
                  join major_course c on b.cose_id = c.course_id
                  join college_major u on c.college_id = u.college_id
-                 join stu_info f on a.sno = f.sno
+                 join stu_info f on a.sno = f.sno and f.major_id=u.college_id
     </sql>
 
     <select id="selectGradeInfoList" parameterType="GradeInfo" resultMap="GradeInfoResult">
@@ -68,16 +72,16 @@
             <if test="credit != null ">and a.credit = #{credit}</if>
             <if test="params.startYear != null and params.startYear != ''">and b.start_year=#{params.startYear}</if>
             <if test="params.grade != null and params.grade != ''">and b.grade=#{params.grade}</if>
-            <if test="params.validTerm != null and params.validTerm != ''">and b.valid_term=#{params.valid_term}</if>
+            <if test="params.validTerm != null and params.validTerm != ''">and b.valid_term=#{params.validTerm}</if>
             <if test="params.majorName != null and params.majorName != ''">and u.name=#{params.majorName}</if>
-            <if test="params.majorNames != null and params.majorNames !=''">
-                and u.name in
-                <foreach item="major" collection="params.majorNames" open="(" separator="," close=")">
-                    #{major}
-                </foreach>
-            </if>
+<!--            <if test="params.majorNames != null and params.majorNames !=''">-->
+<!--                and u.name in-->
+<!--                <foreach item="major" collection="params.majorNames" open="(" separator="," close=")">-->
+<!--                    #{major}-->
+<!--                </foreach>-->
+<!--            </if>-->
             <if test="params.stuClass != null and params.stuClass !='' ">
-                and f.stuClass=#{params.stuClass} and f.major_id=#{params.stu.majorId}
+                and f.stu_class=#{params.stuClass}
             </if>
             <if test="params.majorId != null and params.majorId !='' ">
                  and f.major_id=#{params.majorId}
@@ -124,9 +128,6 @@
     <update id="updateGradeInfo" parameterType="GradeInfo">
         update grade_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="sno != null">sno = #{sno},</if>
-            <if test="stuName != null">stu_name = #{stuName},</if>
-            <if test="coseId != null">cose_id = #{coseId},</if>
             <if test="score != null">score = #{score},</if>
             <if test="credit != null">credit = #{credit},</if>
             <if test="delFlag != null">del_flag = #{delFlag},</if>
@@ -136,7 +137,7 @@
             <if test="remark != null">remark = #{remark},</if>
             update_time=sysdate()
         </trim>
-        where grade_id = #{gradeId}
+        where sno = #{sno} and cose_id = #{coseId}
     </update>
 
     <delete id="deleteGradeInfoByGradeId" parameterType="Long">
@@ -151,5 +152,11 @@
             #{gradeId}
         </foreach>
     </delete>
+
+    <select id="selectGradeByMap" resultType="int">
+        select count(1)
+                from grade_info a
+               where a.sno=#{sno} and a.cose_id=#{courseId} limit 1
+    </select>
 
 </mapper>

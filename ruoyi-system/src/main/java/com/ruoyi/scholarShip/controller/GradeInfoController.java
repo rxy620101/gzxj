@@ -5,9 +5,9 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
-import com.ruoyi.common.utils.JsonUtil;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.scholarShip.domain.GradeInfo;
+import com.ruoyi.scholarShip.domain.util.GradeExcelUtil;
 import com.ruoyi.scholarShip.service.IGradeInfoService;
 import com.ruoyi.system.domain.Course;
 import com.ruoyi.system.service.ICourseService;
@@ -15,6 +15,7 @@ import com.ruoyi.system.service.ISysColleageMajorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -34,6 +35,11 @@ public class GradeInfoController extends BaseController {
     private ISysColleageMajorService sysColleageMajorService;
     @Autowired
     private ICourseService courseService;
+    //表头的标题
+    private String[] titleNames;
+
+    //存储 年级 、学年、学期 专业名称
+   private Map<String,Object> params=new HashMap<>();
 
     /**
      * 查询成绩信息列表
@@ -46,6 +52,9 @@ public class GradeInfoController extends BaseController {
 //        Map<String, Object> map = gradeInfo.getParams();
 //        map.put("majorNames", majorNames);
 //        gradeInfo.setParams(map);
+        //保存年级信息
+        String grade=gradeInfo.getParams().get("grade").toString();
+        this.params.put("grade",grade);
         List<GradeInfo> list = gradeInfoService.selectGradeInfoList(gradeInfo);
         if (list.size() == 0) {
             //如果为0 ，返回对应的课程信息
@@ -55,7 +64,6 @@ public class GradeInfoController extends BaseController {
             startPage();
             return getDataTable(courseList);
         } else {
-
             //将一个同学的成绩对应成一个list 降序排列 只能2.2.1.1 或者2.1
             List<Map<String, Object>> allStuList = new ArrayList<>();
             //先存入第一个值
@@ -77,8 +85,6 @@ public class GradeInfoController extends BaseController {
                     //取出原有的值
                     courseList = (List<Course>) allStuList.get(num).get("courseInfo");
                     Course course = list.get(i).getCourse();
-                    course.setScore(list.get(i).getScore());
-                    course.setHaveCredit(list.get(i).getCredit());
                     courseList.add(course);
                     stuMap.put("courseInfo", courseList);
                     allStuList.remove(num);
@@ -100,8 +106,6 @@ public class GradeInfoController extends BaseController {
         stuMap.put("sno", sno);
         stuMap.put("stuName", list.get(index).getStuName());
         Course course = list.get(index).getCourse();
-        course.setScore(list.get(index).getScore());
-        course.setHaveCredit(list.get(index).getCredit());
         courseList.add(course);
         stuMap.put("courseInfo", courseList);
 
@@ -166,5 +170,49 @@ public class GradeInfoController extends BaseController {
     @DeleteMapping("/{gradeIds}")
     public AjaxResult remove(@PathVariable Long[] gradeIds) {
         return toAjax(gradeInfoService.deleteGradeInfoByGradeIds(gradeIds));
+    }
+    //获取表头信息
+    @PostMapping("/getHeader")
+    public AjaxResult getHeader(@RequestBody String[] header){
+        this.titleNames=header;
+        return toAjax(1);
+    }
+    //下载模板
+    @PostMapping("/importTemplate")
+    public void importTemplate(HttpServletResponse response)
+    {
+//        ExcelUtil<> util = new ExcelUtil<Map>(Map.class);
+//        util.importTemplateExcel(response, "辅导员基础信息数据");
+       // String[] cellValue=null;
+        GradeExcelUtil util=new GradeExcelUtil(this.titleNames);
+        util.importTemplateExcel(response, "学生成绩数据");
+    }
+    //获取学年和学期信息
+    @PostMapping("/getParams")
+    public AjaxResult getParams(@RequestBody Map<String,Object> params){
+        this.params.put("startYear",params.get("startYear").toString());
+        this.params.put("validTerm",params.get("validTerm").toString());
+        this.params.put("majorName",params.get("majorName").toString());
+        this.params.put("grade",params.get("grade").toString());
+        return AjaxResult.success();
+    }
+    /*
+   数据导入
+    */
+    @Log(title = "辅导员基础信息", businessType = BusinessType.IMPORT)
+    @PreAuthorize("@ss.hasPermi('grade:info:import')")
+    @PostMapping("/importData")
+    public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
+    {
+//        ExcelUtil<InstrorInfo> util = new ExcelUtil<InstrorInfo>(InstrorInfo.class);
+//        List<InstrorInfo> stuList = util.importExcel(file.getInputStream());
+//        String operName = getUsername();
+//        String message = instrorInfoService.importInstuctorData(stuList, updateSupport, operName);
+//        return AjaxResult.success(message);
+        GradeExcelUtil util=new GradeExcelUtil();
+        List<String[]>gradeList=util.importExcel(file.getInputStream());
+        String operName = getUsername();
+        String message = gradeInfoService.importGradeInfo(gradeList, updateSupport, operName,this.params,this.titleNames);
+        return AjaxResult.success(message);
     }
 }

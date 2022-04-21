@@ -5,6 +5,7 @@ com\ruoyi\common\annotation\RepeatSubmit.class
 com\ruoyi\common\constant\GenConstants.class
 com\ruoyi\common\core\domain\TreeEntity.class
 com\ruoyi\common\exception\base\BaseException.class
+com\ruoyi\common\utils\JsonUtil.class
 com\ruoyi\common\utils\ip\AddressUtils.class
 com\ruoyi\common\constant\HttpStatus.class
 com\ruoyi\common\utils\sign\Base64.class
@@ -108,4 +109,5 @@ com\ruoyi\common\exception\file\FileNameLengthLimitExceededException.class
 com\ruoyi\common\core\text\CharsetKit.class
 com\ruoyi\common\utils\reflect\ReflectUtils.class
 com\ruoyi\common\utils\DictUtils.class
+com\ruoyi\scholarShip\domain\PrizeType.class
 com\ruoyi\common\annotation\Excel$Align.class
