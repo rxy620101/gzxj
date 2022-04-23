@@ -6,7 +6,7 @@
       <el-col :xs="24">
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch"
                  label-width="68px">
-          <el-form-item label="专业名称" prop="majorName" v-if="stu=null">
+          <el-form-item label="专业名称" prop="majorName" v-if="JSON.stringify(stu)=='{}'">
             <el-select v-model="queryParams.majorName" placeholder="请选择专业名称"
             >
               <el-option
@@ -432,7 +432,6 @@
               })
               this.header = this.createTableHead();
               this.getColumns();
-              console.log(this.column)
             }
             else {
               //有学生成绩信息的
@@ -521,7 +520,7 @@
       getInstructorInfo() {
         getInfo().then(res => {
           if(res.data!= null){
-          this.queryParams.grade=res.guideGrade;
+          this.queryParams.grade=res.data.guideGrade;
           let majorName = res.majorNames;
           //指导专业名称数组
           this.majorNames = res.majorNames.join(",");

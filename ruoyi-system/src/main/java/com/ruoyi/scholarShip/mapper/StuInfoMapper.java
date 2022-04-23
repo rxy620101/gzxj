@@ -91,4 +91,13 @@ public interface StuInfoMapper
      * @return 学生基础信息
      */
     public StuInfo selectStuInfoBySno(String  sno);
+
+    /**
+     * 根据majorId查询对应的班级
+     *
+     * @param majorId
+     * @return 结果
+     */
+    public String[] selClassByMajorIds(Long majorId);
+
 }

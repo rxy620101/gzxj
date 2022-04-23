@@ -67,6 +67,14 @@ export function selectClass(grade) {
   })
 }
 
+// 查询班级列表
+export function selClassByMajorIds(majorId) {
+  return request({
+    url: '/scholarShip/stuInfo/selClassByMajorIds/' + majorId,
+    method: 'get'
+  })
+}
+
 //检验sno是否唯一
 export function checkSno(sno) {
   return request({

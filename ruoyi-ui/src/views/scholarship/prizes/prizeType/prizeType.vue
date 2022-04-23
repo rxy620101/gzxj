@@ -161,7 +161,7 @@
 
 <script>
 
-  import {listPrizetype, getPrizetype, delPrizetype, addPrizetype, updatePrizetype,selByParentId,checkByName,updateStatus,listExcludeChild} from "@/api/scholarship/prizeType";
+  import {listPrizetype, getPrizetype, delPrizetype, addPrizetype, updatePrizetype,checkByName,updateStatus,listExcludeChild} from "@/api/scholarship/prizeType";
   import Treeselect from "@riophae/vue-treeselect";
   import "@riophae/vue-treeselect/dist/vue-treeselect.css";
   import Cookies from "js-cookie";
@@ -213,7 +213,6 @@
                         callback(new Error("该名称已存在!"))
                       }
                       else{
-                        console.log(111)
                         callback()
                       }
                     })

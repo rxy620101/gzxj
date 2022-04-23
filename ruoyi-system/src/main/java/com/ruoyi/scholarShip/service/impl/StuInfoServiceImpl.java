@@ -136,6 +136,17 @@ public class StuInfoServiceImpl implements IStuInfoService {
         return stuInfoMapper.selectClass(grade);
     }
 
+    /**
+     * 根据majorId查询对应的班级
+     *
+     * @param majorId
+     * @return 结果
+     */
+    @Override
+    public String[] selClassByMajorIds(Long majorId){
+        return stuInfoMapper.selClassByMajorIds(majorId);
+    }
+
     /*
       检验sno是否唯一
      */

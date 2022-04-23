@@ -85,3 +85,11 @@ export  function selMajorNames(majorIds) {
 
 }
 
+//返回所有的专业名称
+export  function getAllMajor() {
+  return request({
+    url: '/system/dept/getAllMajor',
+    method:'get',
+  })
+
+}

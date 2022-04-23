@@ -138,6 +138,13 @@ public class StuInfoController extends BaseController {
     public AjaxResult selectClass(@PathVariable String grade) {
         return AjaxResult.success(stuInfoService.selectClass(grade));
     }
+    /*
+     根据major查询班级列表
+    */
+    @GetMapping("/selClassByMajorIds/{majorId}")
+    public AjaxResult selClassByMajorIds(@PathVariable Long majorId) {
+        return AjaxResult.success(stuInfoService.selClassByMajorIds(majorId));
+    }
 
     /*
    检验学号的唯一性

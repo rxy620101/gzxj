@@ -145,4 +145,7 @@ public interface ISysColleageMajorService
      *   @return 结果
      */
     public String[] selectMajorNames(Long[] majorIds);
+
+    //返回所有的专业名称
+    public List<SysColleageMajor>getAllMajor();
 }

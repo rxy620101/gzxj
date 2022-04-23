@@ -364,4 +364,10 @@ public class SysCollageMajorServiceImpl implements ISysColleageMajorService
         return deptMapper.selectMajorNames(majorIds);
     }
 
+    //返回所有的专业名称
+    @Override
+    public List<SysColleageMajor>getAllMajor(){
+        return deptMapper.getAllMajor();
+    }
+
 }

@@ -175,4 +175,10 @@ public class SysColleageMajorController extends BaseController
 
     }
 
+    //返回所有的专业名称
+    @GetMapping("/getAllMajor")
+    public AjaxResult getAllMajor(){
+        return AjaxResult.success(deptService.getAllMajor());
+    }
+
 }

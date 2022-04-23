@@ -79,10 +79,11 @@ public class InstrorInfoController extends BaseController
         id=Long.valueOf(getUsername());
         InstrorInfo instrorInfo=instrorInfoService.selectInstrorInfoById((id));
         if(instrorInfo== null){
-            //学生登录调用
+            //学生个人信息登录调用
             return AjaxResult.success(instrorInfo);
         }
         else{
+            //导入学生成绩时
             AjaxResult ajaxResult=AjaxResult.success(instrorInfo);
             //获取该辅导员指导的专业名称
             Long[] majorIds=(Long[]) ConvertUtils.convert(instrorInfo.getGuideMajorIds().split(","),Long[].class);

@@ -204,4 +204,11 @@
         from stu_info
         where sno = #{sno}
     </select>
+
+    <select id="selClassByMajorIds" parameterType="Long" resultType="String">
+        select stu_class
+        from stu_info
+        where major_id = #{majorId}
+    </select>
+
 </mapper>

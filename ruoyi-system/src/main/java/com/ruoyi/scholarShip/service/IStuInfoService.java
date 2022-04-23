@@ -102,4 +102,12 @@ public interface IStuInfoService
      */
     public StuInfo selectStuInfoBySno(String  sno);
 
+    /**
+     * 根据majorId查询对应的班级
+     *
+     * @param majorId
+     * @return 结果
+     */
+    public String[] selClassByMajorIds(Long majorId);
+
 }
