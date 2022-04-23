@@ -4,7 +4,7 @@ import request from '@/utils/request'
 export function listPrizes(query) {
   return request({
     url: '/stuPrizes/info/list',
-    method: 'post',
+    method: 'get',
     params: query
   })
 }

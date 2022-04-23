@@ -1,4 +1,4 @@
-<template>
+<template xmlns:el-col="http://www.w3.org/1999/html">
   <div class="app-container">
     <el-row :gutter="20">
 
@@ -42,7 +42,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="审核结果" prop="process" v-if="JSON.stringify(stu) != '{}'">
+          <el-form-item label="审核结果" prop="process"  v-if="JSON.stringify(stu)!='{}'">
             <el-select v-model="queryParams.process" placeholder="请选择" clearable>
               <el-option
                 v-for="dict in dict.type.process"
@@ -73,7 +73,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="专业" prop="majorId" v-if="JSON.stringify(stu) == '{}'">
+          <el-form-item label="专业" prop="majorId" v-if="JSON.stringify(stu)=='{}'">
             <el-select v-model="queryParams.majorId" placeholder="请选择专业" clearable @change="getMajor">
               <el-option
                 v-for="dict in majorOptions"
@@ -83,7 +83,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="班级" prop="stuClass" v-if="JSON.stringify(stu) == '{}'">
+          <el-form-item label="班级" prop="stuClass" v-if="JSON.stringify(stu)=='{}'">
             <el-select v-model="queryParams.stuClass" placeholder="请选择班级" clearable>
               <el-option
                 v-for="dict in classOptions"
@@ -213,7 +213,7 @@
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
+                @click="handleCheck(scope.row)"
                 v-hasPermi="['prizes:info:check']"
                 v-if="userName == 'admin'"
               >审核
@@ -237,20 +237,20 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="学号" prop="sno" v-if="JSON.stringify(stu)=='{}'" disable>
-              <el-input v-model="form.sno"/>
+            <el-form-item label="学号" prop="sno"  v-if="JSON.stringify(stu)=='{}'" >
+              <el-input v-model="form.sno" disabled/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="学生姓名" prop="stuName" v-if="JSON.stringify(stu)=='{}'" disable>
-              <el-input v-model="form.stuName"/>
+            <el-form-item label="学生姓名" prop="stuName" v-if="JSON.stringify(stu)=='{}'" >
+              <el-input v-model="form.stuName" disabled/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="获奖学年" prop="getYear">
-              <el-select v-model="form.getYear" placeholder="请选择获奖学年">
+              <el-select v-model="form.getYear" placeholder="请选择获奖学年" :disabled="JSON.stringify(stu)=='{}'">
                 <el-option
                   v-for="dict in yearsOptions"
                   :key="dict.id"
@@ -262,7 +262,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="获奖学期" prop="getTerm">
-              <el-select v-model="form.getTerm" placeholder="请选择获奖学期">
+              <el-select v-model="form.getTerm" placeholder="请选择获奖学期" :disabled="JSON.stringify(stu)=='{}'">
                 <el-option
                   v-for="dict in dict.type.valid_term"
                   :key="dict.value"
@@ -276,7 +276,8 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="奖项类别" prop="parentId">
-              <el-select v-model="form.parentId" clearable placeholder="请选择奖项类别" @change="getType($event,'form')">
+              <el-select v-model="form.parentId" clearable placeholder="请选择奖项类别" @change="getType($event,'form')"
+                         :disabled="JSON.stringify(stu)=='{}'">
                 <el-option
                   v-for="dict in prizeTypeOptions"
                   :key="dict.prizeId"
@@ -289,7 +290,8 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="对应奖项" prop="prizeId">
-              <el-select v-model="form.prizeId" placeholder="请选择对应奖项" clearable>
+              <el-select v-model="form.prizeId" placeholder="请选择对应奖项" clearable
+                         :disabled="JSON.stringify(stu)=='{}'">
                 <el-option
                   v-for="dict in prizeNameOption"
                   :key="dict.prizeId"
@@ -304,6 +306,7 @@
           <el-col :span="24">
             <el-form-item label="奖项名称" prop="prizeName">
               <el-input v-model="form.prizeName" placeholder="请输入奖项名称" clearable
+                        :disabled="JSON.stringify(stu)=='{}'"
               ></el-input>
             </el-form-item>
           </el-col>
@@ -315,6 +318,7 @@
           <ImgUpload
             v-model="form.prizeImg"
             :limit="1"
+            :disabled="JSON.stringify(stu)=='{}'"
           >
           </ImgUpload>
         </el-form-item>
@@ -323,19 +327,20 @@
         <el-row>
           <el-col :span="24">
             <el-form-item label="备注">
-              <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
+              <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"
+                        :disabled="JSON.stringify(stu)=='{}'"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col>
+          <el-col :span="12">
             <el-form-item label="对应分数" prop="getPoint" v-if="userName === 'admin'">
               <el-input-number v-model="form.getPoint" placeholder="对应分数" :min="0" :step="0.1"></el-input-number>
             </el-form-item>
           </el-col>
-          <el-col>
+          <el-col :span="12">
             <el-form-item label="审核" prop="process" v-if="userName ==='admin'">
-              <el-radio-group v-model="form.process" @change="$forceUpdate()">
+              <el-radio-group v-model="form.process" @change="getProcess">
                 <el-radio :label="'1'">通过</el-radio>
                 <el-radio :label="'2'">不通过</el-radio>
               </el-radio-group>
@@ -410,9 +415,6 @@
 
         // 表单参数
         form: {
-          process: "1",
-          parentId: "",
-          prizeId: "",
         },
         // 查询参数
         queryParams: {
@@ -460,18 +462,22 @@
             {required: true, message: "奖项图片不能为空", trigger: ["blur"]},
           ],
 
-          //默认审核通过 1
-          commont: [{
+          // 默认审核通过 1
+          comment: [{
             //管理员审核
             validator: (rule, value, callback) => {
               if (this.userName != 'admin') {
                 callback()
               }
-              else {
-                if (value == undefined) {
-                  callback("评语不能为空")
+              //通过时评语默认为通过
+                else{
+                  if (value == undefined || JSON.stringify(value) =='') {
+                    callback("评语不能为空")
+                  }
+                  else{
+                    callback()
+                  }
                 }
-              }
             },
             trigger: "blur"
           }],
@@ -482,9 +488,12 @@
                 callback()
               }
               else {
-                //审核通过，则分数不能为0
-                if (this.form.isOk == "1" && value == 0) {
+                //审核通过，则分数不能为0 this.form.process == '1' &&
+                if ( value == 0) {
                   callback("审核通过则对应分数不能为0!")
+                }
+                else{
+                  callback()
                 }
               }
 
@@ -509,8 +518,8 @@
         this.userName = Cookies.get("username");
         if (this.userName != 'admin') {
           getInfo().then(res => {
-            if (res.data != null) {
-              this.stu = res.data;
+            if (res.data != undefined) {
+              this.instructor = res.data;
               let majorName = res.majorNames;
               //指导专业名称数组
               this.majorIds = res.data.guideMajorIds.split(",")
@@ -545,28 +554,33 @@
       //获取学生信息
       getStuInfo() {
         getInfoBysno(Cookies.get("username")).then(res => {
-          if (res.data != null) {
+          if (res.data != undefined) {
             this.stu = res.data;
           }
+          console.log(this.stu)
           this.getList()
 
         })
       },
       //添加参数
       // 学生登录:sno,
-      // 辅导员：guideGrade、majorIds,majorId,stuClass,stuName,
+      // 辅导员：guideGrade、majorIds,majorId,stuClass,stuName,process
       addParams(params) {
         let search = params;
         search.params = typeof (search.params) === 'object' && search.params !== null && !Array.isArray(search.params) ? search.params : {};
-        if (this.stu != null) {
+        if (JSON.stringify(this.stu)!= '{}') {
           search.params['sno'] = this.stu.sno;
         }
-        if (this.instructor != null) {
+        if (JSON.stringify(this.instructor)!= '{}') {
           search.params['majorIds'] = this.majorIds.join(",");
           search.params['grade'] = this.instructor.guideGrade;
           search.params['majorId'] = this.queryParams.majorId;
           search.params['stuClass'] = this.queryParams.stuClass;
           search.params['stuName'] = this.queryParams.stuName;
+          search.params['process'] = '1';
+        }
+        if(this.userName=='admin'){
+          search.params['process'] = '0';
         }
         return search;
       },
@@ -637,6 +651,15 @@
         this.reset();
       }
       ,
+      //审核状态切换
+      getProcess(val){
+        if(val =='2'){
+          this.form.comment=undefined;
+        }
+        if(val=='1'){
+          this.form.comment='审核通过'
+        }
+      },
       // 表单重置
       reset() {
         this.form = {
@@ -647,6 +670,7 @@
           prizeName: undefined,
           getPoint: undefined,
           remark: undefined,
+          process: '0',
         };
         this.resetForm("form");
       }
@@ -689,15 +713,37 @@
           this.form = data;
           this.form.parentId=parseInt(this.form.parentId);
           this.form.prizeId=parseInt(this.form.prizeId);
+          //重新获取下拉项
           this.getType(this.form.parentId)
           this.open = true;
-          this.title = "修改学生所获奖项";
+          if(this.userName == 'admin'){
+            this.title = "修改学生所获奖项";
+          }
+          else{
+            this.title="审核学生所获奖项"
+          }
+          //获取分数信息
+          if(this.userName == 'admin'){
+            this.form.process="1";
+            this.form.comment='审核通过'
+            getPrizetype(this.form.prizeId).then(res=>{
+              if(res.data.typeName == this.form.prizeName){
+                this.form.getPoint=res.data.extraPoint;
+              }
+            })
+          }
         });
       }
       ,
+      //审核按钮
+      handleCheck(row){
+        //获取学生申请信息
+        this.handleUpdate(row);
+      },
       /** 提交按钮 */
       submitForm: function () {
         this.$refs["form"].validate(valid => {
+          console.log('yyyy')
           if (valid) {
             if (this.form.awardId != undefined) {
               updatePrizes(this.form).then(response => {
