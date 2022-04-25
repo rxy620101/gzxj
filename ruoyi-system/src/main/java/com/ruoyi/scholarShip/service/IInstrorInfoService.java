@@ -59,6 +59,14 @@ public interface IInstrorInfoService
      * @return 结果
      */
     public int deleteInstrorInfoById(Long id);
+    /**
+     * 根据学院id和指导年级查询辅导员
+     *
+     * @param collegeId
+     * @param guideGrade
+     * @return 结果
+     */
+    public List<InstrorInfo> selectByParams(Long collegeId,String guideGrade);
 
     /**
      * 校验职工号是否唯一

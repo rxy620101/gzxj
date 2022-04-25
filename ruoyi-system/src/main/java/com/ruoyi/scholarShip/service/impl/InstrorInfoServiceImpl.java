@@ -114,7 +114,17 @@ public class InstrorInfoServiceImpl implements IInstrorInfoService {
     public int checkId(String id) {
         return instrorInfoMapper.checkId(id);
     }
-
+    /**
+     * 根据学院id和指导年级查询辅导员
+     *
+     * @param collegeId
+     * @param guideGrade
+     * @return 结果
+     */
+    @Override
+    public List<InstrorInfo> selectByParams(Long collegeId,String guideGrade){
+        return instrorInfoMapper.selectByParams(collegeId,guideGrade);
+    }
     /**
      * 导入辅导员数据
      *

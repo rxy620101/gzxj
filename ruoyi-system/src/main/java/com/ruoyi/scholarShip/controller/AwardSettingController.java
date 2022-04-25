@@ -80,7 +80,7 @@ public class AwardSettingController extends BaseController
     @Log(title = "奖学金参数", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody AwardSetting awardSetting)
-    {
+    {   awardSetting.setCreateBy(getUsername());
         return toAjax(awardSettingService.insertAwardSetting(awardSetting));
     }
 
@@ -91,7 +91,7 @@ public class AwardSettingController extends BaseController
     @Log(title = "奖学金参数", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody AwardSetting awardSetting)
-    {
+    {   awardSetting.setUpdateBy(getUsername());
         return toAjax(awardSettingService.updateAwardSetting(awardSetting));
     }
 

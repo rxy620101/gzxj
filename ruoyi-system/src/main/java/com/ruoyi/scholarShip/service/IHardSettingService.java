@@ -36,6 +36,15 @@ public interface IHardSettingService
     public int insertHardSetting(HardSetting hardSetting);
 
     /**
+     * 新增助学金参数设置
+     *
+     * @param hardSettings 助学金参数设置
+     * @return 结果
+     */
+    public int batchAdd(List<HardSetting> hardSettings);
+
+
+    /**
      * 修改助学金参数设置
      * 
      * @param hardSetting 助学金参数设置

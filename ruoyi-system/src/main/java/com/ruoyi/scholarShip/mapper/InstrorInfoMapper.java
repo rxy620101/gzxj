@@ -2,6 +2,7 @@ package com.ruoyi.scholarShip.mapper;
 
 import java.util.List;
 import com.ruoyi.scholarShip.domain.InstrorInfo;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 辅导员基础信息Mapper接口
@@ -66,4 +67,13 @@ public interface InstrorInfoMapper
      * @return 结果
      */
     public int checkId(String id);
+
+    /**
+     * 根据学院id和指导年级查询辅导员
+     *
+     * @param collegeId
+     * @param guideGrade
+     * @return 结果
+     */
+    public List<InstrorInfo> selectByParams(@Param("collegeId") Long collegeId, @Param("guideGrade") String guideGrade);
 }

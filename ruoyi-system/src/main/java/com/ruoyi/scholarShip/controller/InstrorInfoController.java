@@ -53,6 +53,10 @@ public class InstrorInfoController extends BaseController
         List<InstrorInfo> list = instrorInfoService.selectInstrorInfoList(instrorInfo);
         return getDataTable(list);
     }
+    @GetMapping("/selectByParams/{collegeId}/{guideGrade}")
+    public AjaxResult selectByParams(@PathVariable("collegeId") Long collegeId,@PathVariable("guideGrade") String guideGrade){
+       return AjaxResult.success(instrorInfoService.selectByParams(collegeId,guideGrade));
+    }
 
     /**
      * 导出辅导员基础信息列表

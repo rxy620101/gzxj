@@ -76,7 +76,7 @@ public class TimeSettingController extends BaseController
     @Log(title = "申请时间参数", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody TimeSetting timeSetting)
-    {
+    {     timeSetting.setCreateBy(getUsername());
         return toAjax(timeSettingService.insertTimeSetting(timeSetting));
     }
 
