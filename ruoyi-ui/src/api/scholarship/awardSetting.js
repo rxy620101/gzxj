@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询奖学金参数列表
 export function listAward(query) {
   return request({
-    url: '/award/info/list',
+    url: '/awardSetting/info/list',
     method: 'get',
     params: query
   })
@@ -12,7 +12,7 @@ export function listAward(query) {
 // 查询奖学金参数详细
 export function getAward(settingId) {
   return request({
-    url: '/award/info/' + settingId,
+    url: '/awardSetting/info/' + settingId,
     method: 'get'
   })
 }
@@ -20,7 +20,7 @@ export function getAward(settingId) {
 // 新增奖学金参数
 export function addAward(data) {
   return request({
-    url: '/award/info',
+    url: '/awardSetting/info',
     method: 'post',
     data: data
   })
@@ -29,7 +29,7 @@ export function addAward(data) {
 // 修改奖学金参数
 export function updateAward(data) {
   return request({
-    url: '/award/info',
+    url: '/awardSetting/info',
     method: 'put',
     data: data
   })
@@ -38,14 +38,14 @@ export function updateAward(data) {
 // 删除奖学金参数
 export function delAward(settingId) {
   return request({
-    url: '/award/info/' + settingId,
+    url: '/awardSetting/info/' + settingId,
     method: 'delete'
   })
 }
 // 根据ParentId查询
 export function selByParentId(parentId) {
   return request({
-    url: '/award/info/selByParentId/' + parentId,
+    url: '/awardSetting/info/selByParentId/' + parentId,
     method: 'get'
   })
 }
@@ -53,7 +53,7 @@ export function selByParentId(parentId) {
 // 根据名字查询
 export function checkByName(name) {
   return request({
-    url: '/award/info/checkByName',
+    url: '/awardSetting/info/checkByName',
     method: 'post',
     data:name,
   })
@@ -61,7 +61,7 @@ export function checkByName(name) {
 // 查询列表（排除节点）
 export function listExcludeChild(settingId) {
   return request({
-    url: '/award/info/list/exclude/' + settingId,
+    url: '/awardSetting/info/list/exclude/' + settingId,
     method: 'get'
   })
 }

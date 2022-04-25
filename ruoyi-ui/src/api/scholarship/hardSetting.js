@@ -38,7 +38,15 @@ export function updateHard(data) {
 // 删除助学金参数设置
 export function delHard(settingId) {
   return request({
-    url: '/hardSetting/setting/' + settingId,
+    url: '/hardSetting/info/' + settingId,
     method: 'delete'
+  })
+}
+// 把辅导员信息传至后台
+export function getInstructor(data) {
+  return request({
+    url: '/hardSetting/info/getInstructor',
+    method: 'post',
+    data:data
   })
 }

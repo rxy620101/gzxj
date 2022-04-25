@@ -51,3 +51,13 @@ export function checkUnique(instructorId) {
     method: 'get'
   })
 }
+
+// 根据学院和指导年级查询
+export function selectByParams(collegeId,guideGrade) {
+  return request({
+    url: '/instructor/info/selectByParams/' + collegeId+"/"+guideGrade,
+    method: 'get'
+  })
+}
+
+

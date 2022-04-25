@@ -25,7 +25,7 @@
           <el-form-item label="获奖学年" prop="getYear">
             <el-select v-model="queryParams.getYear" placeholder="请选择获奖学年" clearable>
               <el-option
-                v-for="dict in yearsOptions"
+                v-for="dict in yearsOOptions"
                 :key="dict.id"
                 :label="dict.value"
                 :value="dict.value"
