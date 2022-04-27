@@ -58,4 +58,7 @@ public interface AwardInitListMapper
      * @return 结果
      */
     public int deleteAwardInitListByInitIds(Long[] initIds);
+
+    //批量插入
+    public int batchAdd(List<AwardInitList> list);
 }
