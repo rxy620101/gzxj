@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.scholarShip.mapper.AwardInitListMapper">
+    
+    <resultMap type="AwardInitList" id="AwardInitListResult">
+        <result property="initId"    column="init_id"    />
+        <result property="sno"    column="sno"    />
+        <result property="stuName"    column="stu_name"    />
+        <result property="majorName"    column="major_name"    />
+        <result property="yearInfo"    column="year_info"    />
+        <result property="termInfo"    column="term_info"    />
+        <result property="grade"    column="grade"    />
+        <result property="totalScore"    column="total_score"    />
+        <result property="gradeCredit"    column="grade_credit"    />
+        <result property="gradeRank"    column="grade_rank"    />
+        <result property="allExtraPoint"    column="all_extra_point"    />
+        <result property="finaCredit"    column="fina_credit"    />
+        <result property="finalRank"    column="final_rank"    />
+        <result property="awardRank"    column="award_rank"    />
+    </resultMap>
+
+    <sql id="selectAwardInitListVo">
+        select init_id, sno,stu_name, major_name, year_info, term_info, total_score, grade_credit, grade_rank, all_extra_point, fina_credit, final_rank, award_rank from award_init_list
+    </sql>
+
+    <select id="selectAwardInitListList" parameterType="AwardInitList" resultMap="AwardInitListResult">
+        <include refid="selectAwardInitListVo"/>
+        <where>  
+            <if test="sno != null  and sno != ''"> and sno = #{sno}</if>
+            <if test="stuName != null  and stuName != ''"> and stu_name = #{stuName}</if>
+            <if test="majorName != null "> and majorName = #{majorName}</if>
+            <if test="yearInfo != null  and yearInfo != ''"> and year_info = #{yearInfo}</if>
+            <if test="termInfo != null  and termInfo != ''"> and term_info = #{termInfo}</if>
+            <if test="totalScore != null "> and total_score = #{totalScore}</if>
+            <if test="gradeCredit != null "> and grade_credit = #{gradeCredit}</if>
+            <if test="gradeRank != null "> and grade_rank = #{gradeRank}</if>
+            <if test="allExtraPoint != null "> and all_extra_point = #{allExtraPoint}</if>
+            <if test="finaCredit != null "> and fina_credit = #{finaCredit}</if>
+            <if test="finalRank != null "> and final_rank = #{finalRank}</if>
+            <if test="awardRank != null  and awardRank != ''"> and award_rank = #{awardRank}</if>
+             and award_rank != null
+        </where>
+    </select>
+    
+    <select id="selectAwardInitListByInitId" parameterType="Long" resultMap="AwardInitListResult">
+        <include refid="selectAwardInitListVo"/>
+        where init_id = #{initId}
+    </select>
+        
+    <insert id="insertAwardInitList" parameterType="AwardInitList" useGeneratedKeys="true" keyProperty="initId">
+        insert into award_init_list
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sno != null">sno,</if>
+            <if test="stuName != null">stu_name,</if>
+            <if test="majorName != null">major_name,</if>
+            <if test="yearInfo != null">year_info,</if>
+            <if test="termInfo != null">term_info,</if>
+            <if test="totalScore != null">total_score,</if>
+            <if test="gradeCredit != null">grade_credit,</if>
+            <if test="gradeRank != null">grade_rank,</if>
+            <if test="allExtraPoint != null">all_extra_point,</if>
+            <if test="finaCredit != null">fina_credit,</if>
+            <if test="finalRank != null">final_rank,</if>
+            <if test="awardRank != null">award_rank,</if>
+            <if test="grade != null">grade,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sno != null">#{sno},</if>
+            <if test="stuName != null">#{stuName},</if>
+            <if test="majorName != null">#{majorName},</if>
+            <if test="yearInfo != null">#{yearInfo},</if>
+            <if test="termInfo != null">#{termInfo},</if>
+            <if test="totalScore != null">#{totalScore},</if>
+            <if test="gradeCredit != null">#{gradeCredit},</if>
+            <if test="gradeRank != null">#{gradeRank},</if>
+            <if test="allExtraPoint != null">#{allExtraPoint},</if>
+            <if test="finaCredit != null">#{finaCredit},</if>
+            <if test="finalRank != null">#{finalRank},</if>
+            <if test="awardRank != null">#{awardRank},</if>
+            <if test="grade != null">#{grade},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAwardInitList" parameterType="AwardInitList">
+        update award_init_list
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="allExtraPoint != null">all_extra_point = #{allExtraPoint},</if>
+            <if test="finaCredit != null">fina_credit = #{finaCredit},</if>
+            <if test="finalRank != null">final_rank = #{finalRank},</if>
+            <if test="awardRank != null">award_rank = #{awardRank},</if>
+        </trim>
+        where init_id = #{initId}
+    </update>
+
+    <delete id="deleteAwardInitListByInitId" parameterType="Long">
+        delete from award_init_list where init_id = #{initId}
+    </delete>
+
+    <delete id="deleteAwardInitListByInitIds" parameterType="String">
+        delete from award_init_list where init_id in 
+        <foreach item="initId" collection="array" open="(" separator="," close=")">
+            #{initId}
+        </foreach>
+    </delete>
+</mapper>

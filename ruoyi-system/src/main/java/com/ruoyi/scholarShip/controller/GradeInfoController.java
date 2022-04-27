@@ -47,11 +47,6 @@ public class GradeInfoController extends BaseController {
     @PreAuthorize("@ss.hasPermi('grade:info:list')")
     @GetMapping("/list")
     public TableDataInfo list(GradeInfo gradeInfo) {   //获取专业名
-//        String major = gradeInfo.getParams().get("majorNames").toString();
-//        String[] majorNames = major.split(",");
-//        Map<String, Object> map = gradeInfo.getParams();
-//        map.put("majorNames", majorNames);
-//        gradeInfo.setParams(map);
         //保存年级信息
         String grade=gradeInfo.getParams().get("grade").toString();
         this.params.put("grade",grade);
@@ -60,8 +55,8 @@ public class GradeInfoController extends BaseController {
             //如果为0 ，返回对应的课程信息
             Course course=new Course();
             this.getCourse(gradeInfo,course);
+//            startPage();
             List<Course> courseList = courseService.selectCourseList(course);
-            startPage();
             return getDataTable(courseList);
         } else {
             //将一个同学的成绩对应成一个list 降序排列 只能2.2.1.1 或者2.1
@@ -96,7 +91,7 @@ public class GradeInfoController extends BaseController {
                     num++;
                 }
             }
-            startPage();
+
             return getDataTable(allStuList);
         }
     }

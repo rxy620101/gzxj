@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.scholarShip.mapper.AwardSettingMapper">
+    
+    <resultMap type="AwardSetting" id="AwardSettingResult">
+        <result property="settingId"    column="setting_id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="ancestors"    column="ancestors"    />
+        <result property="awardNames"    column="award_names"    />
+        <result property="setTerm"    column="set_term"    />
+        <result property="setYear"    column="set_year"    />
+        <result property="ratio"    column="ratio"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="num"    column="num"    />
+        <result property="money"    column="money"    />
+    </resultMap>
+
+    <sql id="selectAwardSettingVo">
+        select setting_id, parent_id, ancestors,num, award_names, set_term, set_year, ratio, order_num, status, del_flag, create_by, create_time, update_by, update_time,money
+        from award_setting
+    </sql>
+
+    <select id="selectAwardSettingList" parameterType="AwardSetting" resultMap="AwardSettingResult">
+        <include refid="selectAwardSettingVo"/>
+        <where>  
+            <if test="settingId != null "> and setting_id = #{settingId}</if>
+            <if test="parentId != null "> and parent_id = #{parentId}</if>
+            <if test="ancestors != null  and ancestors != ''"> and ancestors = #{ancestors}</if>
+            <if test="awardNames != null  and awardNames != ''"> and award_names = #{awardNames}</if>
+            <if test="setTerm != null  and setTerm != ''"> and set_term = #{setTerm}</if>
+            <if test="setYear != null  and setYear != ''"> and set_year = #{setYear}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            and del_flag=0
+        </where>
+    </select>
+    
+    <select id="selectAwardSettingBySetting" parameterType="Long" resultMap="AwardSettingResult">
+        <include refid="selectAwardSettingVo"/>
+        where setting_id = #{settingId}
+    </select>
+        
+    <insert id="insertAwardSetting" parameterType="AwardSetting" useGeneratedKeys="true" keyProperty="settingId">
+        insert into award_setting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="parentId != null">parent_id,</if>
+            <if test="ancestors != null">ancestors,</if>
+            <if test="awardNames != null">award_names,</if>
+            <if test="setTerm != null">set_term,</if>
+            <if test="setYear != null">set_year,</if>
+            <if test="ratio != null">ratio,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="num != null">num,</if>
+            <if test="money != null">money,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="parentId != null">#{parentId},</if>
+            <if test="ancestors != null">#{ancestors},</if>
+            <if test="awardNames != null">#{awardNames},</if>
+            <if test="setTerm != null">#{setTerm},</if>
+            <if test="setYear != null">#{setYear},</if>
+            <if test="ratio != null">#{ratio},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="num != null">#{num},</if>
+            <if test="money != null">#{money},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateAwardSetting" parameterType="AwardSetting">
+        update award_setting
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="ancestors != null">ancestors = #{ancestors},</if>
+            <if test="awardNames != null">award_names = #{awardNames},</if>
+            <if test="setTerm != null">set_term = #{setTerm},</if>
+            <if test="setYear != null">set_year = #{setYear},</if>
+            <if test="ratio != null">ratio = #{ratio},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="num != null">num = #{num},</if>
+            <if test="money != null">money = #{money},</if>
+            update_time = sysdate()
+        </trim>
+        where setting_id = #{settingId}
+    </update>
+
+    <delete id="deleteAwardSettingBySetting" parameterType="Long">
+        update  award_setting set  del_flag =2 where setting_id=#{setting}
+    </delete>
+
+    <delete id="deleteAwardSettingBySettings" parameterType="Long">
+        update  award_setting set  del_flag =2 where setting_id in
+        <foreach item="setting" collection="array" open="(" separator="," close=")">
+            #{setting}
+        </foreach>
+    </delete>
+
+    <select id="checkExitByName" parameterType="String" resultType="int">
+        select count(1)
+        from award_setting
+        where award_names = #{awardNames} limit 1
+    </select>
+
+    <select id="selectByParentId" parameterType="Long" resultMap="AwardSettingResult">
+        select  a.*
+        from award_setting a
+        where a.parent_id=#{parentId} and a.del_flag = '0'
+    </select>
+</mapper>

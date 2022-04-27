@@ -84,6 +84,11 @@
           <span v-if="scope.row.ratio != null">{{scope.row.ratio}}%</span>
         </template>
       </el-table-column>
+      <el-table-column prop="money" label="奖项金额" align="center" width="120">
+        <template slot-scope="scope">
+          <span v-if="scope.row.money != 0">{{scope.row.money}}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="status" label="状态" align="center" width="100">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
@@ -202,6 +207,12 @@
             </el-col>
           </el-row>
         <el-row>
+          <el-col :span="12" v-if="form.addType == 1">
+            <el-form-item label="奖项金额" prop="money">
+              <el-input-number v-model="form.money" controls-position="right" :step="1"></el-input-number>
+            </el-form-item>
+
+          </el-col>
           <el-col :span="12">
             <el-form-item label="状态">
               <el-radio-group v-model="form.status">
@@ -438,6 +449,7 @@
           status: "0",
           assignWay:0,
           num:1,
+          money:100,
         };
         this.resetForm("form");
       }
@@ -489,7 +501,7 @@
           else {
             this.form.addType = 0
           }
-          if(response.data.ratio ==0){
+          if(response.data.ratio == null){
             //名额方式
             this.form.assignWay=0
           }

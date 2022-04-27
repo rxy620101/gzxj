@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.scholarShip.mapper.TimeSettingMapper">
+    
+    <resultMap type="TimeSetting" id="TimeSettingResult">
+        <result property="settingId"    column="setting_id"    />
+        <result property="setType"    column="set_type"    />
+        <result property="setYear"    column="set_year"    />
+        <result property="setTerm"    column="set_term"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectTimeSettingVo">
+        select setting_id, set_type, set_year, set_term, start_time, end_time, status, del_flag, create_by, create_time, update_by, update_time from time_setting
+    </sql>
+
+    <select id="selectTimeSettingList" parameterType="TimeSetting" resultMap="TimeSettingResult">
+        <include refid="selectTimeSettingVo"/>
+        <where>  
+            <if test="setType != null  and setType != ''"> and set_type = #{setType}</if>
+            <if test="setYear != null  and setYear != ''"> and set_year = #{setYear}</if>
+            <if test="setTerm != null  and setTerm != ''"> and set_term = #{setTerm}</if>
+            <if test="startTime != null "> and start_time = #{startTime}</if>
+            <if test="endTime != null "> and end_time = #{endTime}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+             and del_flag=0
+        </where>
+    </select>
+    
+    <select id="selectTimeSettingBySetting" parameterType="Long" resultMap="TimeSettingResult">
+        <include refid="selectTimeSettingVo"/>
+        where setting_id = #{settingId}
+    </select>
+        
+    <insert id="insertTimeSetting" parameterType="TimeSetting" useGeneratedKeys="true" keyProperty="settingId">
+        insert into time_setting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="setType != null">set_type,</if>
+            <if test="setYear != null">set_year,</if>
+            <if test="setTerm != null">set_term,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="setType != null">#{setType},</if>
+            <if test="setYear != null">#{setYear},</if>
+            <if test="setTerm != null">#{setTerm},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateTimeSetting" parameterType="TimeSetting">
+        update time_setting
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="setType != null">set_type = #{setType},</if>
+            <if test="setYear != null">set_year = #{setYear},</if>
+            <if test="setTerm != null">set_term = #{setTerm},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+           update_time = sysdate()
+        </trim>
+        where setting_id = #{settingId}
+    </update>
+
+    <delete id="deleteTimeSettingBySetting" parameterType="Long">
+        update time_setting set  del_flag=2
+        where setting_id = #{settingId}
+    </delete>
+
+    <delete id="deleteTimeSettingBySettings" parameterType="String">
+        update time_setting set  del_flag=2 where setting_id in
+        <foreach item="settingId" collection="array" open="(" separator="," close=")">
+            #{settingId}
+        </foreach>
+    </delete>
+</mapper>

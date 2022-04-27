@@ -110,5 +110,8 @@ public interface SysUserMapper
      */
     public int checkUserNameUnique(String userName);
 
+//    //根据学号找id
+//    public Long selectIdBySno(String sno);
+
 
 }

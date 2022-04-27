@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.scholarShip.mapper.HardSettingMapper">
+
+    <resultMap type="HardSetting" id="HardSettingResult">
+        <result property="settingId" column="setting_id"/>
+        <result property="setYear" column="set_year"/>
+        <result property="collegeId" column="college_id"/>
+        <result property="grade" column="grade"/>
+        <result property="allNum" column="all_num"/>
+        <result property="instructorId" column="instructor_id"/>
+        <result property="num" column="num"/>
+        <result property="status" column="status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="collegeName" column="name"/>
+        <result property="instructorName" column="instructor_name"/>
+    </resultMap>
+
+    <sql id="selectHardSettingVo">
+        select setting_id,
+               set_year,
+               a.college_id,
+               a.grade,
+               all_num,
+               a.instructor_id,
+               a.num,
+               a.status,
+               a.del_flag,
+               a.create_by,
+               a.create_time,
+               a.update_by,
+               a.update_time,
+               u.name,
+               b.instructor_name
+        from hard_setting a
+                 join instror_info b on a.instructor_id = b.instructor_id
+                 join college_major u on a.college_id = u.college_id
+    </sql>
+
+    <select id="selectHardSettingList" parameterType="HardSetting" resultMap="HardSettingResult">
+        <include refid="selectHardSettingVo"/>
+        <where>
+            <if test="settingId != null ">and setting_id = #{settingId}</if>
+            <if test="setYear != null  and setYear != ''">and set_year = #{setYear}</if>
+            <if test="collegeId != null ">and a.college_id = #{collegeId}</if>
+            <if test="allNum != null  and allNum != ''">and all_num = #{allNum}</if>
+            <if test="instructorId != null ">and a.instructor_id = #{instructorId}</if>
+            <if test="num != null ">and num = #{num}</if>
+            <if test="status != null  and status != ''">and a.status = #{status}</if>
+            <if test="grade != null  and grade != ''">and a.grade = #{grade}</if>
+            <if test="instructorName != null  and instructorName != ''">
+                and b.instructor_name like concat('%', #{instructorName}, '%')
+            </if>
+            and a.del_flag=0
+            order by a.college_id,a.grade,a.all_num
+        </where>
+    </select>
+
+    <select id="selectHardSettingBySetting" parameterType="Long" resultMap="HardSettingResult">
+        <include refid="selectHardSettingVo"/>
+        where setting_id = #{settingId}
+    </select>
+
+    <insert id="insertHardSetting" parameterType="HardSetting" useGeneratedKeys="true" keyProperty="settingId">
+        insert into hard_setting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="setYear != null">set_year,</if>
+            <if test="collegeId != null">college_id,</if>
+            <if test="grade != null">grade,</if>
+            <if test="allNum != null">all_num,</if>
+            <if test="instructorId != null">instructor_id,</if>
+            <if test="num != null">num,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="setYear != null">#{setYear},</if>
+            <if test="collegeId != null">#{collegeId},</if>
+            <if test="grade != null">#{grade},</if>
+            <if test="allNum != null">#{allNum},</if>
+            <if test="instructorId != null">#{instructorId},</if>
+            <if test="num != null">#{num},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <insert id="batchAdd" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="settingId">
+        insert into hard_setting (set_year,college_id,all_num,instructor_id, num, create_by, create_time,grade) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.setYear},#{item.collegeId},#{item.allNum},#{item.instructorId},#{item.num},#{item.createBy},sysdate(),#{item.grade} )
+        </foreach>
+    </insert>
+
+    <update id="updateHardSetting" parameterType="HardSetting">
+        update hard_setting
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="setYear != null">set_year = #{setYear},</if>
+            <if test="collegeId != null">college_id = #{collegeId},</if>
+            <if test="allNum != null">all_num = #{allNum},</if>
+            <if test="instructorId != null">instructor_id = #{instructorId},</if>
+            <if test="num != null">num`= #{num},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </trim>
+        where setting_id = #{settingId}
+    </update>
+
+    <delete id="deleteHardSettingBySetting" parameterType="Long">
+        update hard_setting
+        set del_flag=2
+        where setting_id = #{settingId}
+    </delete>
+
+    <delete id="deleteHardSettingBySettings" parameterType="Long">
+        update hard_setting set del_flag=2 where setting_id in
+        <foreach item="settingId" collection="array" open="(" separator="," close=")">
+            #{settingId}
+        </foreach>
+    </delete>
+</mapper>

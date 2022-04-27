@@ -195,6 +195,11 @@ public class SysUserServiceImpl implements ISysUserService
         // 新增用户信息
         int rows = userMapper.insertUser(user);
         // 新增用户与角色管理
+        //导入时解决无id问题 根据学号找id
+        if(user.getUserId()== null){
+            SysUser sysUser=userMapper.selectUserByUserName(user.getUserName());
+            user.setUserId(sysUser.getUserId());
+        }
         insertUserRole(user);
         return rows;
     }
@@ -222,6 +227,12 @@ public class SysUserServiceImpl implements ISysUserService
     public int updateUser(SysUser user)
     {
         Long userId = user.getUserId();
+        //导入时，通过名称来查找id
+        if(userId ==null ){
+            SysUser sysUser= userMapper.selectUserByUserName(user.getUserName());
+            userId=sysUser.getUserId();
+            user.setUserId(userId);
+        }
         // 删除用户与角色关联
         userRoleMapper.deleteUserRoleByUserId(userId);
         // 新增用户与角色管理

@@ -90,12 +90,23 @@
             >导出
             </el-button>
           </el-col>
+          <el-col :span="1.5">
+            <el-button
+              type="primary"
+              plain
+              icon="el-icon-s-promotion"
+              size="mini"
+              @click="handlePulish"
+              v-if="JSON.stringify(instructorInfo)!='{}'"
+            >发布
+            </el-button>
+          </el-col>
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
         </el-row>
 
         <el-table
           v-loading="loading"
-          :data="gradeList"
+          :data="pageInfo"
           @selection-change="handleSelectionChange"
         >
           <!--:default-sort = "{prop: 'totalCredit', order: 'descending'}"-->
@@ -143,13 +154,23 @@
             </template>
           </el-table-column>
         </el-table>
-        <pagination
-          v-show="total>0"
+        <!--<pagination-->
+        <!--v-show="total>0"-->
+        <!--:total="total"-->
+        <!--:page.sync="queryParams.pageNum"-->
+        <!--:limit.sync="queryParams.pageSize"-->
+
+        <!--/>-->
+        <el-pagination
+          align="right"
+          :current-page="queryParams.pageNum"
+          :page-sizes="[10, 20, 50, 60]"
+          :page-size="queryParams.pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
           :total="total"
-          :page.sync="queryParams.pageNum"
-          :limit.sync="queryParams.pageSize"
-          @pagination="getList"
-        />
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange">
+        </el-pagination>
       </el-col>
     </el-row>
 
@@ -219,6 +240,7 @@
   import {getInfo} from "@/api/scholarship/instrorInfo"
   import {getInfoBysno} from "@/api/scholarship/stuInfo"
   import {getToken} from "@/utils/auth";
+  import {putGradeInfo} from "@/api/scholarship/initAwardList";
   import Cookies from "js-cookie";
 
   export default {
@@ -259,8 +281,8 @@
         subject: [],
         majorNames: null,
         //便于学生的过滤，学生只能查看本班级和本专业的
-        stu:{
-        },
+        stu: {},
+        instructorInfo: {},
         stuClass: undefined,
         majorId: undefined,
 
@@ -300,7 +322,7 @@
           startYear: "2021-2022",
           validTerm: "1",
           titleNames: [],
-          grade:undefined,
+          grade: undefined,
         },
         //grade: undefined,
         // 列信息
@@ -310,7 +332,10 @@
         // //查看详情
         // selectDetial: false,
         //表头数据
-        titleNames: []
+        titleNames: [],
+
+        //分页数据
+        pageInfo: []
 
       }
     },
@@ -458,7 +483,7 @@
                       sno: val.sno, // 学生ID
                       stuName: val.stuName, // 根据id获取学生姓名
                       totalScore: 0, // 学生的各科总分，后续修改
-                      totalCredit:0,
+                      totalCredit: 0,
                       ranking: 1 // 名次，后续修改
                     }
                   }
@@ -476,6 +501,9 @@
             }
             this.total = response.total;
             this.loading = false;
+            //前端分页数据
+            //获取当前页的数据
+            this.getPageInfo();       //在这里调用获取当前页的数据信息方法
           }
         );
 
@@ -499,7 +527,7 @@
             }
           }
           this.gradeList[key].totalScore = total
-          this.gradeList[key].totalCredit = totalCredit;
+          this.gradeList[key].totalCredit = totalCredit.toFixed(2);
         }
 
       },
@@ -509,44 +537,55 @@
         this.gradeList.sort((a, b) => {
           // 按照总分倒序
           return b.totalScore - a.totalScore
-        }).forEach((item) => {
-          // 设置名次
-          _ranking++
-          this.gradeList.find((a) => a.sno === item.sno).ranking = _ranking
-        })
+        }).forEach((item, index) => {
+            // 设置名次 同分则名次相同
+            if (index != 0) {
+              if (item.totalScore != this.gradeList[index - 1].totalScore) {
+                _ranking++
+              }
+            }
+            if (index == 0) {
+              // debugger
+              _ranking++
+            }
+            this.gradeList.find((a) => a.sno === item.sno).ranking = _ranking
+          }
+        )
 
       },
       //获取辅导员信息,并返回专业和年级信息
       getInstructorInfo() {
         getInfo().then(res => {
-          if(res.data!= null){
-          this.queryParams.grade=res.data.guideGrade;
-          let majorName = res.majorNames;
-          //指导专业名称数组
-          this.majorNames = res.majorNames.join(",");
-          //默认第一是值，第二个是索引
-          majorName.forEach((item, index) => {
-            let obj = {
-              id: index,
-              label: item
-            };
-            this.majorOptions.push(obj);
-            //初始化专业项
-            this.queryParams.majorName = majorName[0]
-            this.initMajor = majorName[0]
-          });
+          if (res.data != null) {
+            this.instructorInfo = res.data
+            this.queryParams.grade = res.data.guideGrade;
+            let majorName = res.majorNames;
+            //指导专业名称数组
+            this.majorNames = res.majorNames.join(",");
+            //默认第一是值，第二个是索引
+            majorName.forEach((item, index) => {
+              let obj = {
+                id: index,
+                label: item
+              };
+              this.majorOptions.push(obj);
+              //初始化专业项
+              this.queryParams.majorName = majorName[0]
+              this.initMajor = majorName[0]
+            });
           }
           this.getStuInfo();
         })
-      },
+      }
+      ,
       //获取学生信息
       getStuInfo() {
         getInfoBysno(Cookies.get("username")).then(res => {
           if (res.data != null) {
-            this.stu=res.data;
-            this.queryParams.grade=res.data.grade;
-            this.stuClass=res.data.stuClass;
-            this.majorId=res.data.majorId;
+            this.stu = res.data;
+            this.queryParams.grade = res.data.grade;
+            this.stuClass = res.data.stuClass;
+            this.majorId = res.data.majorId;
             this.$forceUpdate();
           }
           this.getList()
@@ -680,8 +719,36 @@
           })
         });
 
-      }
-      ,
+      },
+      //发布学生成绩,用于生成初始名单
+      handlePulish() {
+        //获取学期信息
+        let term = null;
+        this.getDicts('valid_term').then((response) => {
+          response.data.forEach((item => {
+                if (this.queryParams.validTerm === item.dictValue) {
+                  term = item.dictLabel
+                }
+              }
+            )
+          );
+          this.$modal.confirm('确认发布"' + this.queryParams.majorName + " " + this.queryParams.startYear + "学年 " + term + '""的学生成绩吗？').then(() => {
+            let params = {
+              startYear: this.queryParams.startYear,
+              startTerm: this.queryParams.validTerm,
+              grade: this.instructorInfo.guideGrade,
+              majorName: this.queryParams.majorName,
+              gradeInfo: this.gradeList
+            }
+            putGradeInfo(params).then(res => {
+              this.$modal.msgSuccess("发布成功")
+            })
+
+          }).catch(() => {
+          })
+        });
+      },
+
       /** 下载模板操作 */
       importTemplate() {
         //先传递表头数据
@@ -696,7 +763,8 @@
           this.download('grade/info/importTemplate', {}, `stuGrade_template_${new Date().getTime()}.xlsx`)
         })
 
-      },
+      }
+      ,
       // 文件上传中处理
       handleFileUploadProgress(event, file, fileList) {
         this.upload.isUploading = true;
@@ -709,23 +777,55 @@
         this.$refs.upload.clearFiles();
         this.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", {dangerouslyUseHTMLString: true});
         this.getList();
-      },
+      }
+      ,
       // 提交上传文件
       submitFileForm() {
-       //传入导入专业、学年、学期信息
-        this.queryParams.titleNames=[]
-        this.header.forEach((item,index)=>{
-          if(index< this.header.length-3){
+        //传入导入专业、学年、学期信息
+        this.queryParams.titleNames = []
+        this.header.forEach((item, index) => {
+          if (index < this.header.length - 3) {
             this.queryParams.titleNames.push(item.label)
           }
         })
-        getHeader(this.queryParams.titleNames).then(response=>{
+        getHeader(this.queryParams.titleNames).then(response => {
           getParams(this.queryParams).then(res => {
             this.$refs.upload.submit();
           })
         })
 
       }
+      ,
+      //前端数据分页
+      getPageInfo() {
+        //清空pageTicket中的数据
+        this.pageInfo = []
+        // 获取当前页的数据
+        for (let i = (this.queryParams.pageNum - 1) * this.queryParams.pageSize; i < this.total; i++) {
+          //把遍历的数据添加到pageTicket里面
+          this.pageInfo.push(this.gradeList[i]);
+          //判断是否达到一页的要求
+          if (this.pageInfo.length === this.queryParams.pageSize) break;
+        }
+      }
+      ,
+
+      //分页时修改每页的行数,这里会自动传入一个size
+      handleSizeChange(size) {
+        //修改当前每页的数据行数
+        this.queryParams.pageSize = size;
+        //数据重新分页
+        this.getPageInfo();
+      }
+      ,
+      //调整当前的页码
+      handlePageChange(pageNumber) {
+        //修改当前的页码
+        this.queryParams.pageNum = pageNumber;
+        //数据重新分页
+        this.getPageInfo()
+      }
     }
-  };
+  }
+  ;
 </script>

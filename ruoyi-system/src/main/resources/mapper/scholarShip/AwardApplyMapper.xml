@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.scholarShip.mapper.AwardApplyMapper">
+
+    <resultMap type="AwardApply" id="AwardApplyResult">
+        <result property="applyId" column="apply_id"/>
+        <result property="sno" column="sno"/>
+        <result property="stuName" column="stu_name"/>
+        <result property="applyYear" column="apply_year"/>
+        <result property="applyTerm" column="apply_term"/>
+        <result property="applyType" column="apply_type"/>
+        <result property="initRank" column="init_rank"/>
+        <result property="selfRemark" column="self_remark"/>
+        <result property="finalRank" column="final_rank"/>
+        <result property="allCredit" column="all_credit"/>
+        <result property="extraPoint" column="extra_point"/>
+        <result property="finalCredit" column="final_credit"/>
+        <result property="isApply" column="is_apply"/>
+        <result property="process" column="process"/>
+        <result property="instructorName" column="instructor_name"/>
+        <result property="comment" column="comment"/>
+        <result property="awardName" column="awardName"/>
+        <result property="rankName" column="rankName"/>
+        <result property="cardNum" column="card_num"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="selectAwardApplyVo">
+        select apply_id,
+               a.sno,
+               a.stu_name,
+               apply_year,
+               apply_term,
+               apply_type,
+               init_rank,
+               self_remark,
+               final_rank,
+               all_credit,
+               extra_point,
+               final_credit,
+               is_apply,
+               process,
+               instructor_name,
+               comment,
+               a.create_time
+        from award_apply a
+                 join stu_info b on a.sno = b.sno
+    </sql>
+
+    <select id="selectAwardApplyList" parameterType="AwardApply" resultMap="AwardApplyResult">
+        <include refid="selectAwardApplyVo"/>
+        <where>
+            <if test="sno != null  and sno != ''">and sno = #{sno}</if>
+            <if test="stuName != null  and stuName != ''">and stu_name like concat('%', #{stuName}, '%')</if>
+            <if test="applyYear != null  and applyYear != ''">and apply_year = #{applyYear}</if>
+            <if test="applyTerm != null  and applyTerm != ''">and apply_term = #{applyTerm}</if>
+            <if test="applyType != null  and applyType != ''">and apply_type = #{applyType}</if>
+            <if test="initRank != null  and initRank != ''">and init_rank = #{initRank}</if>
+            <if test="selfRemark != null  and selfRemark != ''">and self_remark = #{selfRemark}</if>
+            <if test="finalRank != null  and finalRank != ''">and final_rank = #{finalRank}</if>
+            <if test="isApply != null  and isApply != ''">and is_apply = #{isApply}</if>
+            <if test="process != null  and process != ''">and process = #{process}</if>
+            <if test="majorId != null  and majorId != ''">and b.major_id = #{majorId}</if>
+            <if test="collegeId != null  and collgeId != ''">and b.college_id = #{collegeId}</if>
+            <!--             辅导员的数据过滤-->
+            <if test="params.majorIds != null  and params.majorIds != ''">
+                and b.major_id in
+                <foreach item="majorId" collection="params.majorIds" open="(" separator="," close=")">
+                    #{majorId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAwardApplyByApplyId" parameterType="Long" resultMap="AwardApplyResult">
+        <include refid="selectAwardApplyVo"/>
+        where apply_id = #{applyId}
+    </select>
+
+    <insert id="insertAwardApply" parameterType="AwardApply" useGeneratedKeys="true" keyProperty="applyId">
+        insert into award_apply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sno != null">sno,</if>
+            <if test="stuName != null">stu_name,</if>
+            <if test="applyYear != null">apply_year,</if>
+            <if test="applyTerm != null">apply_term,</if>
+            <if test="applyType != null">apply_type,</if>
+            <if test="initRank != null">init_rank,</if>
+            <if test="selfRemark != null">self_remark,</if>
+            <if test="finalRank != null">final_rank,</if>
+            <if test="allCredit != null">all_credit,</if>
+            <if test="extraPoint != null">extra_point,</if>
+            <if test="finalCredit != null">final_credit,</if>
+            <if test="isApply != null">is_apply,</if>
+            <if test="process != null">process,</if>
+            <if test="instructorName != null">instructor_name,</if>
+            <if test="comment != null">comment,</if>
+            <if test="cardNum != null">card_num,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sno != null">#{sno},</if>
+            <if test="stuName != null">#{stuName},</if>
+            <if test="applyYear != null">#{applyYear},</if>
+            <if test="applyTerm != null">#{applyTerm},</if>
+            <if test="applyType != null">#{applyType},</if>
+            <if test="initRank != null">#{initRank},</if>
+            <if test="selfRemark != null">#{selfRemark},</if>
+            <if test="finalRank != null">#{finalRank},</if>
+            <if test="allCredit != null">#{allCredit},</if>
+            <if test="extraPoint != null">#{extraPoint},</if>
+            <if test="finalCredit != null">#{finalCredit},</if>
+            <if test="isApply != null">#{isApply},</if>
+            <if test="process != null">#{process},</if>
+            <if test="instructorName != null">#{instructorName},</if>
+            <if test="comment != null">#{comment},</if>
+            <if test="cardNum != null">#{cardNum},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateAwardApply" parameterType="AwardApply">
+        update award_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sno != null">sno = #{sno},</if>
+            <if test="stuName != null">stu_name = #{stuName},</if>
+            <if test="applyYear != null">apply_year = #{applyYear},</if>
+            <if test="applyTerm != null">apply_term = #{applyTerm},</if>
+            <if test="applyType != null">apply_type = #{applyType},</if>
+            <if test="initRank != null">init_rank = #{initRank},</if>
+            <if test="selfRemark != null">self_remark = #{selfRemark},</if>
+            <if test="finalRank != null">final_rank = #{finalRank},</if>
+            <if test="allCredit != null">all_credit = #{allCredit},</if>
+            <if test="extraPoint != null">extra_point = #{extraPoint},</if>
+            <if test="finalCredit != null">final_credit = #{finalCredit},</if>
+            <if test="isApply != null">is_apply = #{isApply},</if>
+            <if test="process != null">process = #{process},</if>
+            <if test="instructorName != null">instructor_name = #{instructorName},</if>
+            <if test="comment != null">comment = #{comment},</if>
+        </trim>
+        where apply_id = #{applyId}
+    </update>
+
+    <delete id="deleteAwardApplyByApplyId" parameterType="Long">
+        delete
+        from award_apply
+        where apply_id = #{applyId}
+    </delete>
+
+    <delete id="deleteAwardApplyByApplyIds" parameterType="String">
+        delete from award_apply where apply_id in
+        <foreach item="applyId" collection="array" open="(" separator="," close=")">
+            #{applyId}
+        </foreach>
+    </delete>
+</mapper>
