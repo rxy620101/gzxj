@@ -100,4 +100,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{settingId}
         </foreach>
     </delete>
+<select id="getAtLeast" parameterType="String" resultMap="TimeSettingResult">
+    select *
+    from time_setting  where set_type=#{setType}
+    and setting_id =(select max(setting_id) from time_setting where set_type=#{setType} )
+
+</select>
 </mapper>

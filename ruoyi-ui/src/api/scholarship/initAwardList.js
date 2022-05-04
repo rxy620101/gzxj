@@ -10,9 +10,9 @@ export function listInitAward(query) {
 }
 
 // 查询奖学金初始名单详细
-export function getInitAward(initId) {
+export function getInitAward(sno) {
   return request({
-    url: '/initAward/info/' + initId,
+    url: '/initAward/info/' + sno,
     method: 'get'
   })
 }
@@ -48,6 +48,23 @@ export function putGradeInfo(data) {
   return request({
     url: '/initAward/info/getGradeInfo',
     method: 'post',
-    data:data
+    data: data
+  })
+}
+
+//发布初始名单
+export function updateIsPublic(yearInfo, termInfo) {
+  return request({
+    url: '/initAward/info/updateIsPublic/' + yearInfo + '/' + termInfo,
+    method: 'get',
+  })
+}
+
+
+// 获取学生成绩信息
+export function selInitBySno(sno) {
+  return request({
+    url: '/initAward/info/selBySno/'+sno,
+    method: 'get',
   })
 }

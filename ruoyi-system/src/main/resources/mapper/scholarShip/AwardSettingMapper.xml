@@ -129,4 +129,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from award_setting a
         where a.parent_id=#{parentId} and a.del_flag = '0'
     </select>
+
+    <select id="selectAllDetail" parameterType="AwardSetting" resultMap="AwardSettingResult">
+        select  a.*
+        from award_setting a
+        where a.set_term=#{setTerm} and a.set_year=#{setYear} and a.money is not null
+        and a.del_flag = '0'
+    </select>
+
 </mapper>

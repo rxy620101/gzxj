@@ -1,95 +1,132 @@
 package com.ruoyi.scholarShip.domain;
 
-import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.util.Date;
+
 /**
  * 奖学金申请对象 award_apply
- * 
+ *
  * @author raoxy
- * @date 2022-04-25
+ * @date 2022-04-29
  */
-public class AwardApply extends BaseEntity
-{
+@Data
+public class AwardApply extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
-    /** 申请id */
+    /**
+     * 申请id
+     */
     private Long applyId;
 
-    /** 学号 */
+    /**
+     * 学号
+     */
     @Excel(name = "学号")
     private String sno;
 
-    /** 学生姓名 */
+    /**
+     * 学生姓名
+     */
     @Excel(name = "学生姓名")
     private String stuName;
 
-    /** 申请学年 */
+    /**
+     * 申请学年
+     */
     @Excel(name = "申请学年")
     private String applyYear;
 
-    /** 申请学期 */
+    /**
+     * 申请学期
+     */
     @Excel(name = "申请学期")
     private String applyTerm;
 
-    /** 申请的奖项大类 */
+    /**
+     * 申请的奖项大类
+     */
     @Excel(name = "申请的奖项大类")
     private String applyType;
 
-
-    /** 初始等级 */
-    @Excel(name = "初始等级")
+    /**
+     * 初始等级(奖项金的具体名称)
+     */
+    @Excel(name = "初始等级(奖项金的具体名称)")
     private String initRank;
 
-    /** 自我评价 */
+    /**
+     * 自我评价
+     */
     @Excel(name = "自我评价")
     private String selfRemark;
 
-    /** 最终等级 */
-    private String finalRank;
-
-    /** 学科学分成绩 */
-    @Excel(name = "学科学分成绩")
-    private BigDecimal allCredit;
-
-    /** 加分项分数总和 */
-    @Excel(name = "加分项分数总和")
-    private BigDecimal extraPoint;
-
-    /** 最终学分绩点 */
-    @Excel(name = "最终学分绩点")
-    private BigDecimal finalCredit;
-
-    /** 是否申请（0是，1否） */
-    @Excel(name = "是否申请", readConverterExp = "0=是，1否")
-    private String isApply;
-
-    /** 进度(0 待审核，1审核通过，2审核失败） */
+    /**
+     * 进度(0 待审核，1审核通过，2审核失败）
+     */
     @Excel(name = "进度(0 待审核，1审核通过，2审核失败）")
     private String process;
 
-    /** 辅导员姓名 */
+    /**
+     * 辅导员姓名
+     */
     @Excel(name = "辅导员姓名")
     private String instructorName;
 
-    /** 评语 */
-    private String comment;
-    //奖项类别名称
-    private String  awardName;
-    //奖项等级名称
-    private String  rankName;
-   //卡号
-    private String cardNum;
+    /**
+     * 是否调整等级（0 否，1是）
+     */
+    @Excel(name = "是否调整等级", readConverterExp = "0=,否=，1是")
+    private String isAdapt;
 
-    public String getAwardName() {
-        return awardName;
+    /**
+     * 调整等级
+     */
+    @Excel(name = "调整等级")
+    private String adaptRank;
+
+    /**
+     * 评语
+     */
+    @Excel(name = "评语")
+    private String comment;
+
+    /**
+     * 卡号
+     */
+    @Excel(name = "卡号")
+    private String cardNum;
+    //奖项类别名称
+    private String typeName;
+    //奖项等级名称
+    private String rankName;
+    //等级金额
+    private String money;
+    //审核时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date checkTime;
+    //是否公示
+    private String isPublic;
+    //操作类型   0学生申请   1学生申请记录查询 2 待审核 3 已审核 4 公示
+    private String operation;
+    //学院名称
+    private String collegeName;
+    //专业名称
+    private String majorName;
+    //年级
+    private String grade;
+
+    public String getTypeName() {
+        return typeName;
     }
 
-    public void setAwardName(String awardName) {
-        this.awardName = awardName;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
     public String getRankName() {
@@ -100,178 +137,144 @@ public class AwardApply extends BaseEntity
         this.rankName = rankName;
     }
 
-    public String getCardNum() {
-        return cardNum;
+    public String getMoney() {
+        return money;
+    }
+
+    public void setMoney(String money) {
+        this.money = money;
+    }
+
+    public void setApplyId(Long applyId) {
+        this.applyId = applyId;
+    }
+
+    public Long getApplyId() {
+        return applyId;
+    }
+
+    public void setSno(String sno) {
+        this.sno = sno;
+    }
+
+    public String getSno() {
+        return sno;
+    }
+
+    public void setStuName(String stuName) {
+        this.stuName = stuName;
+    }
+
+    public String getStuName() {
+        return stuName;
+    }
+
+    public void setApplyYear(String applyYear) {
+        this.applyYear = applyYear;
+    }
+
+    public String getApplyYear() {
+        return applyYear;
+    }
+
+    public void setApplyTerm(String applyTerm) {
+        this.applyTerm = applyTerm;
+    }
+
+    public String getApplyTerm() {
+        return applyTerm;
+    }
+
+    public void setApplyType(String applyType) {
+        this.applyType = applyType;
+    }
+
+    public String getApplyType() {
+        return applyType;
+    }
+
+    public void setInitRank(String initRank) {
+        this.initRank = initRank;
+    }
+
+    public String getInitRank() {
+        return initRank;
+    }
+
+    public void setSelfRemark(String selfRemark) {
+        this.selfRemark = selfRemark;
+    }
+
+    public String getSelfRemark() {
+        return selfRemark;
+    }
+
+    public void setProcess(String process) {
+        this.process = process;
+    }
+
+    public String getProcess() {
+        return process;
+    }
+
+    public void setInstructorName(String instructorName) {
+        this.instructorName = instructorName;
+    }
+
+    public String getInstructorName() {
+        return instructorName;
+    }
+
+    public void setIsAdapt(String isAdapt) {
+        this.isAdapt = isAdapt;
+    }
+
+    public String getIsAdapt() {
+        return isAdapt;
+    }
+
+    public void setAdaptRank(String adaptRank) {
+        this.adaptRank = adaptRank;
+    }
+
+    public String getAdaptRank() {
+        return adaptRank;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getComment() {
+        return comment;
     }
 
     public void setCardNum(String cardNum) {
         this.cardNum = cardNum;
     }
 
-    public void setApplyId(Long applyId)
-    {
-        this.applyId = applyId;
-    }
-
-    public Long getApplyId() 
-    {
-        return applyId;
-    }
-    public void setSno(String sno) 
-    {
-        this.sno = sno;
-    }
-
-    public String getSno() 
-    {
-        return sno;
-    }
-    public void setStuName(String stuName) 
-    {
-        this.stuName = stuName;
-    }
-
-    public String getStuName() 
-    {
-        return stuName;
-    }
-    public void setApplyYear(String applyYear) 
-    {
-        this.applyYear = applyYear;
-    }
-
-    public String getApplyYear() 
-    {
-        return applyYear;
-    }
-    public void setApplyTerm(String applyTerm) 
-    {
-        this.applyTerm = applyTerm;
-    }
-
-    public String getApplyTerm() 
-    {
-        return applyTerm;
-    }
-    public void setApplyType(String applyType) 
-    {
-        this.applyType = applyType;
-    }
-
-    public String getApplyType() 
-    {
-        return applyType;
-    }
-    public void setInitRank(String initRank) 
-    {
-        this.initRank = initRank;
-    }
-
-    public String getInitRank() 
-    {
-        return initRank;
-    }
-    public void setSelfRemark(String selfRemark) 
-    {
-        this.selfRemark = selfRemark;
-    }
-
-    public String getSelfRemark() 
-    {
-        return selfRemark;
-    }
-    public void setFinalRank(String finalRank) 
-    {
-        this.finalRank = finalRank;
-    }
-
-    public String getFinalRank() 
-    {
-        return finalRank;
-    }
-    public void setAllCredit(BigDecimal allCredit) 
-    {
-        this.allCredit = allCredit;
-    }
-
-    public BigDecimal getAllCredit() 
-    {
-        return allCredit;
-    }
-    public void setExtraPoint(BigDecimal extraPoint) 
-    {
-        this.extraPoint = extraPoint;
-    }
-
-    public BigDecimal getExtraPoint() 
-    {
-        return extraPoint;
-    }
-    public void setFinalCredit(BigDecimal finalCredit) 
-    {
-        this.finalCredit = finalCredit;
-    }
-
-    public BigDecimal getFinalCredit() 
-    {
-        return finalCredit;
-    }
-    public void setIsApply(String isApply) 
-    {
-        this.isApply = isApply;
-    }
-
-    public String getIsApply() 
-    {
-        return isApply;
-    }
-    public void setProcess(String process) 
-    {
-        this.process = process;
-    }
-
-    public String getProcess() 
-    {
-        return process;
-    }
-    public void setInstructorName(String instructorName) 
-    {
-        this.instructorName = instructorName;
-    }
-
-    public String getInstructorName() 
-    {
-        return instructorName;
-    }
-    public void setComment(String comment) 
-    {
-        this.comment = comment;
-    }
-
-    public String getComment() 
-    {
-        return comment;
+    public String getCardNum() {
+        return cardNum;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("applyId", getApplyId())
-            .append("sno", getSno())
-            .append("stuName", getStuName())
-            .append("applyYear", getApplyYear())
-            .append("applyTerm", getApplyTerm())
-            .append("applyType", getApplyType())
-            .append("initRank", getInitRank())
-            .append("selfRemark", getSelfRemark())
-            .append("finalRank", getFinalRank())
-            .append("allCredit", getAllCredit())
-            .append("extraPoint", getExtraPoint())
-            .append("finalCredit", getFinalCredit())
-            .append("isApply", getIsApply())
-            .append("process", getProcess())
-            .append("instructorName", getInstructorName())
-            .append("comment", getComment())
-            .toString();
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("applyId", getApplyId())
+                .append("sno", getSno())
+                .append("stuName", getStuName())
+                .append("applyYear", getApplyYear())
+                .append("applyTerm", getApplyTerm())
+                .append("applyType", getApplyType())
+                .append("initRank", getInitRank())
+                .append("selfRemark", getSelfRemark())
+                .append("process", getProcess())
+                .append("instructorName", getInstructorName())
+                .append("isAdapt", getIsAdapt())
+                .append("adaptRank", getAdaptRank())
+                .append("comment", getComment())
+                .append("createTime", getCreateTime())
+                .append("cardNum", getCardNum())
+                .toString();
     }
 }

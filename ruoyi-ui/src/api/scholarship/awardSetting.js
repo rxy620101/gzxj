@@ -65,3 +65,12 @@ export function listExcludeChild(settingId) {
     method: 'get'
   })
 }
+
+// 查询具体奖项
+export function getAwardsDetailList(params) {
+  return request({
+    url: '/awardSetting/info/selectAwardSettingList',
+    method: 'post',
+    data:params
+  })
+}

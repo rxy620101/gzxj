@@ -58,4 +58,6 @@ public interface ITimeSettingService
      * @return 结果
      */
     public int deleteTimeSettingBySetting(Long setting);
+    //获取最新的时间
+    public TimeSetting getAtLeast(String setType);
 }

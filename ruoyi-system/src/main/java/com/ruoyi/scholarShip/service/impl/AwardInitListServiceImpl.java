@@ -94,7 +94,17 @@ public class AwardInitListServiceImpl implements IAwardInitListService {
     public int deleteAwardInitListByInitId(Long initId) {
         return awardInitListMapper.deleteAwardInitListByInitId(initId);
     }
+    //更新发布状态
+    @Override
+    public int updateIsPublic(String yearInfo, String termInfo){
+        return  awardInitListMapper.updateIsPublic(yearInfo,termInfo);
+    }
 
+    //根据学号进行查询
+    @Override
+    public AwardInitList selectAwardInitListBySno(String sno){
+        return awardInitListMapper.selectAwardInitListBySno(sno);
+    }
     //接收初始的成绩信息
     @Override
     public int getGradeInfo(Map<String, Object> gradeInfo) {
@@ -171,11 +181,6 @@ public class AwardInitListServiceImpl implements IAwardInitListService {
             }
             awardInitLists.get(i).setFinalRank(rank);
         }
-//        //设置排名
-//        for (AwardInitList award : awardInitList) {
-//            award.setFinalRank(rank);
-//
-//        }
     }
 
     //计算每个等级对应的人数

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ruoyi.scholarShip.domain.AwardInitList;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 奖学金初始名单Service接口
@@ -63,4 +64,10 @@ public interface IAwardInitListService
 
     //接收初始的成绩信息
     public int getGradeInfo(Map<String,Object> gradeInfo);
+
+    //更新发布状态
+    public int updateIsPublic(String yearInfo, String termInfo);
+
+    //根据学号进行查询
+    public AwardInitList selectAwardInitListBySno(String sno);
 }

@@ -16,7 +16,7 @@
         <result property="gradeCredit" column="grade_credit"/>
         <result property="gradeRank" column="grade_rank"/>
         <result property="allExtraPoint" column="all_extra_point"/>
-        <result property="finaCredit" column="fina_credit"/>
+        <result property="finalCredit" column="final_credit"/>
         <result property="finalRank" column="final_rank"/>
         <result property="awardRank" column="award_rank"/>
         <result property="isPublic" column="is_public"/>
@@ -33,10 +33,11 @@
                grade_credit,
                grade_rank,
                all_extra_point,
-               fina_credit,
+               final_credit,
                final_rank,
                award_rank,
-               is_public
+               is_public,
+               a.grade
         from award_init_list a
                  join stu_info b on a.sno = b.sno
     </sql>
@@ -46,29 +47,39 @@
         <where>
             <if test="sno != null  and sno != ''">and sno = #{sno}</if>
             <if test="stuName != null  and stuName != ''">and stu_name = #{stuName}</if>
-            <if test="majorName != null ">and majorName = #{majorName}</if>
+            <if test="majorName != null ">and major_name = #{majorName}</if>
             <if test="yearInfo != null  and yearInfo != ''">and year_info = #{yearInfo}</if>
             <if test="termInfo != null  and termInfo != ''">and term_info = #{termInfo}</if>
             <if test="totalScore != null ">and total_score = #{totalScore}</if>
             <if test="gradeCredit != null ">and grade_credit = #{gradeCredit}</if>
             <if test="gradeRank != null ">and grade_rank = #{gradeRank}</if>
             <if test="allExtraPoint != null ">and all_extra_point = #{allExtraPoint}</if>
-            <if test="finaCredit != null ">and fina_credit = #{finaCredit}</if>
+            <if test="finalCredit != null ">and final_credit = #{finalCredit}</if>
             <if test="finalRank != null ">and final_rank = #{finalRank}</if>
             <if test="awardRank != null  and awardRank != ''">and award_rank = #{awardRank}</if>
-            <!--             <辅导员和学生查看时的数据过滤></辅导员和学生查看时的数据过滤>-->
-            <if test="params.stu != null ">
-                and b.grade=#{params.stu.grade} and b.major_id=#{params.stu.majorId}
-                and b.stu_class=#{params.stu.stuClass} and a.final_rank != null
+            <if test="grade != null  and grade !=''">and b.grade = #{grade}</if>
+            <if test="params.collegeId != null  and params.collegeId !=''">
+            and b.college_id = #{params.collegeId}
             </if>
-            <if test="params.instructor != null ">
-                and b.grade=#{params.instructor.guideGrade}
+            <!--             <辅导员和学生查看时的数据过滤></辅导员和学生查看时的数据过滤>-->
+            <if test="params.majorId != null  and params.majorId !=''">
+                and b.grade=#{params.grade} and b.major_id=#{params.majorId}
+                and b.stu_class=#{params.stuClass}
+                and a.is_public='1'
+            </if>
+            <if test="params.seeAward !=null and params.seeAward !=''">
+                and  a.award_rank is not null
+            </if>
+            <if test="params.guideGrade != null  and params.guideGrade != ''" >
+                and b.grade=#{params.guideGrade}
                 and b.major_id in
-                <foreach item="majorId" collection="params.instructor.majorIds" open="(" separator="," close=")">
-                    #{majorId}
+                <foreach item="item" collection="params.majorIds" open="(" separator="," close=")">
+                    #{item}
                 </foreach>
+                and a.is_public='1'
             </if>
         </where>
+        order by a.year_info,a.term_info,a.final_rank
     </select>
 
     <select id="selectAwardInitListByInitId" parameterType="Long" resultMap="AwardInitListResult">
@@ -88,7 +99,7 @@
             <if test="gradeCredit != null">grade_credit,</if>
             <if test="gradeRank != null">grade_rank,</if>
             <if test="allExtraPoint != null">all_extra_point,</if>
-            <if test="finaCredit != null">fina_credit,</if>
+            <if test="finalCredit != null">final_credit,</if>
             <if test="finalRank != null">final_rank,</if>
             <if test="awardRank != null">award_rank,</if>
             <if test="grade != null">grade,</if>
@@ -103,7 +114,7 @@
             <if test="gradeCredit != null">#{gradeCredit},</if>
             <if test="gradeRank != null">#{gradeRank},</if>
             <if test="allExtraPoint != null">#{allExtraPoint},</if>
-            <if test="finaCredit != null">#{finaCredit},</if>
+            <if test="finalCredit != null">#{finalCredit},</if>
             <if test="finalRank != null">#{finalRank},</if>
             <if test="awardRank != null">#{awardRank},</if>
             <if test="grade != null">#{grade},</if>
@@ -122,7 +133,7 @@
         update award_init_list
         <trim prefix="SET" suffixOverrides=",">
             <if test="allExtraPoint != null">all_extra_point = #{allExtraPoint},</if>
-            <if test="finaCredit != null">fina_credit = #{finaCredit},</if>
+            <if test="finalCredit != null">final_credit = #{finalCredit},</if>
             <if test="finalRank != null">final_rank = #{finalRank},</if>
             <if test="awardRank != null">award_rank = #{awardRank},</if>
             <if test="isPulbic != null">is_public = #{isPublic},</if>
@@ -142,4 +153,13 @@
             #{initId}
         </foreach>
     </delete>
+    <update id="updateIsPublic">
+        update award_init_list set is_public ='1'
+        where year_info=#{yearInfo} and term_info=#{termInfo}
+    </update>
+
+    <select id="selectAwardInitListBySno" parameterType="String" resultMap="AwardInitListResult">
+        <include refid="selectAwardInitListVo"/>
+        where a.sno = #{sno}
+    </select>
 </mapper>

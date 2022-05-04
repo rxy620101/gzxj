@@ -101,4 +101,11 @@ public class TimeSettingController extends BaseController
     {
         return toAjax(timeSettingService.deleteTimeSettingBySettings(settingsId));
     }
+
+    //获取最新的时间参数设置
+    @GetMapping("/getAtLeast/{setType}")
+    public AjaxResult getAtLeast(@PathVariable("setType") String setType){
+        return AjaxResult.success(timeSettingService.getAtLeast(setType));
+    }
+
 }

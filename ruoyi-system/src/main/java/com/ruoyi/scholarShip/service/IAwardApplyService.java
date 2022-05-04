@@ -1,6 +1,8 @@
 package com.ruoyi.scholarShip.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.ruoyi.scholarShip.domain.AwardApply;
 
 /**
@@ -58,4 +60,11 @@ public interface IAwardApplyService
      * @return 结果
      */
     public int deleteAwardApplyByApplyId(Long applyId);
+    //审核
+    public int checkApply(AwardApply awardApply);
+
+    //发布
+    public int publishApply(AwardApply awardApply);
+    //统计申请人数
+    public int selectTotalPeople(Map<String, Object> map);
 }

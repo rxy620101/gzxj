@@ -66,4 +66,7 @@ public interface HardSettingMapper
      * @return 结果
      */
     public int deleteHardSettingBySettings(Long[] settings);
+
+//根据辅导员工号查询
+    public HardSetting getByInstrucotId(Long instructorId);
 }

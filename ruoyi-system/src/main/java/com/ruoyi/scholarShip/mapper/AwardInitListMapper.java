@@ -2,6 +2,7 @@ package com.ruoyi.scholarShip.mapper;
 
 import java.util.List;
 import com.ruoyi.scholarShip.domain.AwardInitList;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 奖学金初始名单Mapper接口
@@ -61,4 +62,10 @@ public interface AwardInitListMapper
 
     //批量插入
     public int batchAdd(List<AwardInitList> list);
+
+    //更新发布状态
+    public int updateIsPublic(@Param("yearInfo")String yearInfo,@Param("termInfo") String termInfo);
+
+    //根据学号进行查询
+    public AwardInitList selectAwardInitListBySno(String sno);
 }

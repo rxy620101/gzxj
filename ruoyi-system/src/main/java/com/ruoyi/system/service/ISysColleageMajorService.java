@@ -148,4 +148,7 @@ public interface ISysColleageMajorService
 
     //返回所有的专业名称
     public List<SysColleageMajor>getAllMajor();
+    //返回学院名称
+    public String selectCollegeName(Long collegeId);
+
 }

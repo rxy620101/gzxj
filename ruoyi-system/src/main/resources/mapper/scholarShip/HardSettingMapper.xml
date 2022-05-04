@@ -137,4 +137,7 @@
             #{settingId}
         </foreach>
     </delete>
+    <select id="getByInstrucotId" parameterType="Long" resultMap="HardSettingResult">
+        select  *  from hard_setting where instructor_id=#{instructorId}
+    </select>
 </mapper>

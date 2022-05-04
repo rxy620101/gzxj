@@ -370,4 +370,11 @@ public class SysCollageMajorServiceImpl implements ISysColleageMajorService
         return deptMapper.getAllMajor();
     }
 
+    //返回学院名称
+    @Override
+    public String selectCollegeName(Long collegeId){
+        return deptMapper.selectCollegeName(collegeId);
+    }
+
+
 }

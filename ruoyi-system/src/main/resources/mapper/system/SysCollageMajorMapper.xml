@@ -163,6 +163,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		</foreach>
 	</select>
 
+	<select id="selectCollegeName" parameterType="Long" resultType="String">
+		select name from college_major where college_id =#{collegeId} and del_flag=0
+	</select>
+
 	<select id="getAllMajor" resultMap="SysDeptResult">
        select * from college_major
        where name  not  like '%院' and del_flag=0

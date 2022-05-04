@@ -42,3 +42,21 @@ export function delApply(applyId) {
     method: 'delete'
   })
 }
+
+// 审核奖学金申请
+export function checkApply(data) {
+  return request({
+    url: '/award/info/checkApply',
+    method: 'post',
+    data:data
+  })
+}
+
+// 发布奖学金的审核结果
+export function publishApply(data) {
+  return request({
+    url: '/award/info/publishApply',
+    method: 'post',
+    data:data
+  })
+}

@@ -58,4 +58,7 @@ public interface TimeSettingMapper
      * @return 结果
      */
     public int deleteTimeSettingBySettings(Long[] settings);
+
+    //获取最新的时间
+    public TimeSetting getAtLeast(String setType);
 }

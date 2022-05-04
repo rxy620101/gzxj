@@ -93,4 +93,10 @@ public class TimeSettingServiceImpl implements ITimeSettingService
     {
         return timeSettingMapper.deleteTimeSettingBySetting(setting);
     }
+
+    //获取最新的时间
+    @Override
+    public TimeSetting getAtLeast(String setType){
+        return  timeSettingMapper.getAtLeast(setType);
+    }
 }

@@ -64,4 +64,8 @@ public interface IAwardSettingService
 
     //根据parentId查询奖项类别
     public List<AwardSetting> selectByParentId(Long parentId);
+
+    //查询具体奖项
+    public List<AwardSetting> selectAllDetail(AwardSetting awardSetting);
+
 }

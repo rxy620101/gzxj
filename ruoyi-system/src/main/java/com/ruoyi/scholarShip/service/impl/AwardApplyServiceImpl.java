@@ -1,6 +1,8 @@
 package com.ruoyi.scholarShip.service.impl;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.scholarShip.mapper.AwardApplyMapper;
@@ -89,5 +91,21 @@ public class AwardApplyServiceImpl implements IAwardApplyService
     public int deleteAwardApplyByApplyId(Long applyId)
     {
         return awardApplyMapper.deleteAwardApplyByApplyId(applyId);
+    }
+    //审核
+    @Override
+    public int checkApply(AwardApply awardApply){
+        return  awardApplyMapper.checkApply(awardApply);
+    }
+
+    //发布
+    @Override
+    public int publishApply(AwardApply awardApply){
+        return awardApplyMapper.publishApply(awardApply);
+    }
+    //统计申请人数
+    @Override
+    public int selectTotalPeople(Map<String, Object> map){
+        return  awardApplyMapper.selectTotalPeople(map);
     }
 }

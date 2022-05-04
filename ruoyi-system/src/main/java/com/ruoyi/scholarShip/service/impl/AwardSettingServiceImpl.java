@@ -104,5 +104,10 @@ public class AwardSettingServiceImpl implements IAwardSettingService
     public List<AwardSetting> selectByParentId(Long parentId){
         return awardSettingMapper.selectByParentId(parentId);
     }
+    //查询具体奖项
+    @Override
+    public List<AwardSetting> selectAllDetail(AwardSetting awardSetting){
+        return  awardSettingMapper.selectAllDetail(awardSetting);
+    }
 
 }

@@ -50,3 +50,11 @@ export function getInstructor(data) {
     data:data
   })
 }
+
+// 根据辅导员工号查询助学金参数设置详细
+export function getByInstrucotId(instructorId) {
+  return request({
+    url: '/hardSetting/info/getByInstrucotId/' + instructorId,
+    method: 'get'
+  })
+}

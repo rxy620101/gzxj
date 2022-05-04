@@ -206,7 +206,7 @@
     </select>
 
     <select id="selClassByMajorIds" parameterType="Long" resultType="String">
-        select stu_class
+        select distinct  stu_class
         from stu_info
         where major_id = #{majorId}
     </select>

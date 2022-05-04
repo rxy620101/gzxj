@@ -143,4 +143,11 @@ public class AwardSettingController extends BaseController
         return AjaxResult.success(depts);
     }
 
+    //根据parentId查询奖项类别
+    @PostMapping("/selectAwardSettingList")
+    public AjaxResult selectAwardSettingList(@RequestBody AwardSetting awardSetting){
+        return AjaxResult.success(awardSettingService.selectAwardSettingList(awardSetting));
+
+    }
+
 }

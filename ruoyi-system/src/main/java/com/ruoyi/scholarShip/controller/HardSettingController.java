@@ -167,4 +167,9 @@ public class HardSettingController extends BaseController {
     public AjaxResult remove(@PathVariable Long[] settings) {
         return toAjax(hardSettingService.deleteHardSettingBySettings(settings));
     }
+    //根据辅导员工号查询
+  @GetMapping("/getByInstrucotId/{instructorId}")
+    public AjaxResult getByInstrucotId(@PathVariable("instructorId") Long instructorId){
+        return  AjaxResult.success(hardSettingService.getByInstrucotId(instructorId));
+  }
 }

@@ -393,13 +393,6 @@
         })
         return head
       },
-      // //动态适应表头宽度
-      // headSpanFit (h, { column, index }) {
-      //   let labelLong = column.label.length // 表头label长度
-      //   let size = 20 // 根据需要定义标尺，直接使用字体大小确定就行，也可以根据需要定义
-      //   column.minWidth = labelLong * size // 根据label长度计算该表头最终宽度
-      //   return h('span', { class: 'cell-content', style: { width: '100%' } }, [column.label])
-      // },
 
       //获取列信息
       getColumns() {
@@ -522,7 +515,6 @@
               // 有成绩，计算总分和总学分
               total += fenshu
               totalCredit += credit;
-              // ave = Math.floor(total / count * 10) / 10 // 保留一位小数。
               // // 如果保留两位小数的话可以这样 (total / count ).toFixed(2)
             }
           }
@@ -644,19 +636,7 @@
       ,
       /** 修改按钮操作 */
       handleUpdate(row) {
-        // this.reset();
-        // //重新执行专业、年级的下拉框选项
-        // this.getCollege(row.collegeId, 'form')
-        // const stuId = row.id || this.ids;
-        // getInfo(stuId).then(response => {
-        //   let data = response.data;
-        //   //将年级转为int
-        //   data.grade = parseInt(data.grade)
-        //   this.getGrade(data.grade, 'form')
-        //   this.form = data
-        //   this.open = true;
-        //   this.title = "修改学生基础信息";
-        // });
+
       }
       ,
       /** 提交按钮 */

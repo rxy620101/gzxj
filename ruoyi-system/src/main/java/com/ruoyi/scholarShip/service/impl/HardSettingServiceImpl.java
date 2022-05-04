@@ -103,4 +103,9 @@ public class HardSettingServiceImpl implements IHardSettingService
     {
         return hardSettingMapper.deleteHardSettingBySetting(setting);
     }
+    //根据辅导员工号查询
+    @Override
+    public HardSetting getByInstrucotId(Long instructorId){
+        return  hardSettingMapper.getByInstrucotId(instructorId);
+    }
 }

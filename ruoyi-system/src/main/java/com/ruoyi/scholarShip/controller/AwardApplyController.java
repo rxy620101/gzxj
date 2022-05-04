@@ -3,6 +3,8 @@ package com.ruoyi.scholarShip.controller;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.beanutils.ConvertUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,14 +26,13 @@ import com.ruoyi.common.core.page.TableDataInfo;
 
 /**
  * 奖学金申请Controller
- * 
+ *
  * @author raoxy
  * @date 2022-04-25
  */
 @RestController
 @RequestMapping("/award/info")
-public class AwardApplyController extends BaseController
-{
+public class AwardApplyController extends BaseController {
     @Autowired
     private IAwardApplyService awardApplyService;
 
@@ -40,8 +41,13 @@ public class AwardApplyController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('award:info:list')")
     @GetMapping("/list")
-    public TableDataInfo list(AwardApply awardApply)
-    {
+    public TableDataInfo list(AwardApply awardApply) {
+        Map<String, Object> map = awardApply.getParams();
+        if (awardApply.getParams().get("majorIds") != null) {
+            Long[] majorIds = (Long[]) ConvertUtils.convert(awardApply.getParams().get("majorIds").toString().split(","), Long.class);
+            map.put("majorIds", majorIds);
+            awardApply.setParams(map);
+        }
         startPage();
         List<AwardApply> list = awardApplyService.selectAwardApplyList(awardApply);
         return getDataTable(list);
@@ -53,8 +59,7 @@ public class AwardApplyController extends BaseController
     @PreAuthorize("@ss.hasPermi('award:info:export')")
     @Log(title = "奖学金申请", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, AwardApply awardApply)
-    {
+    public void export(HttpServletResponse response, AwardApply awardApply) {
         List<AwardApply> list = awardApplyService.selectAwardApplyList(awardApply);
         ExcelUtil<AwardApply> util = new ExcelUtil<AwardApply>(AwardApply.class);
         util.exportExcel(response, list, "奖学金申请数据");
@@ -65,8 +70,7 @@ public class AwardApplyController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('award:info:query')")
     @GetMapping(value = "/{applyId}")
-    public AjaxResult getInfo(@PathVariable("applyId") Long applyId)
-    {
+    public AjaxResult getInfo(@PathVariable("applyId") Long applyId) {
         return AjaxResult.success(awardApplyService.selectAwardApplyByApplyId(applyId));
     }
 
@@ -76,8 +80,7 @@ public class AwardApplyController extends BaseController
     @PreAuthorize("@ss.hasPermi('award:info:add')")
     @Log(title = "奖学金申请", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody AwardApply awardApply)
-    {
+    public AjaxResult add(@RequestBody AwardApply awardApply) {
         return toAjax(awardApplyService.insertAwardApply(awardApply));
     }
 
@@ -87,8 +90,7 @@ public class AwardApplyController extends BaseController
     @PreAuthorize("@ss.hasPermi('award:info:edit')")
     @Log(title = "奖学金申请", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody AwardApply awardApply)
-    {
+    public AjaxResult edit(@RequestBody AwardApply awardApply) {
         return toAjax(awardApplyService.updateAwardApply(awardApply));
     }
 
@@ -97,16 +99,32 @@ public class AwardApplyController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('award:info:remove')")
     @Log(title = "奖学金申请", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{applyIds}")
-    public AjaxResult remove(@PathVariable Long[] applyIds)
-    {
+    @DeleteMapping("/{applyIds}")
+    public AjaxResult remove(@PathVariable Long[] applyIds) {
         return toAjax(awardApplyService.deleteAwardApplyByApplyIds(applyIds));
     }
 
-    //接收成绩的排名信息,插入到申请名单中
-    @PostMapping("/getGradeList")
-    public AjaxResult getGradeList(@RequestBody List<Map<String,Object>>map){
-        //接收学期、学年、
-      return null;
+    /**
+     * 审核
+     */
+    @PreAuthorize("@ss.hasPermi('award:info:check')")
+    @Log(title = "奖学金申请", businessType = BusinessType.DELETE)
+    @PostMapping("/checkApply")
+    public AjaxResult checkApply(@RequestBody AwardApply awardApply) {
+        return toAjax(awardApplyService.checkApply(awardApply));
+    }
+
+    /**
+     * 发布
+     */
+    @PostMapping("/publishApply")
+    public AjaxResult publishApply(@RequestBody AwardApply awardApply) {
+        Map<String, Object> map = awardApply.getParams();
+        if (awardApply.getParams().get("majorIds") != null) {
+            Long[] majorIds = (Long[]) ConvertUtils.convert(awardApply.getParams().get("majorIds").toString().split(","), Long.class);
+            map.put("majorIds", majorIds);
+            awardApply.setParams(map);
+        }
+        return toAjax(awardApplyService.publishApply(awardApply));
     }
 }

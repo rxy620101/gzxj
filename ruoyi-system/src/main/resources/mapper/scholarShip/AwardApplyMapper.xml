@@ -13,18 +13,21 @@
         <result property="applyType" column="apply_type"/>
         <result property="initRank" column="init_rank"/>
         <result property="selfRemark" column="self_remark"/>
-        <result property="finalRank" column="final_rank"/>
-        <result property="allCredit" column="all_credit"/>
-        <result property="extraPoint" column="extra_point"/>
-        <result property="finalCredit" column="final_credit"/>
-        <result property="isApply" column="is_apply"/>
         <result property="process" column="process"/>
         <result property="instructorName" column="instructor_name"/>
+        <result property="isAdapt" column="is_adapt"/>
+        <result property="adaptRank" column="adapt_rank"/>
         <result property="comment" column="comment"/>
-        <result property="awardName" column="awardName"/>
-        <result property="rankName" column="rankName"/>
-        <result property="cardNum" column="card_num"/>
         <result property="createTime" column="create_time"/>
+        <result property="cardNum" column="card_num"/>
+        <result property="typeName" column="type_name"/>
+        <result property="rankName" column="rank_name"/>
+        <result property="money" column="money"/>
+        <result property="checkTime" column="check_time"/>
+        <result property="isPublic" column="is_public"/>
+        <result property="collegeName" column="college_name"/>
+        <result property="majorName" column="major_name"/>
+        <result property="grade" column="grade"/>
     </resultMap>
 
     <sql id="selectAwardApplyVo">
@@ -36,42 +39,80 @@
                apply_type,
                init_rank,
                self_remark,
-               final_rank,
-               all_credit,
-               extra_point,
-               final_credit,
-               is_apply,
                process,
                instructor_name,
+               is_adapt,
+               adapt_rank,
                comment,
-               a.create_time
+               a.create_time,
+               a.card_num,
+               b.award_names as type_name,
+               u.award_names as rank_name,
+               u.money,
+               a.check_time,
+               a.is_public,
+               f.name        as college_name,
+               g.name        as major_name,
+               t.grade
         from award_apply a
-                 join stu_info b on a.sno = b.sno
+                 join award_setting b on a.apply_type = b.setting_id
+                 join award_setting u on a.init_rank = u.setting_id
+                 join stu_info t on t.sno = a.sno
+                 join college_major f on f.college_id = t.college_id
+                 join college_major g on g.college_id = t.major_id
     </sql>
 
     <select id="selectAwardApplyList" parameterType="AwardApply" resultMap="AwardApplyResult">
         <include refid="selectAwardApplyVo"/>
         <where>
-            <if test="sno != null  and sno != ''">and sno = #{sno}</if>
-            <if test="stuName != null  and stuName != ''">and stu_name like concat('%', #{stuName}, '%')</if>
+            <if test="sno != null  and sno != ''">and a.sno = #{sno}</if>
+            <if test="stuName != null  and stuName != ''">and a.stu_name like concat('%', #{stuName}, '%')</if>
             <if test="applyYear != null  and applyYear != ''">and apply_year = #{applyYear}</if>
             <if test="applyTerm != null  and applyTerm != ''">and apply_term = #{applyTerm}</if>
             <if test="applyType != null  and applyType != ''">and apply_type = #{applyType}</if>
             <if test="initRank != null  and initRank != ''">and init_rank = #{initRank}</if>
             <if test="selfRemark != null  and selfRemark != ''">and self_remark = #{selfRemark}</if>
-            <if test="finalRank != null  and finalRank != ''">and final_rank = #{finalRank}</if>
-            <if test="isApply != null  and isApply != ''">and is_apply = #{isApply}</if>
             <if test="process != null  and process != ''">and process = #{process}</if>
-            <if test="majorId != null  and majorId != ''">and b.major_id = #{majorId}</if>
-            <if test="collegeId != null  and collgeId != ''">and b.college_id = #{collegeId}</if>
-            <!--             辅导员的数据过滤-->
-            <if test="params.majorIds != null  and params.majorIds != ''">
-                and b.major_id in
+            <if test="instructorName != null  and instructorName != ''">and instructor_name like concat('%', #{instructorName}, '%')</if>
+            <if test="isAdapt != null  and isAdapt != ''">and is_adapt = #{isAdapt}</if>
+            <if test="adaptRank != null  and adaptRank != ''">and adapt_rank = #{adaptRank}</if>
+            <if test="comment != null  and comment != ''">and comment = #{comment}</if>
+            <if test="createTime != null ">and a.create_time = #{createTime}</if>
+            <!-- 学生申请 或 待审核-->
+            <if test="operation== 0 or operation== 2 ">
+                and process='0'
+            </if>
+            <!--学生申请记录查询 或 审核记录-->
+            <if test="operation== 1 or operation== 3 ">
+                and process='1'
+            </if>
+            <!-- 公示-->
+            <if test="operation== 4">
+                and is_public='1' and process='1'
+            </if>
+            -- 辅导员只能审核自己专业的
+            <if test="params.majorIds != null and params.majorIds !='' ">
+                and t.grade=#{params.guideGrade} and t.major_id in
                 <foreach item="majorId" collection="params.majorIds" open="(" separator="," close=")">
                     #{majorId}
                 </foreach>
             </if>
+            <if test="params.stuClass != null and params.stuClass !='' ">
+                and t.stu_class=#{params.stuClass}
+            </if>
+            -- 公示时的学院、专业、年级查询
+            <if test="params.collegeId != null and params.collegeId !='' ">
+                and t.college_id=#{params.collegeId}
+            </if>
+            <if test="params.majorId != null and params.majorId !='' ">
+                and t.major_id=#{params.majorId}
+            </if>
+            <if test="params.grade != null and params.grade !='' ">
+                and t.grade=#{params.grade}
+            </if>
+
         </where>
+
     </select>
 
     <select id="selectAwardApplyByApplyId" parameterType="Long" resultMap="AwardApplyResult">
@@ -89,16 +130,13 @@
             <if test="applyType != null">apply_type,</if>
             <if test="initRank != null">init_rank,</if>
             <if test="selfRemark != null">self_remark,</if>
-            <if test="finalRank != null">final_rank,</if>
-            <if test="allCredit != null">all_credit,</if>
-            <if test="extraPoint != null">extra_point,</if>
-            <if test="finalCredit != null">final_credit,</if>
-            <if test="isApply != null">is_apply,</if>
             <if test="process != null">process,</if>
             <if test="instructorName != null">instructor_name,</if>
+            <if test="isAdapt != null">is_adapt,</if>
+            <if test="adaptRank != null">adapt_rank,</if>
             <if test="comment != null">comment,</if>
             <if test="cardNum != null">card_num,</if>
-            <if test="createTime != null">create_time,</if>
+            create_time
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="sno != null">#{sno},</if>
@@ -108,16 +146,13 @@
             <if test="applyType != null">#{applyType},</if>
             <if test="initRank != null">#{initRank},</if>
             <if test="selfRemark != null">#{selfRemark},</if>
-            <if test="finalRank != null">#{finalRank},</if>
-            <if test="allCredit != null">#{allCredit},</if>
-            <if test="extraPoint != null">#{extraPoint},</if>
-            <if test="finalCredit != null">#{finalCredit},</if>
-            <if test="isApply != null">#{isApply},</if>
             <if test="process != null">#{process},</if>
             <if test="instructorName != null">#{instructorName},</if>
+            <if test="isAdapt != null">#{isAdapt},</if>
+            <if test="adaptRank != null">#{adaptRank},</if>
             <if test="comment != null">#{comment},</if>
             <if test="cardNum != null">#{cardNum},</if>
-            <if test="createTime != null">#{createTime},</if>
+            sysdate()
         </trim>
     </insert>
 
@@ -131,17 +166,40 @@
             <if test="applyType != null">apply_type = #{applyType},</if>
             <if test="initRank != null">init_rank = #{initRank},</if>
             <if test="selfRemark != null">self_remark = #{selfRemark},</if>
-            <if test="finalRank != null">final_rank = #{finalRank},</if>
-            <if test="allCredit != null">all_credit = #{allCredit},</if>
-            <if test="extraPoint != null">extra_point = #{extraPoint},</if>
-            <if test="finalCredit != null">final_credit = #{finalCredit},</if>
-            <if test="isApply != null">is_apply = #{isApply},</if>
             <if test="process != null">process = #{process},</if>
             <if test="instructorName != null">instructor_name = #{instructorName},</if>
+            <if test="isAdapt != null">is_adapt = #{isAdapt},</if>
+            <if test="adaptRank != null">adapt_rank = #{adaptRank},</if>
             <if test="comment != null">comment = #{comment},</if>
+            <if test="cardNum != null">card_num = #{cardNum},</if>
         </trim>
         where apply_id = #{applyId}
     </update>
+
+    <update id="checkApply">
+        update award_apply
+        set process = #{process},
+        instructor_name = #{instructorName},
+        <if test="applyType != null">apply_type = #{applyType},</if>
+        <if test="adaptRank != null">adapt_rank = #{adaptRank},</if>
+        <if test="isAdapt != null">is_adapt = #{isAdapt},</if>
+        comment = #{comment},
+        check_time=sysdate()
+        where apply_id = #{applyId}
+    </update>
+
+    <update id="publishApply">
+        update award_apply
+        set is_public =1
+        where apply_year = #{applyYear} and apply_term = #{applyTerm} and sno in (
+        select b.sno from stu_info b
+        where b.grade=#{params.guideGrade} and b.major_id in
+        <foreach item="majorId" collection="params.majorIds" open="(" separator="," close=")">
+            #{majorId}
+        </foreach>
+        )
+    </update>
+
 
     <delete id="deleteAwardApplyByApplyId" parameterType="Long">
         delete
@@ -155,4 +213,11 @@
             #{applyId}
         </foreach>
     </delete>
+
+    <select id="selectTotalPeople"  resultType="int">
+        select count(1)
+        from award_apply a join stu_info b on a.sno=b.sno
+        where apply_year=#{applyYear} and apply_term=#{applyTerm} and b.college_id=#{collegeId} and process='1'
+       and ((init_rank=#{rankId} and adapt_rank is null) or (adapt_rank=#{rankId} and adapt_rank  is not  null))
+    </select>
 </mapper>

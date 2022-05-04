@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.scholarShip.mapper.HardRankMapper">
+    
+    <resultMap type="HardRank" id="HardRankResult">
+        <result property="rangkId"    column="rangk_id"    />
+        <result property="rankName"    column="rank_name"    />
+        <result property="money"    column="money"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectHardRankVo">
+        select rangk_id, rank_name, money, create_time, update_time from hard_rank
+    </sql>
+
+    <select id="selectHardRankList" parameterType="HardRank" resultMap="HardRankResult">
+        <include refid="selectHardRankVo"/>
+    </select>
+    
+    <select id="selectHardRankByRangkId" parameterType="Long" resultMap="HardRankResult">
+        <include refid="selectHardRankVo"/>
+        where rangk_id = #{rangkId}
+    </select>
+        
+    <insert id="insertHardRank" parameterType="HardRank" useGeneratedKeys="true" keyProperty="rangkId">
+        insert into hard_rank
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="rankName != null">rank_name,</if>
+            <if test="money != null">money,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="rankName != null">#{rank_name},</if>
+            <if test="money != null">#{money},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateHardRank" parameterType="HardRank">
+        update hard_rank
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="money != null">money = #{money},</if>
+            update_time =sysdate()
+        </trim>
+        where rangk_id = #{rangkId}
+    </update>
+
+    <delete id="deleteHardRankByRangkId" parameterType="Long">
+        delete from hard_rank where rangk_id = #{rangkId}
+    </delete>
+
+    <delete id="deleteHardRankByRangkIds" parameterType="String">
+        delete from hard_rank where rangk_id in 
+        <foreach item="rangkId" collection="array" open="(" separator="," close=")">
+            #{rangkId}
+        </foreach>
+    </delete>
+</mapper>

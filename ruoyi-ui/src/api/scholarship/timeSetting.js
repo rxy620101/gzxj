@@ -42,3 +42,11 @@ export function delSetting(settingId) {
     method: 'delete'
   })
 }
+
+// 查询最新的时间参数 1 将 2 助
+export function getAtLeast(setType) {
+  return request({
+    url: '/timeSetting/info/getAtLeast/'+setType,
+    method: 'get'
+  })
+}
