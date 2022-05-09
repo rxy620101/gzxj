@@ -1,7 +1,7 @@
 {
   "name": "ruoyi",
   "version": "3.8.2",
-  "description": "高校奖助学金系统",
+  "description": "高校学生奖助学金管理系统",
   "author": "rxy",
   "license": "MIT",
   "scripts": {

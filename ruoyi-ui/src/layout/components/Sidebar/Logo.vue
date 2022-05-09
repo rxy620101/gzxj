@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      title: '高校奖助学金系统',
+      title: '学生奖助学金管理系统',
       logo: logoImg
     }
   }

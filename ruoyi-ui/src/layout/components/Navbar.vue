@@ -6,6 +6,7 @@
     <top-nav id="topmenu-container" class="topmenu-container" v-if="topNav"/>
 
     <div class="right-menu">
+        <span class="right-menu-item">欢迎您! {{userName}}【{{cert}}】</span>
       <template v-if="device!=='mobile'">
         <search id="header-search" class="right-menu-item" />
 
@@ -34,6 +35,9 @@
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
+
+
+
     </div>
   </div>
 </template>
@@ -46,8 +50,7 @@ import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
-import RuoYiGit from '@/components/RuoYi/Git'
-import RuoYiDoc from '@/components/RuoYi/Doc'
+import { getUserProfile } from "@/api/system/user";
 
 export default {
   components: {
@@ -57,8 +60,6 @@ export default {
     Screenfull,
     SizeSelect,
     Search,
-    RuoYiGit,
-    RuoYiDoc
   },
   computed: {
     ...mapGetters([
@@ -83,7 +84,37 @@ export default {
       }
     }
   },
+  data() {
+    return {
+      userName:undefined,
+      cert:undefined,
+    };
+  },
+  created(){
+    //获取登录者姓名
+    this.getUser()
+
+  },
   methods: {
+    getUser() {
+      getUserProfile().then(response => {
+        let admin = response.admin;
+        if(admin == true){
+          this.userName='admin'
+          this.cert='管理员'
+        }else{
+          if(response.stu !='undefined' && response.stu != null){
+            this.userName=response.stu.stuName
+            this.cert='学生'
+          }
+          if(response.instructor !='undefined' && response.instructor != null){
+            this.userName=response.instructor.instructorName
+            this.cert='辅导员'
+          }
+        }
+
+      });
+    },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },
