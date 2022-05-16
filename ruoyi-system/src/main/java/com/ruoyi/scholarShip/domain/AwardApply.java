@@ -105,8 +105,10 @@ public class AwardApply extends BaseEntity {
     private String typeName;
     //奖项等级名称
     private String rankName;
-    //等级金额
-    private String money;
+    //初始等级金额
+    private int initMoney;
+    //调整等级金额
+    private int adaptMoney;
     //审核时间
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date checkTime;
@@ -120,6 +122,12 @@ public class AwardApply extends BaseEntity {
     private String majorName;
     //年级
     private String grade;
+    //审核结果
+    private String checkResult;
+    //调整类型
+    private String adaptType;
+    //调整等级名称
+    private String adaptName;
 
     public String getTypeName() {
         return typeName;
@@ -137,18 +145,9 @@ public class AwardApply extends BaseEntity {
         this.rankName = rankName;
     }
 
-    public String getMoney() {
-        return money;
-    }
-
-    public void setMoney(String money) {
-        this.money = money;
-    }
-
     public void setApplyId(Long applyId) {
         this.applyId = applyId;
     }
-
     public Long getApplyId() {
         return applyId;
     }

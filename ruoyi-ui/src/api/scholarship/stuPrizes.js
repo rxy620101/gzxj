@@ -44,9 +44,10 @@ export function delPrizes(awardId) {
 }
 
 //修改审核状态
-export function updateProcess(awardId) {
+export function updateByIds(params) {
   return request({
-    url: '/stuPrizes/info/' + awardId,
-    method: 'delete'
+    url: '/stuPrizes/info/updateByIds' ,
+    method: 'post',
+    data:params
   })
 }

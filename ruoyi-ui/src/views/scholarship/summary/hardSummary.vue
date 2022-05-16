@@ -26,6 +26,13 @@
         <el-form-item>
           <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
           <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+          <el-button
+            type="warning"
+            plain
+            icon="el-icon-download"
+            size="mini"
+            @click="handleExport"
+          >导出</el-button>
         </el-form-item>
       </el-form>
       <el-table v-loading="loading" :data="hardSummaryList"
@@ -33,15 +40,15 @@
                 border
                 :summary-method="getSummaries"
                 show-summary>
-        <el-table-column label="学院名称" prop="collegeName" align="center" width="300"
+        <el-table-column label="学院名称" prop="collegeName" align="center" width="260"
                          :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column label="评定等级" prop="rankName" align="center" width="290"
+        <el-table-column label="评定等级" prop="rankName" align="center" width="260"
                          :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column label="金额(元）" prop="money" align="center" width="278" sortable
+        <el-table-column label="金额(元）" prop="money" align="center" width="250" sortable
                          :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column label="申请人数" prop="allPeople" align="center" width="275" sortable
+        <el-table-column label="申请人数" prop="allPeople" align="center" width="250" sortable
                          :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column label="应发金额(元）" prop="allMoney" align="center" width="280" sortable
+        <el-table-column label="应发金额(元）" prop="allMoney" align="center" width="255" sortable
                          :show-overflow-tooltip="true"></el-table-column>
       </el-table>
     </el-row>
@@ -52,7 +59,7 @@
 <script>
   import {getAtLeast} from "@/api/scholarship/timeSetting"
   import {selByParentId} from "@/api/system/dept";
-  import {summaryHard} from "@/api/scholarship/summary"
+  import {summaryHard,getParams} from "@/api/scholarship/summary"
   import {listRank} from "@/api/scholarship/hardRank"
 
   export default {
@@ -189,7 +196,16 @@
         });
         return sums;
       },
+
+      /** 导出按钮操作 */
+      handleExport() {
+        getParams(this.queryParams).then(res=>{
+          this.download('summary/info/HardExport',{},`助学金统计数据_${new Date().getTime()}.xlsx`)
+        })
+
+      },
     }
+
   }
 </script>
 

@@ -70,4 +70,7 @@ public interface HardApplyMapper
 
     //统计申请人数
     public int selectTotalPeople(Map<String, Object> map);
+
+    //统计辅导员已审核的人数
+    public int getProveNum(HardApply hardApply);
 }

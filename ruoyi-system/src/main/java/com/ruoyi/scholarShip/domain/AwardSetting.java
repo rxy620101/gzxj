@@ -1,5 +1,6 @@
 package com.ruoyi.scholarShip.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -11,6 +12,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author raoxy
  * @date 2022-04-23
  */
+@Data
 public class AwardSetting extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
@@ -75,6 +77,8 @@ public class AwardSetting extends BaseEntity {
 
     //金额
     private int money;
+
+
 
     public int getMoney() {
         return money;

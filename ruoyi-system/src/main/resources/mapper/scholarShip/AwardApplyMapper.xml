@@ -22,12 +22,16 @@
         <result property="cardNum" column="card_num"/>
         <result property="typeName" column="type_name"/>
         <result property="rankName" column="rank_name"/>
-        <result property="money" column="money"/>
+        <result property="initMoney" column="init_money"/>
+        <result property="adaptMoney" column="adapt_money"/>
         <result property="checkTime" column="check_time"/>
         <result property="isPublic" column="is_public"/>
         <result property="collegeName" column="college_name"/>
         <result property="majorName" column="major_name"/>
         <result property="grade" column="grade"/>
+        <result property="checkResult" column="check_result"/>
+        <result property="adaptType" column="adapt_type"/>
+        <result property="adaptName" column="adapt_name"/>
     </resultMap>
 
     <sql id="selectAwardApplyVo">
@@ -48,15 +52,20 @@
                a.card_num,
                b.award_names as type_name,
                u.award_names as rank_name,
-               u.money,
+               u.money as init_money,
+               h.money as adapt_money,
                a.check_time,
                a.is_public,
                f.name        as college_name,
                g.name        as major_name,
-               t.grade
+               t.grade,
+               a.check_result,
+               a.adapt_type,
+               h.award_names as adapt_name
         from award_apply a
                  join award_setting b on a.apply_type = b.setting_id
                  join award_setting u on a.init_rank = u.setting_id
+                 left join award_setting h on a.adapt_rank = h.setting_id
                  join stu_info t on t.sno = a.sno
                  join college_major f on f.college_id = t.college_id
                  join college_major g on g.college_id = t.major_id
@@ -78,17 +87,21 @@
             <if test="adaptRank != null  and adaptRank != ''">and adapt_rank = #{adaptRank}</if>
             <if test="comment != null  and comment != ''">and comment = #{comment}</if>
             <if test="createTime != null ">and a.create_time = #{createTime}</if>
-            <!-- 学生申请 或 待审核-->
-            <if test="operation== 0 or operation== 2 ">
+            <!--待审核-->
+            <if test="operation== 2 ">
                 and process='0'
             </if>
-            <!--学生申请记录查询 或 审核记录-->
-            <if test="operation== 1 or operation== 3 ">
-                and process='1'
+            <!--        <学生申请记录查询>-->
+            <if test="operation== 1">
+                and process != '0' and apply_year != #{params.applyYear} and  apply_term = #{params.applyTerm}
+            </if>
+            <!-- 审核记录-->
+            <if test="operation== 3 ">
+                and process != '0'
             </if>
             <!-- 公示-->
             <if test="operation== 4">
-                and is_public='1' and process='1'
+                and is_public='1' and check_result='1'
             </if>
             -- 辅导员只能审核自己专业的
             <if test="params.majorIds != null and params.majorIds !='' ">
@@ -178,14 +191,17 @@
 
     <update id="checkApply">
         update award_apply
-        set process = #{process},
+        set process ='1',check_result=#{checkResult},
         instructor_name = #{instructorName},
-        <if test="applyType != null">apply_type = #{applyType},</if>
+        <if test="adaptType != null">adapt_type = #{adaptType},</if>
         <if test="adaptRank != null">adapt_rank = #{adaptRank},</if>
         <if test="isAdapt != null">is_adapt = #{isAdapt},</if>
         comment = #{comment},
         check_time=sysdate()
-        where apply_id = #{applyId}
+        where apply_id in
+        <foreach item="applyId" collection="params.applyIds" open="(" separator="," close=")">
+            #{applyId}
+        </foreach>
     </update>
 
     <update id="publishApply">

@@ -25,7 +25,7 @@
           <el-form-item label="获奖学年" prop="getYear">
             <el-select v-model="queryParams.getYear" placeholder="请选择获奖学年" clearable>
               <el-option
-                v-for="dict in yearsOOptions"
+                v-for="dict in yearsOptions"
                 :key="dict.id"
                 :label="dict.value"
                 :value="dict.value"
@@ -42,7 +42,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="审核结果" prop="process"  v-if="JSON.stringify(stu)!='{}'">
+          <el-form-item label="审核结果" prop="process" v-if="JSON.stringify(stu)!='{}'">
             <el-select v-model="queryParams.process" placeholder="请选择" clearable>
               <el-option
                 v-for="dict in dict.type.process"
@@ -118,8 +118,7 @@
               plain
               icon="el-icon-edit"
               size="mini"
-              :disabled="single"
-              @click="handleUpdate"
+              @click="multipleUpdate"
               v-hasPermi="['prizes:info:check']"
             >审核
             </el-button>
@@ -137,32 +136,20 @@
             >删除
             </el-button>
           </el-col>
-          <!--</el-col>-->
-          <!--<el-col :span="1.5">-->
-          <!--<el-button-->
-          <!--type="warning"-->
-          <!--plain-->
-          <!--icon="el-icon-download"-->
-          <!--size="mini"-->
-          <!--@click="handleExport"-->
-          <!--v-hasPermi="['stu:info:export']"-->
-          <!--&gt;导出-->
-          <!--</el-button>-->
-          <!--</el-col>-->
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
         </el-row>
 
         <el-table v-loading="loading" :data="prizesList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="50" align="center"/>
           <el-table-column label="id" prop="awardId" v-if="false" width="20"></el-table-column>
-          <el-table-column label="学号" align="center" key="sno" prop="sno" v-if="columns[0].visible" width="100"/>
+          <el-table-column label="学号" align="center" key="sno" prop="sno" v-if="columns[0].visible" width="120"/>
           <el-table-column label="姓名" align="center" key="stuName" prop="stuName" v-if="columns[1].visible"
                            :show-overflow-tooltip="true" width="100"/>
-          <el-table-column label="获奖学年" sortable align="center" key="sex" v-if="columns[2].visible" width="160"
+          <el-table-column label="获奖学年" sortable align="center" key="sex" v-if="columns[2].visible" width="140"
                            prop="getYear">
           </el-table-column>
           <el-table-column label="获奖学期" align="center" sortable key="getTerm" prop="getTerm"
-                           v-if="columns[3].visible" :show-overflow-tooltip="true" width="150">
+                           v-if="columns[3].visible" :show-overflow-tooltip="true" width="130">
             <template slot-scope="scope">
               <dict-tag :options="dict.type.valid_term" :value="scope.row.getTerm"/>
             </template>
@@ -171,25 +158,35 @@
                            v-if="columns[4].visible" :show-overflow-tooltip="true" width="160">
           </el-table-column>
           <el-table-column label="对应分数" align="center" sortable key="getPoint" prop="getPoint"
-                           v-if="columns[5].visible && form.process !='0'" :show-overflow-tooltip="true" width="100">
+                           v-if="columns[5].visible" :show-overflow-tooltip="true" width="100">
             <template slot-scope="scope">
               <span v-if="scope.row.process != '0'">{{scope.row.getPoint}}</span>
-              <span v-if="scope.row.process == '0'">待审核</span>
+              <span v-if="scope.row.process == '0'">
+                <el-tag>
+                  待审核
+                </el-tag>
+              </span>
             </template>
           </el-table-column>
-          <el-table-column label="审核进度" align="center" key="process" prop="process"
-                           v-if="columns[6].visible" :show-overflow-tooltip="true" width="160">
+          <el-table-column label="状态" align="center" key="process" prop="process"
+                           v-if="columns[6].visible" :show-overflow-tooltip="true" width="100">
             <template slot-scope="scope">
               <dict-tag :options="dict.type.process" :value="scope.row.process"/>
             </template>
           </el-table-column>
+          <el-table-column label="审核结果" align="center" key="checkResult" prop="checkResult"
+                           v-if="columns[6].visible" :show-overflow-tooltip="true" width="100">
+            <template slot-scope="scope">
+              <dict-tag :options="dict.type.check_result" :value="scope.row.checkResult"/>
+            </template>
+          </el-table-column>
           <el-table-column label="登记时间" align="center" prop="createTime" v-if="columns[7].visible"
-                           :show-overflow-tooltip="true" width="130">
+                           :show-overflow-tooltip="true" width="160">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
           </el-table-column>
-          <el-table-column width="160" align="center">
+          <el-table-column width="115" align="center">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -235,22 +232,22 @@
     <!-- 添加或修改对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-row>
+        <el-row v-if="mutipleCheck">
           <el-col :span="12">
-            <el-form-item label="学号" prop="sno"  v-if="JSON.stringify(stu)=='{}'" >
+            <el-form-item label="学号" prop="sno" v-if="JSON.stringify(stu)=='{}'">
               <el-input v-model="form.sno" disabled/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="学生姓名" prop="stuName" v-if="JSON.stringify(stu)=='{}'" >
+            <el-form-item label="学生姓名" prop="stuName" v-if="JSON.stringify(stu)=='{}'">
               <el-input v-model="form.stuName" disabled/>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
+        <el-row v-if="mutipleCheck">
           <el-col :span="12">
             <el-form-item label="获奖学年" prop="getYear">
-              <el-select v-model="form.getYear" placeholder="请选择获奖学年" :disabled="JSON.stringify(stu)=='{}'">
+              <el-select v-model="form.getYear" placeholder="请选择获奖学年" disabled>
                 <el-option
                   v-for="dict in yearsOptions"
                   :key="dict.id"
@@ -262,7 +259,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="获奖学期" prop="getTerm">
-              <el-select v-model="form.getTerm" placeholder="请选择获奖学期" :disabled="JSON.stringify(stu)=='{}'">
+              <el-select v-model="form.getTerm" placeholder="请选择获奖学期" disabled>
                 <el-option
                   v-for="dict in dict.type.valid_term"
                   :key="dict.value"
@@ -301,8 +298,8 @@
               </el-select>
             </el-form-item>
           </el-col>
-          </el-row>
-          <el-row>
+        </el-row>
+        <el-row v-if="mutipleCheck">
           <el-col :span="24">
             <el-form-item label="奖项名称" prop="prizeName">
               <el-input v-model="form.prizeName" placeholder="请输入奖项名称" clearable
@@ -312,19 +309,19 @@
           </el-col>
         </el-row>
         <!--奖项图片-->
-        <el-row>
-        <el-col>
-        <el-form-item label="奖项图片" prop="prizeImg">
-          <ImgUpload
-            v-model="form.prizeImg"
-            :limit="1"
-            :disabled="JSON.stringify(stu)=='{}'"
-          >
-          </ImgUpload>
-        </el-form-item>
-        </el-col>
+        <el-row v-if="mutipleCheck">
+          <el-col>
+            <el-form-item label="奖项图片" prop="prizeImg">
+              <ImgUpload
+                v-model="form.prizeImg"
+                :limit="1"
+                :disabled="JSON.stringify(stu)=='{}'"
+              >
+              </ImgUpload>
+            </el-form-item>
+          </el-col>
         </el-row>
-        <el-row>
+        <el-row v-if="mutipleCheck">
           <el-col :span="24">
             <el-form-item label="备注">
               <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"
@@ -339,8 +336,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="审核" prop="process" v-if="userName ==='admin'">
-              <el-radio-group v-model="form.process" @change="getProcess">
+            <el-form-item label="审核" prop="checkResult" v-if="userName ==='admin'">
+              <el-radio-group v-model="form.checkResult" @change="getProcess">
                 <el-radio :label="'1'">通过</el-radio>
                 <el-radio :label="'2'">不通过</el-radio>
               </el-radio-group>
@@ -361,6 +358,7 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
   </div>
 </template>
 
@@ -368,15 +366,16 @@
   import Cookies from "js-cookie";
   import {getInfo} from "@/api/scholarship/instrorInfo"
   import {getInfoBysno, selClassByMajorIds} from "@/api/scholarship/stuInfo"
-  import {listPrizes, getPrizes, delPrizes, addPrizes, updatePrizes, updateProcess} from "@/api/scholarship/stuPrizes";
+  import {listPrizes, getPrizes, delPrizes, addPrizes, updatePrizes, updateByIds} from "@/api/scholarship/stuPrizes";
   import {getPrizetype, selByParentId} from "@/api/scholarship/prizeType";
   import {getAllMajor} from "@/api/system/dept";
   import ImgUpload from "@/views/scholarship/prizes/imgUpload/imgUpload"
+  import {getAtLeast} from "@/api/scholarship/timeSetting"
 
   export default {
     name: "stuPrizes",
-    components:{ImgUpload},
-    dicts: ['process', 'valid_term'],
+    components: {ImgUpload},
+    dicts: ['process', 'valid_term','check_result'],
     data() {
       return {
         // 遮罩层
@@ -414,8 +413,7 @@
         ],
 
         // 表单参数
-        form: {
-        },
+        form: {},
         // 查询参数
         queryParams: {
           pageNum: 1,
@@ -434,6 +432,8 @@
         },
         //当前用户
         userName: undefined,
+        //时间参数
+        timeSetting: {},
         // 列信息
         columns: [
           {key: 0, label: `学号`, visible: true},
@@ -470,14 +470,14 @@
                 callback()
               }
               //通过时评语默认为通过
-                else{
-                  if (value == undefined || JSON.stringify(value) =='') {
-                    callback("评语不能为空")
-                  }
-                  else{
-                    callback()
-                  }
+              else {
+                if (value == undefined || JSON.stringify(value) == '') {
+                  callback("评语不能为空")
                 }
+                else {
+                  callback()
+                }
+              }
             },
             trigger: "blur"
           }],
@@ -489,10 +489,10 @@
               }
               else {
                 //审核通过，则分数不能为0 this.form.process == '1' &&
-                if ( value == 0) {
+                if (value == 0) {
                   callback("审核通过则对应分数不能为0!")
                 }
-                else{
+                else {
                   callback()
                 }
               }
@@ -500,19 +500,31 @@
             },
             trigger: "blur"
           }],
-        }
+        },
+        //是否批量审核
+        mutipleCheck: true,
       };
     },
-    watch: {
-    }
+    watch: {}
     ,
     created() {
-      this.getInstructorInfo();
       //初始化奖项类型数组
-      this.getType("1")
+      this.getType("1");
+      //查询开放的申请时间
+      this.getTimeSetting();
     }
     ,
     methods: {
+      //查询最近的时间参数,默认查询最近的
+      getTimeSetting() {
+        getAtLeast("1").then(res => {
+          this.timeSetting = res.data;
+          this.queryParams.getYear = this.timeSetting.setYear;
+          this.queryParams.getTerm = this.timeSetting.setTerm;
+          this.getInstructorInfo();
+        })
+      },
+
       //获取辅导员信息,并返回专业和年级信息
       getInstructorInfo() {
         this.userName = Cookies.get("username");
@@ -551,27 +563,28 @@
 
         }
       },
+
       //获取学生信息
       getStuInfo() {
         getInfoBysno(Cookies.get("username")).then(res => {
           if (res.data != undefined) {
             this.stu = res.data;
           }
-          console.log(this.stu)
           this.getList()
 
         })
       },
+
       //添加参数
       // 学生登录:sno,
       // 辅导员：guideGrade、majorIds,majorId,stuClass,stuName,process
       addParams(params) {
         let search = params;
         search.params = typeof (search.params) === 'object' && search.params !== null && !Array.isArray(search.params) ? search.params : {};
-        if (JSON.stringify(this.stu)!= '{}') {
+        if (JSON.stringify(this.stu) != '{}') {
           search.params['sno'] = this.stu.sno;
         }
-        if (JSON.stringify(this.instructor)!= '{}') {
+        if (JSON.stringify(this.instructor) != '{}') {
           search.params['majorIds'] = this.majorIds.join(",");
           search.params['grade'] = this.instructor.guideGrade;
           search.params['majorId'] = this.queryParams.majorId;
@@ -579,8 +592,12 @@
           search.params['stuName'] = this.queryParams.stuName;
           search.params['process'] = '1';
         }
-        if(this.userName=='admin'){
+        if (this.userName == 'admin') {
+          //查询条件
           search.params['process'] = '0';
+        }
+        if(this.ids.length >1){
+          search.params['awardIds'] = this.ids;
         }
         return search;
       },
@@ -652,12 +669,12 @@
       }
       ,
       //审核状态切换
-      getProcess(val){
-        if(val =='2'){
-          this.form.comment=undefined;
+      getProcess(val) {
+        if (val == '2') {
+          this.form.comment = undefined;
         }
-        if(val=='1'){
-          this.form.comment='审核通过'
+        if (val == '1') {
+          this.form.comment = '同意'
         }
       },
       // 表单重置
@@ -671,7 +688,10 @@
           getPoint: undefined,
           remark: undefined,
           process: '0',
+          checkResult:'1'
         };
+        this.form.getYear = this.timeSetting.setYear;
+        this.form.getTerm = this.timeSetting.setTerm;
         this.resetForm("form");
       }
       ,
@@ -684,6 +704,8 @@
       /** 重置按钮操作 */
       resetQuery() {
         this.resetForm("queryForm");
+        this.queryParams.getYear = this.timeSetting.setYear;
+        this.queryParams.getTerm = this.timeSetting.setTerm;
         this.handleQuery();
       }
       ,
@@ -697,9 +719,31 @@
 
       /** 新增按钮操作 */
       handleAdd() {
-        this.reset();
-        this.open = true;
-        this.title = "学生所获奖项登记";
+        //先找出最新的时间参数设置 1将 2 助
+        let startYear = this.parseTime(this.timeSetting.startTime, '{y}');
+        let nowYear = this.parseTime(new Date(), '{y}')
+        //先比较年份
+        if (nowYear > startYear) {
+          this.$modal.msgError("当前暂未开放登记时间!")
+        }
+        else {
+          let startTime = this.parseTime(this.timeSetting.startTime, '{y}-{m}-{d}');
+          let endTime = this.parseTime(this.timeSetting.endTime, '{y}-{m}-{d}')
+          let nowDate = this.parseTime(new Date(), '{y}-{m}-{d}')
+          if (nowDate >= startTime && nowDate <= endTime) {
+            //可以申请
+            this.reset();
+            this.open = true;
+            this.title = "学生所获奖项登记";
+          }
+          else if (nowDate < startTime) {
+            this.$modal.msgError("当前暂未开放登记时间!")
+          }
+          else {
+            this.$modal.msgError("登记时间已结束!")
+          }
+        }
+
       }
       ,
       /** 修改按钮操作 */
@@ -711,53 +755,106 @@
         getPrizes(stuId).then(response => {
           let data = response.data;
           this.form = data;
-          this.form.parentId=parseInt(this.form.parentId);
-          this.form.prizeId=parseInt(this.form.prizeId);
+          this.form.parentId = parseInt(this.form.parentId);
+          this.form.prizeId = parseInt(this.form.prizeId);
           //重新获取下拉项
           this.getType(this.form.parentId)
           this.open = true;
-          if(this.userName == 'admin'){
+          if (this.userName == 'admin') {
             this.title = "修改学生所获奖项";
           }
-          else{
-            this.title="审核学生所获奖项"
+          else {
+            this.title = "审核学生所获奖项"
           }
           //获取分数信息
-          if(this.userName == 'admin'){
-            this.form.process="1";
-            this.form.comment='审核通过'
-            getPrizetype(this.form.prizeId).then(res=>{
-              if(res.data.typeName == this.form.prizeName){
-                this.form.getPoint=res.data.extraPoint;
-              }
+          if (this.userName == 'admin') {
+            this.form.checkResult = "1";
+            this.form.comment = '审核通过'
+            getPrizetype(this.form.prizeId).then(res => {
+                this.form.getPoint = res.data.extraPoint;
             })
           }
         });
       }
       ,
       //审核按钮
-      handleCheck(row){
+      handleCheck(row) {
         //获取学生申请信息
         this.handleUpdate(row);
       },
+
+      //打开批量审核界面 只要同类才能批量
+      multipleUpdate(row) {
+        //批量审核
+        if (this.ids == undefined || this.ids.length == 0) {
+          this.$modal.alertError("请先选择要审核的记录！")
+        }
+        else if (this.ids.length != 1) {
+          if (this.queryParams.prizeId == undefined || this.queryParams.prizeId == '') {
+            this.$modal.alertError("请先选择奖项类型！")
+          }
+          else {
+            //打开批量审核表单
+            this.mutipleCheck = false
+            this.open = true;
+            this.title = '批量审核学生奖项'
+            this.form.parentId = this.queryParams.parentId;
+            this.form.prizeId = this.queryParams.prizeId;
+            //获取分数
+            getPrizetype(this.form.prizeId).then(res => {
+              this.form.getPoint = res.data.extraPoint;
+              this.form.checkResult = '1'
+              this.form.comment = '同意'
+            })
+
+          }
+        }
+        else {
+          //单个审核
+          this.handleCheck(row)
+        }
+
+      },
+
+      //批量审核提交
+      checkByIds(){
+         updateByIds(this.addParams(this.queryParams)).then(res=>{
+           this.$modal.msgSuccess("审核成功")
+           this.getList();
+           this.open=false
+         })
+      },
+
       /** 提交按钮 */
       submitForm: function () {
         this.$refs["form"].validate(valid => {
-          console.log('yyyy')
           if (valid) {
-            if (this.form.awardId != undefined) {
-              updatePrizes(this.form).then(response => {
-                this.$modal.msgSuccess("修改成功");
-                this.open = false;
-                this.getList();
-              });
-            } else {
-              this.form.sno=this.userName;
-              addPrizes(this.form).then(response => {
-                this.$modal.msgSuccess("新增成功");
-                this.open = false;
-                this.getList();
-              });
+            if (this.ids.length >1) {
+              //批量修改
+              this.checkByIds()
+            }
+            else {
+              if (this.form.awardId != undefined) {
+                if(this.userName=='admin'){
+                  this.form.process='1'
+                }
+                updatePrizes(this.form).then(response => {
+                  let message = '修改成功';
+                  if (this.userName == 'admin') {
+                    message = '审核成功'
+                  }
+                  this.$modal.msgSuccess(message);
+                  this.open = false;
+                  this.getList();
+                });
+              } else {
+                this.form.sno = this.userName;
+                addPrizes(this.form).then(response => {
+                  this.$modal.msgSuccess("登记成功");
+                  this.open = false;
+                  this.getList();
+                });
+              }
             }
           }
         });
@@ -773,14 +870,7 @@
           this.$modal.msgSuccess("删除成功");
         }).catch(() => {
         });
-      }
-      ,
-      // /** 导出按钮操作 */
-      // handleExport() {
-      //   this.download('scholarShip/stuInfo/export', {
-      //     ...this.queryParams
-      //   }, `stuInfo_${new Date().getTime()}.xlsx`)
-      // }
+      },
     }
   };
 </script>

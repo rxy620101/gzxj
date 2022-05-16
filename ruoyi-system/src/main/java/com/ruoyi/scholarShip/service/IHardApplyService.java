@@ -69,4 +69,7 @@ public interface IHardApplyService
 
     //统计学院的每个等级的人数
     public int selectTotalPeople(Map<String,Object> map);
+
+    //统计辅导员已审核的人数
+    public int getProveNum(HardApply hardApply);
 }

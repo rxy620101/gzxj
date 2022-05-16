@@ -17,3 +17,12 @@ export function summaryHard(params) {
     data:params
   })
 }
+
+// 传递map
+export function getParams(params) {
+  return request({
+    url: '/summary/info/getParams',
+    method: 'post',
+    data:params
+  })
+}

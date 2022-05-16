@@ -102,4 +102,10 @@ public class HardApplyServiceImpl implements IHardApplyService {
     public int selectTotalPeople(Map<String, Object> map){
         return  hardApplyMapper.selectTotalPeople(map);
     }
+
+    //统计辅导员已审核的人数
+    @Override
+    public int getProveNum(HardApply hardApply){
+        return  hardApplyMapper.getProveNum(hardApply);
+    }
 }

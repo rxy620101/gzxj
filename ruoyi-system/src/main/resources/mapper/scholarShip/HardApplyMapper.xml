@@ -1,61 +1,87 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.scholarShip.mapper.HardApplyMapper">
-    
+
     <resultMap type="HardApply" id="HardApplyResult">
-        <result property="applyId"    column="apply_id"    />
-        <result property="sno"    column="sno"    />
-        <result property="stuName"    column="stu_name"    />
-        <result property="applyYear"    column="apply_year"    />
-        <result property="familyNum"    column="family_num"    />
-        <result property="avgIncome"    column="avg_income"    />
-        <result property="hardCondition"    column="hard_condition"    />
-        <result property="img"    column="img"    />
-        <result property="process"    column="process"    />
-        <result property="applyTime"    column="apply_time"    />
-        <result property="instructorName"    column="instructor_name"    />
-        <result property="comment"    column="comment"    />
-        <result property="hardRank"    column="hard_rank"    />
-        <result property="money"    column="money"    />
-        <result property="rankName"    column="rank_name"    />
+        <result property="applyId" column="apply_id"/>
+        <result property="sno" column="sno"/>
+        <result property="stuName" column="stu_name"/>
+        <result property="applyYear" column="apply_year"/>
+        <result property="familyNum" column="family_num"/>
+        <result property="avgIncome" column="avg_income"/>
+        <result property="hardCondition" column="hard_condition"/>
+        <result property="img" column="img"/>
+        <result property="process" column="process"/>
+        <result property="applyTime" column="apply_time"/>
+        <result property="instructorName" column="instructor_name"/>
+        <result property="comment" column="comment"/>
+        <result property="hardRank" column="hard_rank"/>
+        <result property="money" column="money"/>
+        <result property="rankName" column="rank_name"/>
         <result property="collegeName" column="college_name"/>
         <result property="majorName" column="major_name"/>
         <result property="grade" column="grade"/>
         <result property="checkTime" column="check_time"/>
         <result property="isPublic" column="is_public"/>
+        <result property="checkResult" column="check_result"/>
     </resultMap>
 
     <sql id="selectHardApplyVo">
-        select a.apply_id, a.sno, a.stu_name, a.apply_year, family_num, avg_income, hard_condition, a.img, process, apply_time, a.instructor_name, comment, hard_rank, a.money,
-               a.check_time,a.is_public,b.rank_name
-        from hard_apply a left join hard_rank b on a.hard_rank=b.rangk_id
-         join stu_info t on a.sno=t.sno
-         join college_major f on f.college_id = t.college_id
-         join college_major g on g.college_id = t.major_id
+        select a.apply_id,
+               a.sno,
+               a.stu_name,
+               a.apply_year,
+               family_num,
+               avg_income,
+               hard_condition,
+               a.img,
+               process,
+               apply_time,
+               a.instructor_name,
+               comment,
+               hard_rank,
+               a.money,
+               a.check_time,
+               a.is_public,
+               b.rank_name,
+               a.check_result
+        from hard_apply a
+                 left join hard_rank b on a.hard_rank = b.rangk_id
+                 join stu_info t on a.sno = t.sno
+                 join college_major f on f.college_id = t.college_id
+                 join college_major g on g.college_id = t.major_id
     </sql>
 
     <select id="selectHardApplyList" parameterType="HardApply" resultMap="HardApplyResult">
         <include refid="selectHardApplyVo"/>
-        <where>  
-            <if test="sno != null  and sno != ''"> and a.sno = #{sno}</if>
-            <if test="stuName != null  and stuName != ''"> and a.stu_name like concat('%', #{stuName}, '%')</if>
-            <if test="applyYear != null  and applyYear != ''"> and apply_year = #{applyYear}</if>
-            <if test="process != null  and process != ''"> and process = #{process}</if>
-            <if test="hardRank != null  and hardRank != ''"> and hard_rank = #{hardRank}</if>
+        <where>
+            <if test="sno != null  and sno != ''">and a.sno = #{sno}</if>
+            <if test="stuName != null  and stuName != ''">and a.stu_name like concat('%', #{stuName}, '%')</if>
+            <if test="applyYear != null  and applyYear != ''">and apply_year = #{applyYear}</if>
+            <if test="process != null  and process != ''">and process = #{process}</if>
+            <if test="hardRank != null  and hardRank != ''">and hard_rank = #{hardRank}</if>
         </where>
-        <!-- 学生申请 或 待审核-->
-        <if test="operation== 0 or operation== 2 ">
+<!--        &lt;!&ndash; 学生申请 &ndash;&gt;-->
+<!--        <if test="operation== 0">-->
+<!--            and process='0'-->
+<!--        </if>-->
+        <!--待审核-->
+        <if test="operation== 2 ">
             and process='0'
         </if>
-        <!--学生申请记录查询 或 审核记录-->
-        <if test="operation== 1 or operation== 3 ">
-            and process='1'
+<!--        <学生申请记录查询>-->
+        <if test="operation== 1">
+            and process != '0' and apply_year != #{params.applyYear}
+        </if>
+        <!-- 审核记录-->
+        <if test="operation== 3 ">
+            and process != '0'
         </if>
         <!-- 公示-->
         <if test="operation== 4">
-            and is_public='1' and process='1'
+            and is_public='1' and check_result='1'
         </if>
         -- 辅导员只能审核自己专业的
         <if test="params.majorIds != null and params.majorIds !='' ">
@@ -78,12 +104,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and t.grade=#{params.grade}
         </if>
     </select>
-    
+
     <select id="selectHardApplyByApplyId" parameterType="Long" resultMap="HardApplyResult">
         <include refid="selectHardApplyVo"/>
         where apply_id = #{applyId}
     </select>
-        
+
     <insert id="insertHardApply" parameterType="HardApply" useGeneratedKeys="true" keyProperty="applyId">
         insert into hard_apply
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -100,7 +126,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="hardRank != null">hard_rank,</if>
             <if test="money != null">money,</if>
             apply_time
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="sno != null">#{sno},</if>
             <if test="stuName != null">#{stuName},</if>
@@ -115,7 +141,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="hardRank != null">#{hardRank},</if>
             <if test="money != null">#{money},</if>
             sysdate()
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateHardApply" parameterType="HardApply">
@@ -125,16 +151,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="avgIncome != null">avg_income = #{avgIncome},</if>
             <if test="hardCondition != null">hard_condition = #{hardCondition},</if>
             <if test="img != null">img = #{img},</if>
+            <if test="process != null">process = #{process},</if>
+            <if test="checkResult != null">check_result = #{checkResult},</if>
         </trim>
         where apply_id = #{applyId}
     </update>
 
     <delete id="deleteHardApplyByApplyId" parameterType="Long">
-        delete from hard_apply where apply_id = #{applyId}
+        delete
+        from hard_apply
+        where apply_id = #{applyId}
     </delete>
 
     <delete id="deleteHardApplyByApplyIds" parameterType="String">
-        delete from hard_apply where apply_id in 
+        delete from hard_apply where apply_id in
         <foreach item="applyId" collection="array" open="(" separator="," close=")">
             #{applyId}
         </foreach>
@@ -142,19 +172,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <update id="checkApply">
         update hard_apply
-        set process = #{process},
+        set process = #{process}, check_result=#{checkResult},
         instructor_name = #{instructorName},
         <if test="hardRank != null and hardRank !=''">hard_rank=#{hardRank},</if>
         <if test="money != null and money !=''">money=#{money},</if>
         comment = #{comment},
         check_time=sysdate()
-        where apply_id = #{applyId}
+        where apply_id in
+        <foreach item="applyId" collection="params.applyIds" open="(" separator="," close=")">
+            #{applyId}
+        </foreach>
     </update>
+
 
     <update id="publishApply">
         update hard_apply
         set is_public =1
-        where apply_year = #{applyYear} and  sno in (
+        where apply_year = #{applyYear} and sno in (
         select b.sno from stu_info b
         where b.grade=#{params.guideGrade} and b.major_id in
         <foreach item="majorId" collection="params.majorIds" open="(" separator="," close=")">
@@ -163,11 +197,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         )
     </update>
 
-    <select id="selectTotalPeople"  resultType="int">
+    <select id="selectTotalPeople" resultType="int">
         select count(1)
-        from hard_apply a join stu_info b on a.sno=b.sno
-        where apply_year=#{applyYear}  and b.college_id=#{collegeId} and process='1'
-          and hard_rank=#{rankId}
+        from hard_apply a
+                 join stu_info b on a.sno = b.sno
+        where apply_year = #{applyYear}
+          and b.college_id = #{collegeId}
+          and process = '1'
+          and hard_rank = #{rankId}
     </select>
 
+<!--    查询该学年某辅导已审核通过的名额-->
+    <select id="getProveNum" resultType="int" parameterType="HardApply">
+        select count(1)
+         from hard_apply
+         where apply_year=#{applyYear} and check_result='1' and  instructor_name = #{instructorName}
+    </select>
 </mapper>

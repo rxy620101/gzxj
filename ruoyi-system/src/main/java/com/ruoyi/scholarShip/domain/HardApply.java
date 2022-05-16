@@ -76,6 +76,9 @@ public class HardApply extends BaseEntity
     @Excel(name = "助学金金额")
     private BigDecimal money;
 
+    //审核结果
+    private String checkResult;
+
     //等级名称
     private String rankName;
     //学院名称

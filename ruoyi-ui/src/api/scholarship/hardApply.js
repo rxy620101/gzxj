@@ -59,3 +59,13 @@ export function publishApply(data) {
     data:data
   })
 }
+
+
+// 统计该学年辅导员已审核通过的人数
+export function getProveNum(params) {
+  return request({
+    url: '/hard/info/getProveNum',
+    method: 'post',
+    data:params
+  })
+}
