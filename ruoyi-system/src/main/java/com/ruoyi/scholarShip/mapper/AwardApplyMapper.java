@@ -68,4 +68,8 @@ public interface AwardApplyMapper {
 
     //统计申请人数
     public int selectTotalPeople(Map<String, Object> map);
+
+    //查询是否重复申请
+    public int checkIsApply(AwardApply awardApply);
+
 }

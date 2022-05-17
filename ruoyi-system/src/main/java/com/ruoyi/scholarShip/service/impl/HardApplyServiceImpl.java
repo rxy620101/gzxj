@@ -108,4 +108,10 @@ public class HardApplyServiceImpl implements IHardApplyService {
     public int getProveNum(HardApply hardApply){
         return  hardApplyMapper.getProveNum(hardApply);
     }
+
+    //查询是否重复申请
+    @Override
+    public int checkIsApply(HardApply hardApply){
+        return hardApplyMapper.checkIsApply(hardApply);
+    }
 }

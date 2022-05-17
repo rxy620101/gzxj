@@ -213,4 +213,10 @@
          from hard_apply
          where apply_year=#{applyYear} and check_result='1' and  instructor_name = #{instructorName}
     </select>
+
+    <select id="checkIsApply" parameterType="HardApply" resultType="int">
+        select count(1)
+        from hard_apply
+        where apply_year=#{applyYear}  and sno=#{sno}
+    </select>
 </mapper>

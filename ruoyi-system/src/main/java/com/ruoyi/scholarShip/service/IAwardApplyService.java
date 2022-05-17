@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ruoyi.scholarShip.domain.AwardApply;
+import com.ruoyi.scholarShip.domain.HardApply;
 
 /**
  * 奖学金申请Service接口
@@ -67,4 +68,8 @@ public interface IAwardApplyService
     public int publishApply(AwardApply awardApply);
     //统计申请人数
     public int selectTotalPeople(Map<String, Object> map);
+
+    //查询是否重复申请
+    public int checkIsApply(AwardApply awardApply);
+
 }

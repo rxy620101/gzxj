@@ -72,4 +72,7 @@ public interface IHardApplyService
 
     //统计辅导员已审核的人数
     public int getProveNum(HardApply hardApply);
+
+    //查询是否重复申请
+    public int checkIsApply(HardApply hardApply);
 }

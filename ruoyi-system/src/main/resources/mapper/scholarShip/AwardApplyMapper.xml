@@ -236,4 +236,10 @@
         where apply_year=#{applyYear} and apply_term=#{applyTerm} and b.college_id=#{collegeId} and process='1'
        and ((init_rank=#{rankId} and adapt_rank is null) or (adapt_rank=#{rankId} and adapt_rank  is not  null))
     </select>
+
+    <select id="checkIsApply" parameterType="AwardApply" resultType="int">
+        select count(1)
+       from award_apply
+        where apply_year=#{applyYear} and apply_term=#{applyTerm} and sno=#{sno}
+    </select>
 </mapper>

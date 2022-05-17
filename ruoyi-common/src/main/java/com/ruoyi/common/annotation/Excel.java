@@ -101,6 +101,10 @@ public @interface Excel
      */
     public String targetAttr() default "";
 
+//    //合并行 序列从1 开始
+//    public String mergeLine() default "";
+
+
     /**
      * 是否自动统计数据,在最后追加一行统计数据总和
      */

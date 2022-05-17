@@ -69,3 +69,12 @@ export function getProveNum(params) {
     data:params
   })
 }
+
+// 查询是否重复发布
+export function checkIsApply(data) {
+  return request({
+    url: '/hard/info/checkIsApply',
+    method: 'post',
+    data:data
+  })
+}

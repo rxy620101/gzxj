@@ -127,4 +127,9 @@ public class AwardApplyController extends BaseController {
         }
         return toAjax(awardApplyService.publishApply(awardApply));
     }
+    //查询是否重复申请
+    @PostMapping("/checkIsApply")
+    public AjaxResult checkIsApply(@RequestBody AwardApply awardApply ){
+         return  AjaxResult.success(awardApplyService.checkIsApply(awardApply));
+    }
 }

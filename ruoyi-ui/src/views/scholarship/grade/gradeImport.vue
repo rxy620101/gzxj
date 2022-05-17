@@ -125,32 +125,17 @@
           >
           </el-table-column>
           <el-table-column
-            width="100">
+            width="50">
             <template slot-scope="scope">
               <el-button
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
-                v-hasPermi="['grade:info:edit']"
-              >修改
+                v-if="scope.row == userName"
+              >申诉
               </el-button>
               <!--<el-button-->
-              <!--size="mini"-->
-              <!--type="text"-->
-              <!--icon="el-icon-more"-->
-              <!--@click="selectDetail(scope.row)"-->
-              <!--v-hasPermi="['grade:info:detail']"-->
-              <!--&gt;详情-->
-              <!--</el-button>-->
-              <!--<el-button-->
-              <!--size="mini"-->
-              <!--type="text"-->
-              <!--icon="el-icon-delete"-->
-              <!--@click="handleDelete(scope.row)"-->
-              <!--v-hasPermi="['grade:info:remove']"-->
-              <!--&gt;删除-->
-              <!--</el-button>-->
             </template>
           </el-table-column>
         </el-table>
@@ -356,14 +341,14 @@
           {
             prop: 'sno',
             label: '学号',
-            width: 110,
-            align: 'center',
+            width: 100,
+            // align: 'center',
 
           },
           {
             prop: 'stuName',
             label: '姓名',
-            width: 90
+            width: 80
           }]
 
         // 添加科目
@@ -382,14 +367,14 @@
         })
         head.push({
           prop: 'totalCredit',
-          label: '总成绩绩点',
+          label: '成绩绩点',
           width: 110,
-          sort: true,
         })
         head.push({
           prop: 'ranking',
           label: '名次',
-          width: 50
+          width: 70,
+          sort:true,
         })
         return head
       },

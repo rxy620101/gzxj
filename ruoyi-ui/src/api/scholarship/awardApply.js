@@ -60,3 +60,12 @@ export function publishApply(data) {
     data:data
   })
 }
+
+// 查询是否重复发布
+export function checkIsApply(data) {
+  return request({
+    url: '/award/info/checkIsApply',
+    method: 'post',
+    data:data
+  })
+}

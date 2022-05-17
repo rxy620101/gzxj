@@ -3,6 +3,7 @@ package com.ruoyi.scholarShip.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.ruoyi.scholarShip.domain.HardApply;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.scholarShip.mapper.AwardApplyMapper;
@@ -107,5 +108,11 @@ public class AwardApplyServiceImpl implements IAwardApplyService
     @Override
     public int selectTotalPeople(Map<String, Object> map){
         return  awardApplyMapper.selectTotalPeople(map);
+    }
+
+    //查询是否重复申请
+    @Override
+    public int checkIsApply(AwardApply awardApply){
+        return  awardApplyMapper.checkIsApply(awardApply);
     }
 }
