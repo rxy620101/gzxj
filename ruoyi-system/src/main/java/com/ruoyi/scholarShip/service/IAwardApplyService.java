@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.ruoyi.scholarShip.domain.AwardApply;
-import com.ruoyi.scholarShip.domain.HardApply;
 
 /**
  * 奖学金申请Service接口

@@ -236,14 +236,13 @@ public class GradeExcelUtil {
             int column = 0;
             // 写入各个字段的列头名称
             for (String titleName : cellTitle) {
-//                Excel excel = (Excel) os[1];
                 this.createCell(titleName, row, column++);
             }
-//            if (Type.EXPORT.equals(type))
-//            {
-//                fillExcelData(index, row);
-//                addStatisticsRow();
-//            }
+            //设置自动列宽
+            for (int i = 0; i < row.getLastCellNum(); i++) {
+                    int length = row.getCell(i).getStringCellValue().getBytes().length;
+                    sheet.setColumnWidth((short)i,(short)((length+2)*256));
+                }
         }
     }
 

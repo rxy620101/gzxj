@@ -81,17 +81,6 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              type="warning"
-              plain
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-              v-hasPermi="['grade:info:export']"
-            >导出
-            </el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
               type="primary"
               plain
               icon="el-icon-s-promotion"
@@ -125,25 +114,37 @@
           >
           </el-table-column>
           <el-table-column
-            width="50">
+            fixed="right"
+            width="80"
+            align="center"
+            label="操作"
+            class-name="small-padding fixed-width"
+          v-if="JSON.stringify(stu) !='{}'">
             <template slot-scope="scope">
               <el-button
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-                v-if="scope.row == userName"
+                @click="handleAppeal(scope.row)"
+                v-if="scope.row.sno == stu.sno && showAppeal=='0'"
               >申诉
+              </el-button>
+              <el-tag size="mini"
+                      v-if="scope.row.sno == stu.sno && showAppeal=='1'"
+              >申诉中
+              </el-tag>
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleDetail(scope.row)"
+                v-if="scope.row.sno == stu.sno && showAppeal=='2'"
+              >申诉详情
               </el-button>
               <!--<el-button-->
             </template>
           </el-table-column>
         </el-table>
-        <!--<pagination-->
-        <!--v-show="total>0"-->
-        <!--:total="total"-->
-        <!--:page.sync="queryParams.pageNum"-->
-        <!--:limit.sync="queryParams.pageSize"-->
 
         <!--/>-->
         <el-pagination
@@ -158,23 +159,6 @@
         </el-pagination>
       </el-col>
     </el-row>
-
-    <!--&lt;!&ndash; 添加或修改对话框 &ndash;&gt;-->
-    <!--<el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>-->
-    <!--<el-form ref="form" :model="form" :rules="rules" label-width="80px">-->
-    <!--<el-row>-->
-    <!--<el-col :span="12">-->
-    <!--<el-form-item label="学号" prop="sno">-->
-    <!--<el-input v-model="form.sno" placeholder="请输入学号" :disabled="form.id != undefined"/>-->
-    <!--</el-form-item>-->
-    <!--</el-col>-->
-    <!--</el-row>-->
-    <!--</el-form>-->
-    <!--<div slot="footer" class="dialog-footer">-->
-    <!--<el-button type="primary" @click="submitForm">确 定</el-button>-->
-    <!--<el-button @click="cancel">取 消</el-button>-->
-    <!--</div>-->
-    <!--</el-dialog>-->
 
     <!-- 用户导入对话框 -->
     <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
@@ -209,6 +193,71 @@
       </div>
     </el-dialog>
 
+    <!-- 添加或修改成绩申诉对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="学号" prop="sno">
+              <el-input v-model="form.sno" disabled/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="姓名" prop="stuName">
+              <el-input v-model="form.stuName" disabled/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="学年" prop="appealYear">
+              <el-input v-model="form.appealYear" disabled/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="学期" prop="appealTerm">
+              <el-select
+                v-model="form.appealTerm"
+                style="width: 145px"
+                disabled
+              >
+                <el-option
+                  v-for="dict in dict.type.valid_term"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="dict.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-form-item label="申诉原因" prop="appealReason">
+            <el-input v-model="form.appealReason" :disabled="showAppeal=='2'" type="textarea" maxlength="100"/>
+          </el-form-item>
+        </el-row>
+        <el-row v-if="showAppeal=='2'">
+          <el-form-item label="审核结果" prop="appealResult">
+            <el-radio-group v-model="form.appealResult"
+                            disabled>
+              <el-radio :label="'1'">通过</el-radio>
+              <el-radio :label="'2'">不通过</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-row>
+        <el-row v-if="showAppeal=='2'">
+          <el-form-item label="评语" prop="comment">
+            <el-input v-model="form.comment" placeholder="请输入评语" type="textarea" maxlength="100"/>
+          </el-form-item>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="cancel" v-if="showAppeal=='2'">关闭</el-button>
+        <el-button type="primary" @click="submitForm" v-if="showAppeal=='0'">确 定</el-button>
+        <el-button @click="cancel" v-if="showAppeal=='0'">取 消</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -218,7 +267,6 @@
     getGradeInfo,
     delInfo,
     addInfo,
-    updateInfo,
     getHeader,
     getParams
   } from "@/api/scholarship/gradeInfo";
@@ -227,6 +275,8 @@
   import {getToken} from "@/utils/auth";
   import {putGradeInfo} from "@/api/scholarship/initAwardList";
   import Cookies from "js-cookie";
+  import {addAppeal, getDetail, isExistAppeal} from "@/api/scholarship/appealInfo";
+  import {getAtLeast} from "@/api/scholarship/timeSetting"
 
   export default {
     name: "gradeImport",
@@ -270,16 +320,19 @@
         instructorInfo: {},
         stuClass: undefined,
         majorId: undefined,
+        //显示学生是否申诉 0申诉 1 申诉中 2申诉详情
+        showAppeal: '0',
 
-        // 表单参数
-        // form: {
-        //   id: undefined,
-        //   stuName: undefined,
-        //   collegeId: undefined,
-        //   majorId: undefined,
-        //   grade: undefined,
-        //   stuClass: undefined,
-        // },
+        //表单参数
+        form: {
+          id: undefined,
+          sno: undefined,
+          stuName: undefined,
+          appealYear: undefined,
+          appealTerm: undefined,
+          appealReason: undefined,
+          appealStatus: '0'
+        },
         // 用户导入参数
         upload: {
           // 是否显示弹出层（用户导入）
@@ -313,8 +366,20 @@
         // 列信息
         columns: [],
         // // 表单校验
-        // rules: {},
-        // //查看详情
+        rules: {
+          appealReason: [
+            {require: true, message: "申诉理由不能为空", trigger: "blur"},
+          ],
+          sno:[{require:true ,message:"申诉理由不能为空",trigger: 'blur'}]
+        },
+        //时间参数
+        timeInfo: {
+          setYear: undefined,
+          setTerm: undefined,
+        },
+        //申诉信息
+        appealInfo: {},
+        //查看详情
         // selectDetial: false,
         //表头数据
         titleNames: [],
@@ -326,7 +391,7 @@
     },
 
     created() {
-      this.getInstructorInfo();
+      this.getTimeSetting();
     }
     ,
     methods: {
@@ -363,18 +428,18 @@
         head.push({
           prop: 'totalScore',
           label: '总分',
-          width: 80
+          width: 70
         })
         head.push({
           prop: 'totalCredit',
-          label: '成绩绩点',
-          width: 110,
+          label: '总绩点',
+          width: 70,
         })
         head.push({
           prop: 'ranking',
           label: '名次',
           width: 70,
-          sort:true,
+          sort: true,
         })
         return head
       },
@@ -392,11 +457,6 @@
 
       },
 
-      // //查看课程的详细信息
-      // selectDetail() {
-      //   this.selectDetial = ture;
-      //
-      // },
 
       //添加参数
       addParams(params, startYear, majorName, validTerm) {
@@ -533,7 +593,7 @@
       //获取辅导员信息,并返回专业和年级信息
       getInstructorInfo() {
         getInfo().then(res => {
-          if (res.data != null) {
+          if (res.data != undefined) {
             this.instructorInfo = res.data
             this.queryParams.grade = res.data.guideGrade;
             let majorName = res.majorNames;
@@ -546,7 +606,7 @@
                 label: item
               };
               this.majorOptions.push(obj);
-              //初始化专业项
+              //初始化专业项 默认为第一个值
               this.queryParams.majorName = majorName[0]
               this.initMajor = majorName[0]
             });
@@ -564,32 +624,32 @@
             this.stuClass = res.data.stuClass;
             this.majorId = res.data.majorId;
             this.$forceUpdate();
+            //查询是否存在申诉记录
+            this.checkIsExistAppeal();
           }
           this.getList()
 
         })
       }
       ,
+      //获取最新的时间参数信息
+      getTimeSetting() {
+        getAtLeast("1").then(res => {
+          this.timeInfo = res.data;
+          this.queryParams.startYear = res.data.setYear;
+          this.queryParams.startTerm = res.data.setTerm;
+          this.getInstructorInfo();
+        })
+      },
       // 取消按钮
       cancel() {
         this.open = false;
         this.reset();
+      },
+      // 表单重置
+      reset() {
+        this.resetForm("form");
       }
-      // // 表单重置
-      // reset() {
-      //   this.form = {
-      //     sno: undefined,
-      //     stuName: undefined,
-      //     sex: "0",
-      //     certNum: undefined,
-      //     collegeId: undefined,
-      //     majorId: undefined,
-      //     grade: undefined,
-      //     stuClass: undefined,
-      //     remark: undefined,
-      //   };
-      //   this.resetForm("form");
-      // }
       ,
       /** 搜索按钮操作 */
       handleQuery() {
@@ -611,36 +671,62 @@
         this.multiple = !selection.length;
       }
       ,
+      //查询是否有申诉记录
+      checkIsExistAppeal() {
+        let params = {
+          sno: this.stu.sno,
+          appealYear: this.timeInfo.setYear,
+          appealTerm: this.timeInfo.setTerm,
+        }
+        isExistAppeal(params).then(res => {
+          if (res.data == undefined) {
+            this.showAppeal = '0'
+          }
+          else {
+            this.appealInfo = res.data;
+            if (this.appealInfo.appealStatus == '0') {
+              this.showAppeal = '1'
+            }
+            else {
+              this.showAppeal = '2'
+            }
+          }
 
-      /** 新增按钮操作 */
-      handleAdd() {
-        // this.reset();
-        // this.open = true;
-        // this.title = "添加学生基础信息";
-      }
-      ,
-      /** 修改按钮操作 */
-      handleUpdate(row) {
+        })
 
-      }
-      ,
+      },
+
+
+      /** 点击申诉按钮操作 */
+      handleAppeal() {
+        this.reset();
+        this.form.sno = this.stu.sno;
+        this.form.stuName = this.stu.stuName;
+        this.form.appealYear = this.timeInfo.setYear;
+        this.form.appealTerm = this.timeInfo.setTerm;
+        this.open = true;
+        this.title = "成绩申诉";
+      },
+      //查看申请详情
+      handleDetail(row) {
+        this.reset();
+        this.open = true;
+        this.title = "成绩申诉详情";
+        this.form = this.appealInfo;
+      },
+
+
       /** 提交按钮 */
       submitForm: function () {
         this.$refs["form"].validate(valid => {
           if (valid) {
-            if (this.form.id != undefined) {
-              updateInfo(this.form).then(response => {
-                this.$modal.msgSuccess("修改成功");
-                this.open = false;
-                this.getList();
-              });
-            } else {
-              addInfo(this.form).then(response => {
-                this.$modal.msgSuccess("新增成功");
-                this.open = false;
-                this.getList();
-              });
-            }
+            addAppeal(this.form).then(response => {
+              this.$modal.msgSuccess("申诉成功");
+              //改变为申诉中
+              this.showAppeal = '1'
+              this.open = false;
+              this.getList();
+            });
           }
         });
       }
@@ -655,13 +741,6 @@
           this.$modal.msgSuccess("删除成功");
         }).catch(() => {
         });
-      }
-      ,
-      /** 导出按钮操作 */
-      handleExport() {
-        this.download('scholarShip/stuInfo/export', {
-          ...this.queryParams
-        }, `stuInfo_${new Date().getTime()}.xlsx`)
       }
       ,
       /** 导入按钮操作 */
@@ -685,6 +764,7 @@
         });
 
       },
+
       //发布学生成绩,用于生成初始名单
       handlePulish() {
         //获取学期信息
