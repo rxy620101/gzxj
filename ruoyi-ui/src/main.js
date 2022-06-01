@@ -80,6 +80,21 @@ Vue.use(Element, {
 
 Vue.config.productionTip = false
 
+// window.addEventListener('visibilitychange', function() {
+//   if(document.hidden === false && global.username !== localStorage.getItem('passUserName')) {
+//     window.location.reload()
+//     global.username = localStorage.getItem('passUserName')
+//   } else {
+//     if(global.username === localStorage.getItem('passUserName') && (window.location.pathname === '/index' || window.location.pathname === '/login')) {
+//       window.location.reload()
+//     }
+//     global.username = localStorage.getItem('passUserName')
+//   }
+// })
+// window.addEventListener("beforeunload", () => {
+//   sessionStorage.setItem("username", Cookies.get('username') || "");
+// });
+
 new Vue({
   el: '#app',
   router,

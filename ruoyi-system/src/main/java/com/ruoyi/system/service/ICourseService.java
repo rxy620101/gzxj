@@ -103,7 +103,14 @@ public interface ICourseService
 
     //通过课程名称查询课程id
     public Long[] selectIdsByNames(String[] coseNames, Map<String,Object> map);
+    /**
+     * 校验课程是否唯一
+     *
+     * @Param course 课程信息
+     * @return 结果
+     */
+    public int checkCourseUniqueByMaiorId( Course course);
 
-
+    public Long selectIdByCourse(Course course);
 
 }

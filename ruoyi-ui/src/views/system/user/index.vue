@@ -1,30 +1,6 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-      <!--&lt;!&ndash;部门数据&ndash;&gt;-->
-      <!--<el-col :span="4" :xs="24">-->
-        <!--<div class="head-container">-->
-          <!--<el-input-->
-            <!--v-model="deptName"-->
-            <!--placeholder="请输入部门名称"-->
-            <!--clearable-->
-            <!--size="small"-->
-            <!--prefix-icon="el-icon-search"-->
-            <!--style="margin-bottom: 20px"-->
-          <!--/>-->
-        <!--</div>-->
-        <!--<div class="head-container">-->
-          <!--<el-tree-->
-            <!--:data="deptOptions"-->
-            <!--:props="defaultProps"-->
-            <!--:expand-on-click-node="false"-->
-            <!--:filter-node-method="filterNode"-->
-            <!--ref="tree"-->
-            <!--default-expand-all-->
-            <!--@node-click="handleNodeClick"-->
-          <!--/>-->
-        <!--</div>-->
-      <!--</el-col>-->
       <!--用户数据-->
       <el-col  :xs="24">
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
@@ -127,7 +103,6 @@
 
         <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="50" align="center" />
-          <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns[0].visible" />
           <el-table-column label="用户账号" align="center" key="userName" prop="userName" v-if="columns[1].visible" :show-overflow-tooltip="true" />
           <el-table-column label="状态" align="center" key="status" v-if="columns[2].visible">
             <template slot-scope="scope">
@@ -139,7 +114,7 @@
               ></el-switch>
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[3].visible" width="160">
+          <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[3].visible" >
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
@@ -284,14 +259,10 @@
 <script>
 import { listUser, getUser, delUser, addUser, updateUser, resetUserPwd, changeUserStatus } from "@/api/system/user";
 import { getToken } from "@/utils/auth";
-// import { treeselect } from "@/api/system/dept";
-// import Treeselect from "@riophae/vue-treeselect";
-// import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   name: "User",
   dicts: ['sys_normal_disable'],
-  //components: { Treeselect },
   data() {
     return {
       // 遮罩层
@@ -371,15 +342,8 @@ export default {
       }
     };
   },
-  watch: {
-    // // 根据名称筛选部门树
-    // deptName(val) {
-    //   this.$refs.tree.filter(val);
-    // }
-  },
   created() {
     this.getList();
-    // this.getTreeselect();
     this.getConfigKey("sys.user.initPassword").then(response => {
       this.initPassword = response.msg;
     });
@@ -396,23 +360,6 @@ export default {
         }
       );
     },
-    // /** 查询部门下拉树结构 */
-    // getTreeselect() {
-    //   treeselect().then(response => {
-    //     this.deptOptions = response.data;
-    //   });
-    // },
-    // // 筛选节点
-    // filterNode(value, data) {
-    //   if (!value) return true;
-    //   return data.label.indexOf(value) !== -1;
-    // },
-    // // 节点单击事件
-    // handleNodeClick(data) {
-    //   this.queryParams.deptId = data.id;
-    //   this.handleQuery();
-    // },
-
 
     // 用户状态修改
     handleStatusChange(row) {
@@ -482,7 +429,6 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
-      //this.getTreeselect();
       getUser().then(response => {
         this.roleOptions = response.roles;
         this.open = true;
@@ -494,7 +440,6 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      //this.getTreeselect();
       const userId = row.userId || this.ids;
       getUser(userId).then(response => {
         this.form = response.data;

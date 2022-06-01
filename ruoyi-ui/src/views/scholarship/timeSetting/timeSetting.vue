@@ -99,15 +99,9 @@
           </el-table-column>
           <el-table-column label="开始时间" align="center" prop="startTime" v-if="columns[3].visible"
                            :show-overflow-tooltip="true" width="200">
-            <!--<template slot-scope="scope">-->
-              <!--<span>{{ scope.row.startTime) }}</span>-->
-            <!--</template>-->
           </el-table-column>
           <el-table-column label="结束时间" align="center" prop="endTime" v-if="columns[4].visible"
                            :show-overflow-tooltip="true" width="180">
-            <!--<template slot-scope="scope">-->
-              <!--<span>{{ parseTime(scope.row.endTime) }}</span>-->
-            <!--</template>-->
           </el-table-column>
           <el-table-column width="300" align="center">
             <template slot-scope="scope">
@@ -175,7 +169,8 @@
                               type="date"
                               value-format="yyyy-MM-dd"
                               placeholder="请选择开始时间"
-                              style="width: 200px">
+                              style="width: 200px"
+                              :picker-options="startTimeOptions">
               </el-date-picker>
             </el-form-item>
           </el-col>
@@ -186,6 +181,7 @@
                               type="date"
                               value-format="yyyy-MM-dd"
                               placeholder="请选择结束时间"
+                              :picker-options="endTimeOptions"
                               style="width: 200px">
               </el-date-picker>
             </el-form-item>
@@ -274,6 +270,23 @@
           {key: 3, label: `开始时间`, visible: true},
           {key: 4, label: `结束时间`, visible: true},
         ],
+        //开始时间小于结束时间，结束时间大于开始时间
+        startTimeOptions: {
+          disabledDate: time => {
+            const endDateVal = new Date(this.form.endTime).getTime()
+            if (endDateVal) {
+              return time.getTime() > endDateVal - 0
+            }
+          },
+        },
+        endTimeOptions: {
+          disabledDate: time => {
+            const beginDateVal = new Date(this.form.startTime).getTime()
+            if (beginDateVal) {
+              return time.getTime() < beginDateVal - 0
+            }
+          }
+        },
         // 表单校验
         rules: {
           setYear: [{required: true, message: "学年不能为空!", trigger: ["blur", "change"]},],

@@ -65,8 +65,8 @@
         <include refid="selectGradeInfoVo"/>
         <where>
             <if test="gradeId != null ">and grade_id = #{gradeId}</if>
-            <if test="sno != null  and sno != ''">and sno = #{sno}</if>
-            <if test="stuName != null  and stuName != ''">and stu_name like concat('%', #{stuName}, '%')</if>
+            <if test="sno != null  and sno != ''">and a.sno = #{sno}</if>
+            <if test="stuName != null  and stuName != ''">and a.stu_name like concat('%', #{stuName}, '%')</if>
             <if test="coseId != null ">and a.cose_id = #{coseId}</if>
             <if test="score != null ">and score = #{score}</if>
             <if test="credit != null ">and a.credit = #{credit}</if>

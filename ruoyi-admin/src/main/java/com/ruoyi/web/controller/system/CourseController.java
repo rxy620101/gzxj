@@ -112,12 +112,15 @@ public class CourseController extends BaseController
     @PostMapping
     public AjaxResult add( @Validated @RequestBody Course course)
     {
-//        if (UserConstants.NOT_UNIQUE.equals(courseService.checkCourseNameUnique(course.getCoseName())))
-//        {
-//            return AjaxResult.error("新增课程'" + course.getCoseName() + "'失败，该课程名称已存在");
-//        }
         course.setCreateBy(getUsername());
-        return toAjax(courseService.insertCourse(course));
+        int n=courseService.insertCourse(course);
+        if(n==-1){
+            return AjaxResult.error("您选择的专业已开设该课程");
+        }
+        else{
+            return toAjax(n);
+        }
+
     }
 
     /**

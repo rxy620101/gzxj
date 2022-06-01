@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class AppealInfo extends BaseEntity {
     private static final long serialVersionUID = 1L;
-    private String appealId;
+    private Long appealId;
     private String sno;
     private String stuName;
     private String appealYear;

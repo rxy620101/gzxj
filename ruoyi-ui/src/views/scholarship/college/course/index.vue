@@ -17,10 +17,11 @@
           <el-tree
             :data="deptOptions"
             :props="defaultProps"
+            node-key="id"
+            :default-expanded-keys="nodeKey"
             :expand-on-click-node="false"
             :filter-node-method="filterNode"
             ref="tree"
-            default-expand-all
             @node-click="handleNodeClick"
           />
         </div>
@@ -191,9 +192,9 @@
                            prop="validTerm" :show-overflow-tooltip="true">
           </el-table-column>
           <el-table-column label="课程学分" align="center" key="credit" prop="credit" v-if="columns[5].visible"
-                           :show-overflow-tooltip="true" width="75"/>
+                           :show-overflow-tooltip="true" width="70"/>
           <el-table-column label="课程性质" align="center" key="courseType" v-if="columns[6].visible"
-                           :show-overflow-tooltip="true" width="150">
+                           :show-overflow-tooltip="true" width="130">
             <template slot-scope="scope">
               <dict-tag :options="dict.type.course_type" :value="scope.row.courseType"/>
             </template>
@@ -208,12 +209,7 @@
               ></el-switch>
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[8].visible" width="160">
-            <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.createTime) }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column>
+          <el-table-column label="操作">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -231,17 +227,6 @@
                 v-hasPermi="['system:course:remove']"
               >删除
               </el-button>
-              <!--<el-dropdown size="mini" @command="(command) => handleCommand(command, scope.row)" v-hasPermi="['system:user:resetPwd', 'system:user:edit']">-->
-              <!--<span class="el-dropdown-link">-->
-              <!--<i class="el-icon-d-arrow-right el-icon&#45;&#45;right"></i>更多-->
-              <!--</span>-->
-              <!--<el-dropdown-menu slot="dropdown">-->
-              <!--<el-dropdown-item command="handleResetPwd" icon="el-icon-key"-->
-              <!--v-hasPermi="['system:user:resetPwd']">重置密码</el-dropdown-item>-->
-              <!--<el-dropdown-item command="handleAuthRole" icon="el-icon-circle-check"-->
-              <!--v-hasPermi="['system:user:edit']">分配角色</el-dropdown-item>-->
-              <!--</el-dropdown-menu>-->
-              <!--</el-dropdown>-->
             </template>
           </el-table-column>
         </el-table>
@@ -267,7 +252,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="课程学分" prop="credit">
-              <el-input-number v-model="form.credit"  :precision="1" :step="0.5"></el-input-number>
+              <el-input-number v-model="form.credit" :precision="1" :step="0.5"></el-input-number>
             </el-form-item>
           </el-col>
         </el-row>
@@ -282,7 +267,7 @@
                   :value="dict.value"
                 />
               </el-select>
-          </el-form-item>
+            </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="开设年级" prop="grade">
@@ -449,22 +434,23 @@
         // majorOptions:[],
         valueConsistsOf: 'LEAF_PRIORITY',
         gradeOptions: [
-          {id:1 ,value: 2017},
-          {id:2 ,value: 2018},
-          {id:3 ,value: 2019},
-          {id:4 ,value: 2020},
-          {id:5 ,value: 2021},
-          {id:6 ,value: 2022},
+          {id: 1, value: 2017},
+          {id: 2, value: 2018},
+          {id: 3, value: 2019},
+          {id: 4, value: 2020},
+          {id: 5, value: 2021},
+          {id: 6, value: 2022},
         ],
         yearsOptions: [
-          {id:1 ,value: '2017-2018'},
-          {id:2 ,value: '2018-2019'},
-          {id:3 ,value: '2019-2020'},
-          {id:4 ,value: '2020-2021'},
-          {id:5 ,value: '2021-2022'},
-          {id:6 ,value: '2022-2023'},
+          {id: 1, value: '2017-2018'},
+          {id: 2, value: '2018-2019'},
+          {id: 3, value: '2019-2020'},
+          {id: 4, value: '2020-2021'},
+          {id: 5, value: '2021-2022'},
+          {id: 6, value: '2022-2023'},
         ],
-
+        //展开的节点
+        nodeKey: [],
         // 表单参数
         form: {
           validTerm: undefined,
@@ -521,7 +507,7 @@
             {max: 20, message: '课程名称最大长度为20', trigger: 'blur'}
           ],
           grade: [
-            {required: true, message: "开设年级不能为空", trigger: ["blur","change"]}
+            {required: true, message: "开设年级不能为空", trigger: ["blur", "change"]}
           ],
           startYear: [
             {required: true, message: "开设学年不能为空", trigger: "blur"}
@@ -536,14 +522,14 @@
             {required: true, message: "学分不能为空", trigger: "blur"},
             {
               validator: (rule, value, callback) => {
-                if (value>4.0) {
+                if (value > 4.0) {
                   callback(new Error('学分最大为4分!!'))
                 }
                 else {
                   callback()
                 }
               },
-              trigger: ['blur','change']
+              trigger: ['blur', 'change']
             }
           ],
           courseType: [
@@ -602,6 +588,7 @@
       getTreeselect() {
         treeselect().then(response => {
           this.deptOptions = response.data;
+          this.nodeKey.push(this.deptOptions[0].id)
         });
       }
       ,
@@ -660,7 +647,7 @@
       /** 重置按钮操作 */
       resetQuery() {
         this.resetForm("queryForm");
-        this.queryParams.collegeId=undefined
+        this.queryParams.collegeId = undefined
         this.handleQuery();
       }
       ,
@@ -688,7 +675,7 @@
         getCourse(coseId).then(response => {
           this.form = response.data;
           //年级转为int
-          this.form.grade=parseInt(this.form.grade)
+          this.form.grade = parseInt(this.form.grade)
           this.form.majorIds = response.majorIds;
           this.open = true;
           this.title = "修改课程";

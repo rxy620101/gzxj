@@ -1,7 +1,5 @@
 package com.ruoyi.system.domain;
-
 import com.ruoyi.common.core.domain.entity.SysColleageMajor;
-import com.ruoyi.common.core.domain.entity.SysRole;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;

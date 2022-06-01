@@ -75,9 +75,6 @@ public class SysProfileController extends BaseController {
         user.setPassword(null);
         if (userService.updateUserProfile(user) > 0) {
             // 更新缓存用户信息
-//            sysUser.setPhonenumber(user.getPhonenumber());
-//            sysUser.setEmail(user.getEmail());
-//            sysUser.setSex(user.getSex());
             tokenService.setLoginUser(loginUser);
             return AjaxResult.success();
         }

@@ -1,0 +1,698 @@
+<template xmlns:el-col="http://www.w3.org/1999/html">
+  <div class="app-container">
+    <el-row :gutter="20">
+
+      <!--学生数据-->
+      <el-col :xs="24">
+        <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch"
+                 label-width="68px">
+          <el-form-item label="学生姓名" prop="stuName">
+            <el-input
+              v-model="queryParams.stuName"
+              placeholder="请输入学生姓名"
+              clearable
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="评定学年" prop="applyYear">
+            <el-select v-model="queryParams.applyYear" placeholder="请选择评定学年" clearable>
+              <el-option
+                v-for="dict in yearsOptions"
+                :key="dict.id"
+                :label="dict.value"
+                :value="dict.value"
+              />
+            </el-select>
+            <el-form-item label="等级" prop="hardRank">
+              <el-select v-model="queryParams.hardRank" placeholder="请选择贫困等级" clearable
+                         :disabled="operation=='check'">
+                <el-option
+                  v-for="dict in hardRankOptions"
+                  :key="dict.rangkId"
+                  :label="dict.rankName"
+                  :value="dict.rangkId"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-form-item>
+          <el-form-item label="专业" prop="majorId">
+            <el-select v-model="queryParams.majorId" placeholder="请选择专业" clearable @change="getMajor">
+              <el-option
+                v-for="dict in majorOptions"
+                :key="dict.id"
+                :label="dict.label"
+                :value="dict.id"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="班级" prop="stuClass">
+            <el-select v-model="queryParams.stuClass" placeholder="请选择班级" clearable>
+              <el-option
+                v-for="dict in classOptions"
+                :key="dict.id"
+                :label="dict.value"
+                :value="dict.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+        <el-row :gutter="10" class="mb8">
+          <el-col :span="1.5">
+            <el-button
+              type="success"
+              plain
+              icon="el-icon-edit"
+              size="mini"
+              @click="handleMuplitCheck"
+              v-if="operation=='check'"
+            >审核
+            </el-button>
+            <el-button
+              type="success"
+              plain
+              icon="el-icon-s-promotion"
+              size="mini"
+              @click="handlePublish"
+              v-if="operation=='record'"
+            >发布
+            </el-button>
+            <el-button
+              size="mini"
+              type="primary"
+              plain
+              icon="el-icon-edit"
+              @click="showSetting=true"
+            >查看助学金名额
+            </el-button>
+          </el-col>
+          <right-toolbar @queryTable="getList"></right-toolbar>
+        </el-row>
+
+        <el-table v-loading="loading" :data="hardList" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" width="50" align="center"/>
+          <el-table-column label="id" prop="applyId" v-if="false" width="20"></el-table-column>
+          <el-table-column label="学号" align="center" key="sno" prop="sno" width="100"/>
+          <el-table-column label="姓名" align="center" key="stuName" prop="stuName"
+                           :show-overflow-tooltip="true" width="130"/>
+          <el-table-column label="学年" sortable align="center" key="applyYear" width="145"
+                           prop="applyYear">
+          </el-table-column>
+          <el-table-column label="家庭总人口" align="center" key="familyNum" prop="familyNum"
+                           :show-overflow-tooltip="true" width="120">
+          </el-table-column>
+          <el-table-column label="家庭平均年收入(元)" align="center" sortable key="avgIncome" prop="avgIncome"
+                           :show-overflow-tooltip="true" width="170">
+          </el-table-column>
+          <el-table-column label="申请时间" align="center" prop="applyTime"
+                           :show-overflow-tooltip="true" width="180">
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.applyTime) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="状态" align="center" key="process" prop="process"
+                           :show-overflow-tooltip="true" width="110">
+            <template slot-scope="scope">
+              <dict-tag :options="dict.type.hard_process" :value="scope.row.process"/>
+            </template>
+          </el-table-column>
+          <el-table-column label="审核结果" align="center" key="checkResult" prop="checkResult"
+                           :show-overflow-tooltip="true" width="110">
+            <template slot-scope="scope">
+              <dict-tag :options="dict.type.check_result" :value="scope.row.checkResult"/>
+            </template>
+          </el-table-column>
+          <el-table-column width="110" align="center">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleCheck(scope.row)"
+                v-show="operation=='check'"
+              >审核
+              </el-button>
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleDeatil(scope.row)"
+                v-hasPermi="['hard:info:query']"
+                v-if="operation=='record'"
+              >查看
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <pagination
+          v-show="total>0"
+          :total="total"
+          :page.sync="queryParams.pageNum"
+          :limit.sync="queryParams.pageSize"
+          @pagination="getList"
+        />
+      </el-col>
+    </el-row>
+
+    <!-- 添加或修改对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="750px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="120px">
+        <el-row v-if="muplitCheck== false">
+          <el-col :span="12">
+            <el-form-item label="学号" prop="sno">
+              <el-input v-model="form.sno" disabled/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="姓名" prop="stuName">
+              <el-input v-model="form.stuName" disabled/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="muplitCheck== false">
+          <el-col :span="12">
+            <el-form-item label="申请学年" prop="applyYear">
+              <el-input v-model="form.applyYear" disabled/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="家庭总人口" prop="familyNum">
+              <el-input-number v-model="form.familyNum" placeholder="请输入家庭总人口" :min="1" :step="1"
+                               controls-position="right" style="width: 180px" disabled>
+              </el-input-number>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="muplitCheck== false">
+          <el-col :span="12">
+            <el-form-item label="家庭年平均收入" prop="avgIncome">
+              <el-input-number v-model="form.avgIncome" placeholder="请输入" :min="1" :step="1"
+                               controls-position="right" style="width: 180px" disabled>
+              </el-input-number>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="muplitCheck== false">
+          <el-col :span="24">
+            <el-form-item label="家庭情况" prop="hardCondition">
+              <el-input v-model="form.hardCondition" placeholder="家庭情况" clearable type="textarea" disabled
+              ></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <!--图片-->
+        <el-row v-if="muplitCheck== false">
+          <el-col>
+            <el-form-item label="证明材料" prop="img">
+              <ImgUpload
+                v-model="form.img"
+                :limit="5"
+                disabled
+              >
+              </ImgUpload>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="是否退回" prop="process">
+              <el-radio-group v-model="form.process" @change="getProcess"
+                              :disabled="operation=='record'">
+                <el-radio :label="'2'">否</el-radio>
+                <el-radio :label="'1'">是</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="是否通过" prop="checkResult">
+              <el-radio-group v-model="form.checkResult" @change="getCheckResult"
+                              :disabled="operation=='record'">
+                <el-radio :label="'1'">通过</el-radio>
+                <el-radio :label="'2'">不通过</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="form.checkResult == '1'">
+          <el-col :span="12">
+            <el-form-item label="等级" label-width="100px" prop="hardRank">
+              <el-select v-model="form.hardRank" @change="getHardRank"
+                         :disabled="operation=='record'"
+              >
+                <el-option
+                  v-for="dict in hardRankOptions"
+                  :key="dict.rangkId"
+                  :label="dict.rankName"
+                  :value="dict.rangkId"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="金额" prop="money">
+              <el-input v-model="form.money" disabled></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="评语" prop="comment">
+              <el-input v-model="form.comment" type="textarea" placeholder="请输入内容"
+                        :disabled="operation=='record'"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="cancel" v-if="seeDetail == true">关闭</el-button>
+        <el-button type="primary" @click="submitForm" v-if="seeDetail == false">确 定</el-button>
+        <el-button type="primary" @click="cancel" v-if="seeDetail == false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <!--查看名额-->
+    <el-dialog title="查看助学金名额" :visible.sync="showSetting" width="400px" append-to-body>
+      <span>您拥有的助学金名额的上限为{{this.hardSetting.num}}</span>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+  import Cookies from "js-cookie";
+  import {getInfo} from "@/api/scholarship/instrorInfo"
+  import {listApply, getApply, checkApply, publishApply, getProveNum} from "@/api/scholarship/hardApply"
+  import ImgUpload from "@/views/scholarship/prizes/imgUpload/imgUpload"
+  import {getAtLeast} from "@/api/scholarship/timeSetting"
+  import {listRank} from "@/api/scholarship/hardRank"
+  import {getByInstrucotId} from "@/api/scholarship/hardSetting"
+
+  export default {
+    name: "hardCheck",
+    components: {ImgUpload},
+    dicts: ['hard_process', 'valid_term', 'check_result'],
+    props: {
+      // 操作类型 check 为审核 record 为记录
+      operation: {
+        type: String
+      }
+    },
+    data() {
+      return {
+        //查看助学金名额
+        showSetting: false,
+        //助学金设置
+        hardSetting: {
+          //总名额
+          num: undefined,
+        },
+
+        //累计通过的名额
+        proveNum: 0,
+        // 遮罩层
+        loading: true,
+        // 选中数组
+        ids: [],
+        // 非单个禁用
+        single: true,
+        // 非多个禁用
+        multiple: true,
+        // 显示搜索条件
+        showSearch: true,
+        // 总条数
+        total: 0,
+        // 表格数据
+        hardList: null,
+        // 弹出层标题
+        title: "",
+        // 是否显示弹出层
+        open: false,
+        instructor: {},
+        //等级列表
+        hardRankOptions: [],
+        yearsOptions: [
+          {id: 1, value: '2017-2018'},
+          {id: 2, value: '2018-2019'},
+          {id: 3, value: '2019-2020'},
+          {id: 4, value: '2020-2021'},
+          {id: 5, value: '2021-2022'},
+          {id: 6, value: '2022-2023'},
+        ],
+        classOptions: [],
+        majorIds: [],
+        majorOptions: [],
+        //批量审核
+        muplitCheck: false,
+        // 表单参数
+        form: {},
+        // 查询参数
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          applyYear: undefined,//申请学年
+          majorId: undefined,
+          stuClass: undefined,
+          grade: undefined,
+          stuName: undefined,
+          hardRank: undefined,
+        },
+        //当前用户
+        userName: undefined,
+        //查看
+        seeDetail:false,
+        // 表单校验
+        rules: {
+          comment: [{required: true, message: "评语不能为空", trigger: ["blur"]},],
+          hardRank: [{
+            validator: (rule, value, callback) => {
+              if (this.form.process == '2') {
+                //审核不通过
+                callback()
+              }
+              //通过时评语默认为通过
+              else {
+                if (value == undefined || JSON.stringify(value) == '') {
+                  callback("助学金等级不能为空!")
+                }
+                else {
+                  callback()
+                }
+              }
+            },
+            trigger: ["blur", 'change']
+          }],
+        }
+      };
+    },
+    watch: {}
+    ,
+    created() {
+      this.getInstructorInfo();
+      //初始化等级数组
+      this.getRankList();
+      //查询助学金名额
+      this.getAllNum();
+
+    }
+    ,
+    methods: {
+      //查询助学金名额
+      getAllNum() {
+        getByInstrucotId(Cookies.get("username")).then(res => {
+          this.hardSetting = res.data;
+        })
+      },
+
+      //获取最新的时间参数信息 1奖 2助
+      getTimeSetting() {
+        getAtLeast("2").then(res => {
+          this.queryParams.applyYear = res.data.setYear;
+          this.getList();
+          //查询数据库中已通过的人数
+          this.getAllProveNum()
+        })
+      },
+
+      //获取贫困等级下拉列表
+      getRankList() {
+        listRank().then(res => {
+          this.hardRankOptions = res.rows;
+        })
+      },
+
+      //获取对应的助学金金额
+      getHardRank(val) {
+        this.hardRankOptions.forEach(item => {
+          if (item.rangkId == val) {
+            this.form.money = item.money
+          }
+        })
+      },
+
+      //获取辅导员信息,并返回专业和年级信息
+      getInstructorInfo() {
+        this.userName = Cookies.get("username");
+        getInfo().then(res => {
+          if (res.data != undefined) {
+            this.instructor = res.data;
+            let majorName = res.majorNames;
+            //指导专业名称数组
+            this.majorIds = res.data.guideMajorIds.split(",")
+            //默认第一是值，第二个是索引
+            majorName.forEach((item, index) => {
+              let obj = {
+                id: this.majorIds[index],
+                label: item
+              };
+              //初始化专业的下拉项
+              this.majorOptions.push(obj);
+            });
+          }
+          this.getTimeSetting();
+        })
+      },
+
+      //添加参数
+      addParams(params) {
+        let search = params;
+        if (this.operation == 'check') {
+          search.operation = 2
+        }
+        else {
+          search.operation = 3
+        }
+        search.params = typeof (search.params) === 'object' && search.params !== null && !Array.isArray(search.params) ? search.params : {};
+        search.params['majorIds'] = this.majorIds.join(",");
+        search.params['guideGrade'] = this.instructor.guideGrade;
+        search.params['majorId'] = this.queryParams.majorId;
+        search.params['stuClass'] = this.queryParams.stuClass;
+        return search;
+      },
+      /** 查询用户列表 */
+      getList() {
+        this.loading = true;
+        listApply(this.addParams(this.queryParams)).then(response => {
+            this.hardList = response.rows;
+            this.total = response.total;
+            this.loading = false;
+          }
+        );
+      },
+
+      //班级下拉初始化
+      getMajor(val) {
+        this.queryParams.majorId = val;
+        this.queryParams.stuClass = undefined;
+        if (val != '') {
+          let className = []
+          selClassByMajorIds(val).then(res => {
+            let classArray = res.data;
+            classArray.forEach((item, index) => {
+              className.push({
+                id: index,
+                value: item,
+              })
+            })
+            this.classOptions = className
+          })
+        }
+        else {
+          this.classOptions = []
+        }
+      },
+      // 取消按钮
+      cancel() {
+        this.open = false;
+        this.reset();
+      }
+      ,
+      //审核状态切换 2不退回  1退回
+      getProcess(val) {
+        if (val == '1') {
+          this.form.checkResult = '2'
+          this.form.comment = undefined;
+        }
+      },
+      //审核结果切换 1 通过 2 不通过
+      getCheckResult(val) {
+        if (val != '1') {
+          this.form.comment = undefined;
+        }
+        if (val == '1') {
+          this.form.comment = '审核通过'
+        }
+      },
+      // 表单重置
+      reset() {
+        this.form = {
+          process: '2',
+          checkResult: '1',
+          hardRank: undefined,
+          comment: '审核通过',
+          money: undefined,
+        };
+        this.resetForm("form");
+      }
+      ,
+      /** 搜索按钮操作 */
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.getList();
+      }
+      ,
+      /** 重置按钮操作 */
+      resetQuery() {
+        this.resetForm("queryForm");
+        this.queryParams.applyYear = this.timeSetting.setYear;
+        this.handleQuery();
+      }
+      ,
+      // 多选框选中数据
+      handleSelectionChange(selection) {
+        this.ids = selection.map(item => item.applyId);
+        this.single = selection.length != 1;
+        this.multiple = !selection.length;
+      }
+      ,
+
+      /** 审核按钮操作 */
+      handleCheck(row) {
+        this.reset();
+        const stuId = row.applyId || this.ids;
+        getApply(stuId).then(response => {
+          let data = response.data;
+          this.form = data;
+          //默认设置审核通过
+          this.form.checkResult = '1'
+          this.form.process = '2'
+          this.form.comment = '审核通过'
+          //默认等级为第2,获取对应的金额
+          this.form.hardRank = this.hardRankOptions[1].rangkId;
+          this.getHardRank(this.form.hardRank)
+          this.open = true;
+          this.muplitCheck=false
+          this.title = "审核助学金申请"
+        });
+      },
+
+      //查看
+      handleDeatil(row) {
+        getApply(row.applyId).then(response => {
+          this.form = response.data;
+          //字符型转int
+          this.form.hardRank = parseInt(this.form.hardRank)
+          this.open = true;
+          this.seeDetail=true
+          this.title = "查看助学金申请审核"
+        });
+      },
+
+      //查询数据库中以通过的人数
+      getAllProveNum() {
+        let data = {
+          applyYear: this.queryParams.applyYear,
+          instructorName: this.instructor.instructorName
+        }
+        getProveNum(data).then(res => {
+          this.proveNum = res.data;
+        })
+      },
+
+      //提交审核申请
+      submitCheck() {
+        this.$refs["form"].validate(valid => {
+          if (valid) {
+            this.form.instructorName = this.instructor.instructorName
+            //添加id
+            let applyIds = []
+            if (this.ids.length != 0) {
+              applyIds = this.ids;
+            }
+            if (this.form.applyId != undefined) {
+              applyIds.push(this.form.applyId)
+            }
+            this.form.params = typeof (this.form.params) === 'object' && this.form.params !== null && !Array.isArray(this.form.params) ? this.form.params : {};
+            this.form.params['applyIds'] = applyIds
+            checkApply(this.form).then(response => {
+              this.$modal.msgSuccess("审核成功");
+              this.open = false;
+              this.getList();
+            });
+          }
+        })
+      },
+
+      /** 提交按钮 */
+      submitForm: function () {
+        //审核不通过
+        if (this.form.checkResult == '2') {
+          this.submitCheck();
+        }
+        else {
+          //审核通过,判断审核通过的人数与总名额
+          if (this.hardSetting.num > this.proveNum) {
+            this.submitCheck();
+            let num=1;
+            if(this.ids != undefined){
+              num=this.ids.length
+            }
+            this.proveNum = this.proveNum + num;
+          }
+          else {
+            this.$modal.msgError("审核通过的人数已达到上限!")
+          }
+        }
+      }
+      ,
+
+      //批量审核按钮
+      handleMuplitCheck(row) {
+        //批量审核
+        if (this.ids == undefined || this.ids.length == 0) {
+          this.$modal.alertError("请先选择要审核的记录！")
+        }
+        else if (this.ids.length != 1) {
+          //打开批量审核表单
+          this.reset()
+          this.muplitCheck = true
+          this.open = true
+          this.title = '批量审核学生申请'
+          //默认等级为第2,获取对应的金额
+          this.form.hardRank = this.hardRankOptions[1].rangkId;
+          this.getHardRank(this.form.hardRank)
+        }
+        else {
+          //单个审核
+          this.handleCheck(row)
+        }
+      },
+
+      //发布 修改状态
+      handlePublish() {
+        if (this.queryParams.applyYear == undefined) {
+          this.$modal.msgError("请先选择要发布的学年信息!");
+        }
+        else {
+          this.$modal.confirm('是否确认发布' + this.queryParams.applyYear + '学年的审核名单？').then(() => {
+            //修改发布状态
+            let search = this.queryParams;
+            search.params = typeof (search.params) === 'object' && search.params !== null && !Array.isArray(search.params) ? search.params : {};
+            search.params['majorIds'] = this.majorIds.join(",");
+            search.params['guideGrade'] = this.instructor.guideGrade;
+            this.queryParams = search
+            publishApply(this.queryParams).then(res => {
+              this.$modal.msgSuccess("发布成功");
+            })
+
+          })
+        }
+      }
+      ,
+    }
+  };
+</script>

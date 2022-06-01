@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.scholarShip.mapper.AppealInfoMapper">
+
+    <resultMap type="AppealInfo" id="AppealInfoResult">
+        <result property="appealId"    column="appeal_id"    />
+        <result property="sno"    column="sno"    />
+        <result property="stuName"    column="stu_name"    />
+        <result property="appealYear"    column="appeal_year"    />
+        <result property="appealTerm"    column="appeal_term"    />
+        <result property="appealReason"    column="appeal_reason"    />
+        <result property="appealStatus"    column="appeal_status"    />
+        <result property="appealResult"    column="appeal_result"    />
+        <result property="comment"    column="comment"    />
+        <result property="majorName"    column="major_name"    />
+    </resultMap>
+
+    <sql id="selectAppealInfoVo">
+        select appeal_id, a.sno, a.stu_name, appeal_year, appeal_term, appeal_reason, appeal_status, appeal_result, comment,u.name as major_name
+        from appeal_info a join stu_info t on a.sno=t.sno
+        join college_major u on u.college_id=t.major_id
+    </sql>
+
+    <select id="selectAppealInfoList" parameterType="AppealInfo" resultMap="AppealInfoResult">
+        <include refid="selectAppealInfoVo"/>
+        <where>
+            <if test="sno != null  and sno != ''"> and sno = #{sno}</if>
+            <if test="stuName != null  and stuName != ''"> and stu_name like concat('%', #{stuName}, '%')</if>
+            <if test="appealYear != null  and appealYear != ''"> and appeal_year = #{appealYear}</if>
+            <if test="appealTerm != null  and appealTerm != ''"> and appeal_term = #{appealTerm}</if>
+            <if test="appealReason != null  and appealReason != ''"> and appeal_reason = #{appealReason}</if>
+            <if test="appealStatus != null  and appealStatus != ''"> and appeal_status = #{appealStatus}</if>
+            <if test="appealResult != null  and appealResult != ''"> and appeal_result = #{appealResult}</if>
+            <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
+            <if test="params.majorName != null and params.majorName != ''">and u.name=#{params.majorName}</if>
+            -- 辅导员只能审核自己专业的
+            <if test="params.majorIds != null and params.majorIds !='' ">
+                 and t.major_id in
+                <foreach item="majorId" collection="params.majorIds" open="(" separator="," close=")">
+                    #{majorId}
+                </foreach>
+                and t.grade=#{params.grade}
+            </if>
+        </where>
+        order by a.appeal_status
+    </select>
+
+    <select id="selectAppealInfoByAppealId" parameterType="Long" resultMap="AppealInfoResult">
+        <include refid="selectAppealInfoVo"/>
+        where appeal_id = #{appealId}
+    </select>
+
+    <select id="isExistAppeal" parameterType="AppealInfo" resultMap="AppealInfoResult">
+       select * from appeal_info
+        where sno=#{sno} and appeal_year=#{appealYear} and appeal_term=#{appealTerm}
+    </select>
+
+    <insert id="insertAppealInfo" parameterType="AppealInfo" useGeneratedKeys="true" keyProperty="appealId">
+        insert into appeal_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sno != null">sno,</if>
+            <if test="stuName != null">stu_name,</if>
+            <if test="appealYear != null">appeal_year,</if>
+            <if test="appealTerm != null">appeal_term,</if>
+            <if test="appealReason != null">appeal_reason,</if>
+            <if test="appealStatus != null">appeal_status,</if>
+            <if test="appealResult != null">appeal_result,</if>
+            <if test="comment != null">comment,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sno != null">#{sno},</if>
+            <if test="stuName != null">#{stuName},</if>
+            <if test="appealYear != null">#{appealYear},</if>
+            <if test="appealTerm != null">#{appealTerm},</if>
+            <if test="appealReason != null">#{appealReason},</if>
+            <if test="appealStatus != null">#{appealStatus},</if>
+            <if test="appealResult != null">#{appealResult},</if>
+            <if test="comment != null">#{comment},</if>
+        </trim>
+    </insert>
+
+    <update id="checkAppealInfo" parameterType="AppealInfo">
+        update appeal_info
+        <trim prefix="SET" suffixOverrides=",">
+            appeal_status = '1',
+            <if test="appealResult != null">appeal_result = #{appealResult},</if>
+            <if test="comment != null">comment = #{comment},</if>
+            check_person=#{checkPerson}
+        </trim>
+        where appeal_id in
+        <foreach item="appealId" collection="params.appealIds" open="(" separator="," close=")">
+            #{appealId}
+        </foreach>
+    </update>
+
+</mapper>

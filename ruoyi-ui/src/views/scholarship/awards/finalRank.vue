@@ -65,17 +65,6 @@
         </el-form>
 
         <el-row :gutter="10" class="mb8">
-          <!--<el-col :span="1.5">-->
-          <!--<el-button-->
-          <!--type="warning"-->
-          <!--plain-->
-          <!--icon="el-icon-download"-->
-          <!--size="mini"-->
-          <!--@click="handleExport"-->
-          <!--v-hasPermi="['stu:info:export']"-->
-          <!--&gt;导出-->
-          <!--</el-button>-->
-          <!--</el-col>-->
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
         </el-row>
 
@@ -85,29 +74,29 @@
           <el-table-column label="学号" align="center" key="sno" prop="sno" v-if="columns[0].visible" width="100"/>
           <el-table-column label="姓名" align="center" key="stuName" prop="stuName" v-if="columns[1].visible"
                            :show-overflow-tooltip="true" width="100"/>
-          <el-table-column label="专业" sortable align="center" key="majorName" v-if="columns[2].visible" width="160"
+          <el-table-column label="专业" sortable align="center" key="majorName" v-if="columns[2].visible" width="150"
                            prop="majorName">
           </el-table-column>
-          <el-table-column label="年级" sortable align="center" key="grade" v-if="columns[2].visible" width="160"
+          <el-table-column label="年级" sortable align="center" key="grade" v-if="columns[2].visible" width="100"
                            prop="grade">
           </el-table-column>
-          <el-table-column label="评定学年" sortable align="center" key="yearInfo" v-if="columns[2].visible" width="160"
+          <el-table-column label="评定学年" align="center" key="yearInfo" v-if="columns[2].visible" width="100"
                            prop="yearInfo">
           </el-table-column>
-          <el-table-column label="评定学期" align="center" sortable key="termInfo" prop="termInfo"
-                           v-if="columns[3].visible" :show-overflow-tooltip="true" width="150">
+          <el-table-column label="评定学期" align="center" key="termInfo" prop="termInfo"
+                           v-if="columns[3].visible" :show-overflow-tooltip="true" width="100">
             <template slot-scope="scope">
               <dict-tag :options="dict.type.valid_term" :value="scope.row.termInfo"/>
             </template>
           </el-table-column>
           <el-table-column label="成绩绩点" align="center" key="total" prop="gradeCredit"
-                           v-if="columns[4].visible" :show-overflow-tooltip="true" width="160">
+                           v-if="columns[4].visible" :show-overflow-tooltip="true" width="120">
           </el-table-column>
           <el-table-column label="成绩排名" align="center" key="gradeRank" prop="gradeRank"
-                           v-if="columns[4].visible" :show-overflow-tooltip="true" width="160">
+                           v-if="columns[4].visible" :show-overflow-tooltip="true" width="110">
           </el-table-column>
           <el-table-column label="奖项加分" align="center" key="allExtraPoint" prop="allExtraPoint"
-                           v-if="columns[4].visible" :show-overflow-tooltip="true" width="160">
+                           v-if="columns[4].visible" :show-overflow-tooltip="true" width="120">
             <template slot-scope="scope">
               <span v-if="scope.row.allExtraPoint == null">0</span>
               <span v-if="scope.row.allExtraPoint != null">{{scope.row.allExtraPoint}}</span>
@@ -119,51 +108,6 @@
           <el-table-column label="最终排名" align="center" sortable key="finalRank" prop="finalRank"
                            v-if="columns[5].visible " :show-overflow-tooltip="true" width="100">
           </el-table-column>
-          <!--<el-table-column label="初始等级" align="center" sortable key="awardRank" prop="awardRank"-->
-                           <!--v-if="columns[5].visible " :show-overflow-tooltip="true" width="100">-->
-          <!--</el-table-column>-->
-          <!--<el-table-column label="申请时间" align="center" prop="createTime" v-if="columns[7].visible"-->
-          <!--:show-overflow-tooltip="true" width="130">-->
-          <!--<template slot-scope="scope">-->
-          <!--<span>{{ parseTime(scope.row.createTime) }}</span>-->
-          <!--</template>-->
-          <!--</el-table-column>-->
-          <!--<el-table-column label="审核进度" align="center" key="process" prop="process"-->
-          <!--v-if="columns[6].visible" :show-overflow-tooltip="true" width="160">-->
-          <!--<template slot-scope="scope">-->
-          <!--<dict-tag :options="dict.type.process" :value="scope.row.process"/>-->
-          <!--</template>-->
-          <!--</el-table-column>-->
-          <!--<el-table-column width="160" align="center">-->
-          <!--<template slot-scope="scope">-->
-          <!--<el-button-->
-          <!--size="mini"-->
-          <!--type="text"-->
-          <!--icon="el-icon-edit"-->
-          <!--@click="handleUpdate(scope.row)"-->
-          <!--v-hasPermi="['award:info:query']"-->
-          <!--&gt;查看-->
-          <!--</el-button>-->
-          <!--<el-button-->
-          <!--size="mini"-->
-          <!--type="text"-->
-          <!--icon="el-icon-delete"-->
-          <!--@click="handleDelete(scope.row)"-->
-          <!--v-hasPermi="['prizes:info:remove']"-->
-          <!--v-if="JSON.stringify(stu) != '{}'"-->
-          <!--&gt;删除-->
-          <!--</el-button>-->
-          <!--<el-button-->
-          <!--size="mini"-->
-          <!--type="text"-->
-          <!--icon="el-icon-edit"-->
-          <!--@click="handleCheck(scope.row)"-->
-          <!--v-hasPermi="['prizes:info:check']"-->
-          <!--v-if="userName == 'admin'"-->
-          <!--&gt;审核-->
-          <!--</el-button>-->
-          <!--</template>-->
-          <!--</el-table-column>-->
         </el-table>
 
         <pagination
@@ -175,118 +119,6 @@
         />
       </el-col>
     </el-row>
-
-    <!--&lt;!&ndash; 添加或修改对话框 &ndash;&gt;-->
-    <!--<el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>-->
-    <!--<el-form ref="form" :model="form" :rules="rules" label-width="80px">-->
-    <!--<el-row>-->
-    <!--<el-col :span="12">-->
-    <!--<el-form-item label="学号" prop="sno">-->
-    <!--<el-input v-model="form.sno" disabled>-->
-    <!--</el-input>-->
-    <!--</el-form-item>-->
-    <!--</el-col>-->
-    <!--<el-col :span="12">-->
-    <!--<el-form-item label="学生姓名" prop="stuName">-->
-    <!--<el-input v-model="form.stuName" disabled/>-->
-    <!--</el-form-item>-->
-    <!--</el-col>-->
-    <!--</el-row>-->
-    <!--<el-row>-->
-    <!--<el-col :span="12">-->
-    <!--<el-form-item label="申请学年" prop="applyYear">-->
-    <!--<el-input v-model="form.applyYear" disabled>-->
-    <!--</el-input>-->
-    <!--</el-form-item>-->
-    <!--</el-col>-->
-    <!--<el-col :span="12">-->
-    <!--<el-form-item label="申请学期" prop="applyTerm">-->
-    <!--<el-input v-model="form.applyTerm" disabled>-->
-    <!--<template slot-scope="scope">-->
-    <!--<span v-if="form.appleyTerm == '1'">第一学期</span>-->
-    <!--<span v-if="form.appleyTerm == '2'">第二学期</span>-->
-    <!--</template>-->
-    <!--</el-input>-->
-    <!--</el-form-item>-->
-    <!--</el-col>-->
-    <!--</el-row>-->
-    <!--<el-row>-->
-    <!--<el-col :span="12">-->
-    <!--<el-form-item label="奖项名称" prop="applyType">-->
-    <!--<el-select v-model="form.applyTpe" clearable-->
-    <!--disabled>-->
-    <!--<el-option-->
-    <!--v-for="dict in prizeTypeOptions"-->
-    <!--:key="dict.prizeId"-->
-    <!--:label="dict.prizeType"-->
-    <!--:value="dict.prizeId"-->
-    <!--&gt;-->
-    <!--</el-option>-->
-    <!--</el-select>-->
-    <!--</el-form-item>-->
-    <!--</el-col>-->
-    <!--<el-col :span="12">-->
-    <!--<el-form-item label="奖项等级" prop="initRank">-->
-    <!--<el-select v-model="form.initRank"-->
-    <!--disabled>-->
-    <!--<el-option-->
-    <!--v-for="dict in prizeNameOption"-->
-    <!--:key="dict.prizeId"-->
-    <!--:label="dict.prizeType"-->
-    <!--:value="dict.prizeId"-->
-    <!--/>-->
-    <!--</el-select>-->
-    <!--</el-form-item>-->
-    <!--</el-col>-->
-    <!--</el-row>-->
-    <!--<el-row>-->
-    <!--<el-col :span="12">-->
-    <!--<el-form-item label="奖项金额" prop="money">-->
-    <!--<el-input v-model="form.money"-->
-    <!--disabled-->
-    <!--&gt;</el-input>-->
-    <!--</el-form-item>-->
-    <!--</el-col>-->
-    <!--<el-col :span="12">-->
-    <!--<el-form-item label="卡号" prop="cardNum">-->
-    <!--<el-input v-model="form.cardNum"-->
-    <!--:disabled="JSON.stringify(stu)=='{}'"-->
-    <!--&gt;</el-input>-->
-    <!--</el-form-item>-->
-    <!--</el-col>-->
-    <!--</el-row>-->
-    <!--<el-row>-->
-    <!--<el-col :span="24">-->
-    <!--<el-form-item label="自我评价" prop="selfRemark">-->
-    <!--<el-input v-model="form.selfRemark" type="textarea" placeholder="请输入内容"-->
-    <!--:disabled="JSON.stringify(stu)=='{}'"></el-input>-->
-    <!--</el-form-item>-->
-    <!--</el-col>-->
-    <!--</el-row>-->
-    <!--&lt;!&ndash;<el-row>&ndash;&gt;-->
-    <!--&lt;!&ndash;<el-col :span="12">&ndash;&gt;-->
-    <!--&lt;!&ndash;<el-form-item label="审核" prop="process" v-if="userName ==='admin'">&ndash;&gt;-->
-    <!--&lt;!&ndash;<el-radio-group v-model="form.process" @change="getProcess">&ndash;&gt;-->
-    <!--&lt;!&ndash;<el-radio :label="'1'">通过</el-radio>&ndash;&gt;-->
-    <!--&lt;!&ndash;<el-radio :label="'2'">不通过</el-radio>&ndash;&gt;-->
-    <!--&lt;!&ndash;</el-radio-group>&ndash;&gt;-->
-    <!--&lt;!&ndash;</el-form-item>&ndash;&gt;-->
-    <!--&lt;!&ndash;</el-col>&ndash;&gt;-->
-    <!--&lt;!&ndash;</el-row>&ndash;&gt;-->
-    <!--&lt;!&ndash;<el-row>&ndash;&gt;-->
-    <!--&lt;!&ndash;<el-col :span="24">&ndash;&gt;-->
-    <!--&lt;!&ndash;<el-form-item label="评语" v-if="userName === 'admin'" prop="comment">&ndash;&gt;-->
-    <!--&lt;!&ndash;<el-input v-model="form.comment" type="textarea" placeholder="请输入内容"></el-input>&ndash;&gt;-->
-    <!--&lt;!&ndash;</el-form-item>&ndash;&gt;-->
-    <!--&lt;!&ndash;</el-col>&ndash;&gt;-->
-    <!--&lt;!&ndash;</el-row>&ndash;&gt;-->
-
-    <!--</el-form>-->
-    <!--<div slot="footer" class="dialog-footer">-->
-    <!--<el-button type="primary" @click="submitForm">确 定</el-button>-->
-    <!--<el-button @click="cancel">取 消</el-button>-->
-    <!--</div>-->
-    <!--</el-dialog>-->
   </div>
 </template>
 
@@ -294,7 +126,6 @@
   import Cookies from "js-cookie";
   import {getInfo} from "@/api/scholarship/instrorInfo"
   import {getInfoBysno, selClassByMajorIds} from "@/api/scholarship/stuInfo"
-  // import {getPrizetype, selByParentId} from "@/api/scholarship/prizeType";
   import {getAllMajor, selByParentId} from "@/api/system/dept";
   import {listInitAward,updateIsPublic} from "@/api/scholarship/initAwardList"
 

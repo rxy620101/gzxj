@@ -59,7 +59,7 @@
     </sql>
 
     <select id="selectCourseList" parameterType="Course" resultMap="CourseResult">
-        select a.cose_id,a.cose_name, a.start_year, a.valid_term,a.status,a.create_by,a.create_time,a.update_by,a.update_time,a.remark,a.grade,a.del_flag as course_flag,a.credit,a.course_type
+        select  distinct a.cose_id,a.cose_name, a.start_year, a.valid_term,a.status,a.create_by,a.create_time,a.update_by,a.update_time,a.remark,a.grade,a.del_flag as course_flag,a.credit,a.course_type
         from course a
         left join major_course b on a.cose_id=b.course_id
         left join college_major u on b.college_id=u.college_id
@@ -93,21 +93,21 @@
           and valid_term = #{validTerm}
           and grade = #{grade}
           and credit = #{credit}
-          and course_type = #{courseType} limit 1
+          and course_type = #{courseType}
+          and del_flag=0 limit 1
     </select>
 
-    <select id="checkCourseUniqueByName" resultType="int">
+    <select id="checkCourseUniqueByName"  resultType="int">
         select count(1)
-        from course a
-                 join major_course b on a.cose_id = b.course_id
-                 join college_major u on b.college_id = u.college_id
+        from course a join major_course b on a.cose_id = b.course_id
+            join college_major u on b.college_id = u.college_id
         where cose_name = #{course.coseName}
           and start_year = #{course.startYear}
           and valid_term = #{course.validTerm}
           and grade = #{course.grade}
           and credit = #{course.credit}
           and course_type = #{course.courseType}
-          and u.name = #{majorName} limit 1
+         and u.name=#{majorName} limit 1
     </select>
 
     <insert id="insertCourse" parameterType="Course" useGeneratedKeys="true" keyProperty="coseId">
@@ -182,7 +182,7 @@
     </update>
 
     <select id="selectIdByCourse" parameterType="Course" resultType="Long">
-        select cose_id
+        select  distinct cose_id
         from course
         where cose_name = #{coseName}
           and start_year = #{startYear}
@@ -204,6 +204,22 @@
         and valid_term = #{map.validTerm}
         and grade = #{map.grade}
         and u.name=#{map.majorName}
+    </select>
+
+    <select id="checkCourseUniqueByMaiorId" parameterType="Course" resultType="int">
+        select count(1)
+        from course  a
+                 join major_course b on a.cose_id = b.course_id
+        where cose_name = #{coseName}
+          and start_year = #{startYear}
+          and valid_term = #{validTerm}
+          and grade = #{grade}
+          and credit = #{credit}
+          and course_type = #{courseType} and b.college_id in
+        <foreach item="majorId" collection="majorIds" open="(" separator="," close=")">
+            #{majorId}
+        </foreach>
+       and a.del_flag=0
     </select>
 
 </mapper>

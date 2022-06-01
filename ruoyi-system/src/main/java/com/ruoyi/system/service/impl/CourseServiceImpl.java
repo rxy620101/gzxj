@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.bean.BeanValidators;
@@ -66,7 +67,7 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     /**
-     * 新增课程
+     * 新增课程  前端单个新增时
      *
      * @param course 课程
      * @return 结果
@@ -74,13 +75,31 @@ public class CourseServiceImpl implements ICourseService {
     @Override
     @Transactional
     public int insertCourse(Course course) {
-        // 新增
-        int rows = courseMapper.insertCourse(course);
-        // 新增课程与专业关联表
-        insertMajorCourse(course);
+        int rows=1;
+        //先判断该专业是否已设置该课程
+        int u=courseMapper.checkCourseUniqueByMaiorId(course);
+        if(u==0){
+            // 后判断该课程是否已经存在
+            int n=courseMapper.checkCourseUnique(course);
+            if(n !=0){
+                Long courseId=this.selectIdByCourse(course);
+                course.setCoseId(courseId);
+                insertMajorCourse(course);
+                rows=1;
+            }
+            else{
+                // 新增
+               rows = courseMapper.insertCourse(course);
+                // 新增课程与专业关联表
+                insertMajorCourse(course);
+            }
+        }
+        else{
+            rows=-1;
+        }
+
         return rows;
     }
-
     /**
      * 修改课程
      *
@@ -157,6 +176,16 @@ public class CourseServiceImpl implements ICourseService {
     public int checkCourseUnique(Course course, String majorName) {
         return courseMapper.checkCourseUniqueByName(course, majorName);
     }
+    /**
+     * 校验课程是否唯一
+     *
+     * @Param course 课程信息
+     * @return 结果
+     */
+    @Override
+    public int checkCourseUniqueByMaiorId( Course course){
+        return courseMapper.checkCourseUniqueByMaiorId(course);
+    }
 
 
     @Override
@@ -212,6 +241,9 @@ public class CourseServiceImpl implements ICourseService {
         return courseMapper.selectIdsByNames(coseNames,map);
     }
 
+    public Long selectIdByCourse(Course course){
+        return courseMapper.selectIdByCourse(course);
+    }
     /**
      * 导入数据
      *
@@ -244,7 +276,7 @@ public class CourseServiceImpl implements ICourseService {
                         //都不存在，同时插入课程信息和专业-课程联系表
                         BeanValidators.validateWithException(validator, course);
                         course.setCreateBy(operName);
-                        this.insertCourse(course);
+                        courseMapper.insertCourse(course);
                         //获取专业id 和课程id
                         Long courseId=courseMapper.selectIdByCourse(course);
                         course.setCoseId(courseId);

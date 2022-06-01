@@ -145,17 +145,24 @@
           <el-table-column label="学号" align="center" key="sno" prop="sno" v-if="columns[0].visible" width="120"/>
           <el-table-column label="姓名" align="center" key="stuName" prop="stuName" v-if="columns[1].visible"
                            :show-overflow-tooltip="true" width="100"/>
-          <el-table-column label="获奖学年" sortable align="center" key="sex" v-if="columns[2].visible" width="140"
+          <el-table-column label="获奖学年"  align="center" key="sex" v-if="columns[2].visible" width="90"
                            prop="getYear">
           </el-table-column>
           <el-table-column label="获奖学期" align="center" sortable key="getTerm" prop="getTerm"
-                           v-if="columns[3].visible" :show-overflow-tooltip="true" width="130">
+                           v-if="columns[3].visible" :show-overflow-tooltip="true" width="110">
             <template slot-scope="scope">
               <dict-tag :options="dict.type.valid_term" :value="scope.row.getTerm"/>
             </template>
           </el-table-column>
+          <el-table-column label="奖项类别" align="center"
+                         :show-overflow-tooltip="true" width="100"
+                          >
+            <template slot-scope="scope">
+             <span>{{getTypeName(scope.row.parentId)}}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="奖项名称" align="center" key="prizeName" prop="prizeName"
-                           v-if="columns[4].visible" :show-overflow-tooltip="true" width="160">
+                           v-if="columns[4].visible" :show-overflow-tooltip="true" width="140">
           </el-table-column>
           <el-table-column label="对应分数" align="center" sortable key="getPoint" prop="getPoint"
                            v-if="columns[5].visible" :show-overflow-tooltip="true" width="100">
@@ -175,7 +182,7 @@
             </template>
           </el-table-column>
           <el-table-column label="审核结果" align="center" key="checkResult" prop="checkResult"
-                           v-if="columns[6].visible" :show-overflow-tooltip="true" width="100">
+                           v-if="columns[6].visible" :show-overflow-tooltip="true" width="90">
             <template slot-scope="scope">
               <dict-tag :options="dict.type.check_result" :value="scope.row.checkResult"/>
             </template>
@@ -186,7 +193,7 @@
               <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
           </el-table-column>
-          <el-table-column width="115" align="center">
+          <el-table-column width="115" align="center" label="操作">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -194,7 +201,7 @@
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
                 v-hasPermi="['prizes:info:edit']"
-                v-if="JSON.stringify(stu) != '{}'"
+                v-if="JSON.stringify(stu) != '{}' && scope.row.process =='0'"
               >修改
               </el-button>
               <el-button
@@ -203,8 +210,16 @@
                 icon="el-icon-delete"
                 @click="handleDelete(scope.row)"
                 v-hasPermi="['prizes:info:remove']"
-                v-if="JSON.stringify(stu) != '{}'"
+                v-if="JSON.stringify(stu) != '{}' && scope.row.process =='0'"
               >删除
+              </el-button>
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleDetail(scope.row)"
+                v-if="JSON.stringify(stu) != '{}' && scope.row.process =='1'"
+              >查看
               </el-button>
               <el-button
                 size="mini"
@@ -232,7 +247,7 @@
     <!-- 添加或修改对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-row v-if="mutipleCheck">
+        <el-row v-if="mutipleCheck== false">
           <el-col :span="12">
             <el-form-item label="学号" prop="sno" v-if="JSON.stringify(stu)=='{}'">
               <el-input v-model="form.sno" disabled/>
@@ -244,7 +259,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row v-if="mutipleCheck">
+        <el-row v-if="mutipleCheck==false">
           <el-col :span="12">
             <el-form-item label="获奖学年" prop="getYear">
               <el-select v-model="form.getYear" placeholder="请选择获奖学年" disabled>
@@ -274,7 +289,7 @@
           <el-col :span="12">
             <el-form-item label="奖项类别" prop="parentId">
               <el-select v-model="form.parentId" clearable placeholder="请选择奖项类别" @change="getType($event,'form')"
-                         :disabled="JSON.stringify(stu)=='{}'">
+                         :disabled="JSON.stringify(stu)=='{}' || form.process=='1'">
                 <el-option
                   v-for="dict in prizeTypeOptions"
                   :key="dict.prizeId"
@@ -288,7 +303,7 @@
           <el-col :span="12">
             <el-form-item label="对应奖项" prop="prizeId">
               <el-select v-model="form.prizeId" placeholder="请选择对应奖项" clearable
-                         :disabled="JSON.stringify(stu)=='{}'">
+                         :disabled="JSON.stringify(stu)=='{}' || form.process=='1'">
                 <el-option
                   v-for="dict in prizeNameOption"
                   :key="dict.prizeId"
@@ -299,45 +314,47 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row v-if="mutipleCheck">
+        <el-row v-if="mutipleCheck==false">
           <el-col :span="24">
             <el-form-item label="奖项名称" prop="prizeName">
               <el-input v-model="form.prizeName" placeholder="请输入奖项名称" clearable
-                        :disabled="JSON.stringify(stu)=='{}'"
+                        :disabled="JSON.stringify(stu)=='{}' || form.process=='1'"
               ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <!--奖项图片-->
-        <el-row v-if="mutipleCheck">
+        <el-row v-if="mutipleCheck==false">
           <el-col>
             <el-form-item label="奖项图片" prop="prizeImg">
               <ImgUpload
                 v-model="form.prizeImg"
                 :limit="1"
-                :disabled="JSON.stringify(stu)=='{}'"
+                :disabled="JSON.stringify(stu)=='{}' || form.process=='1'"
               >
               </ImgUpload>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row v-if="mutipleCheck">
+        <el-row v-if="mutipleCheck==false">
           <el-col :span="24">
             <el-form-item label="备注">
               <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"
-                        :disabled="JSON.stringify(stu)=='{}'"></el-input>
+                        :disabled="JSON.stringify(stu)=='{}' || form.process=='1'"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="对应分数" prop="getPoint" v-if="userName === 'admin'">
-              <el-input-number v-model="form.getPoint" placeholder="对应分数" :min="0" :step="0.1"></el-input-number>
+            <el-form-item label="对应分数" prop="getPoint" v-if="userName === 'admin' || form.process=='1'">
+              <el-input-number v-model="form.getPoint" placeholder="对应分数" :min="0" :step="0.1"
+              :disabled=" form.process=='1'"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="审核" prop="checkResult" v-if="userName ==='admin'">
-              <el-radio-group v-model="form.checkResult" @change="getProcess">
+            <el-form-item label="审核" prop="checkResult" v-if="userName ==='admin'|| form.process=='1'">
+              <el-radio-group v-model="form.checkResult" @change="getProcess"
+                              :disabled=" form.process=='1'">
                 <el-radio :label="'1'">通过</el-radio>
                 <el-radio :label="'2'">不通过</el-radio>
               </el-radio-group>
@@ -346,16 +363,18 @@
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-form-item label="评语" v-if="userName === 'admin'" prop="comment">
-              <el-input v-model="form.comment" type="textarea" placeholder="请输入内容"></el-input>
+            <el-form-item label="评语" v-if="userName === 'admin' || form.process=='1' " prop="comment">
+              <el-input v-model="form.comment" type="textarea" placeholder="请输入内容"
+                        :disabled=" form.process=='1'"
+              ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
-
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
+        <el-button type="primary" @click="cancel" v-if=" form.process=='1'">关闭</el-button>
+        <el-button type="primary" @click="submitForm" v-if=" form.process !='1'">确 定</el-button>
+        <el-button @click="cancel" v-if=" form.process !='1'">取 消</el-button>
       </div>
     </el-dialog>
 
@@ -375,7 +394,7 @@
   export default {
     name: "stuPrizes",
     components: {ImgUpload},
-    dicts: ['process', 'valid_term','check_result'],
+    dicts: ['process', 'valid_term', 'check_result'],
     data() {
       return {
         // 遮罩层
@@ -471,7 +490,7 @@
               }
               //通过时评语默认为通过
               else {
-                if (value == undefined || JSON.stringify(value) == '') {
+                if (value == undefined || value == '') {
                   callback("评语不能为空")
                 }
                 else {
@@ -502,7 +521,7 @@
           }],
         },
         //是否批量审核
-        mutipleCheck: true,
+        mutipleCheck: false,
       };
     },
     watch: {}
@@ -596,7 +615,7 @@
           //查询条件
           search.params['process'] = '0';
         }
-        if(this.ids.length >1){
+        if (this.ids.length > 1) {
           search.params['awardIds'] = this.ids;
         }
         return search;
@@ -640,6 +659,18 @@
             }
           })
         }
+      },
+
+      //获取奖项类别
+      getTypeName(cellValue){
+        let typeName=null;
+        this.prizeTypeOptions.forEach(item=>{
+          if(item.prizeId==parseInt(cellValue)){
+            typeName=item.prizeType;
+            return;
+          }
+        })
+        return typeName;
       },
       //班级下拉初始化
       getMajor(val) {
@@ -688,7 +719,7 @@
           getPoint: undefined,
           remark: undefined,
           process: '0',
-          checkResult:'1'
+          checkResult: '1'
         };
         this.form.getYear = this.timeSetting.setYear;
         this.form.getTerm = this.timeSetting.setTerm;
@@ -746,11 +777,10 @@
 
       }
       ,
-      /** 修改按钮操作 */
+      /** 单个修改按钮操作 */
       handleUpdate(row) {
         this.reset();
         //重新执行专业、年级的下拉框选项
-        // this.getCollege(row.collegeId, 'form')
         const stuId = row.awardId || this.ids;
         getPrizes(stuId).then(response => {
           let data = response.data;
@@ -760,10 +790,11 @@
           //重新获取下拉项
           this.getType(this.form.parentId)
           this.open = true;
-          if (this.userName == 'admin') {
+          if (this.userName != 'admin') {
             this.title = "修改学生所获奖项";
           }
           else {
+            this.mutipleCheck=false;
             this.title = "审核学生所获奖项"
           }
           //获取分数信息
@@ -771,7 +802,7 @@
             this.form.checkResult = "1";
             this.form.comment = '审核通过'
             getPrizetype(this.form.prizeId).then(res => {
-                this.form.getPoint = res.data.extraPoint;
+              this.form.getPoint = res.data.extraPoint;
             })
           }
         });
@@ -795,7 +826,7 @@
           }
           else {
             //打开批量审核表单
-            this.mutipleCheck = false
+            this.mutipleCheck = true
             this.open = true;
             this.title = '批量审核学生奖项'
             this.form.parentId = this.queryParams.parentId;
@@ -817,26 +848,27 @@
       },
 
       //批量审核提交
-      checkByIds(){
-         updateByIds(this.addParams(this.queryParams)).then(res=>{
-           this.$modal.msgSuccess("审核成功")
-           this.getList();
-           this.open=false
-         })
+      checkByIds() {
+        updateByIds(this.addParams(this.form)).then(res => {
+          this.$modal.msgSuccess("审核成功")
+          this.getList();
+          this.open = false
+        })
       },
+
 
       /** 提交按钮 */
       submitForm: function () {
         this.$refs["form"].validate(valid => {
           if (valid) {
-            if (this.ids.length >1) {
+            if (this.ids.length > 1) {
               //批量修改
               this.checkByIds()
             }
             else {
               if (this.form.awardId != undefined) {
-                if(this.userName=='admin'){
-                  this.form.process='1'
+                if (this.userName == 'admin') {
+                  this.form.process = '1'
                 }
                 updatePrizes(this.form).then(response => {
                   let message = '修改成功';
@@ -860,6 +892,20 @@
         });
       }
       ,
+      //查看详情
+      handleDetail(row) {
+        const stuId = row.awardId
+        getPrizes(stuId).then(response => {
+          let data = response.data;
+          this.form = data;
+          this.form.parentId = parseInt(this.form.parentId);
+          this.form.prizeId = parseInt(this.form.prizeId);
+          //重新获取下拉项
+          this.getType(this.form.parentId)
+          this.open = true;
+          this.title = "查看所获奖项";
+        })
+      },
       /** 删除按钮操作 */
       handleDelete(row) {
         const stuIds = row.awardId || this.ids;

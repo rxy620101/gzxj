@@ -46,7 +46,15 @@ public interface CourseMapper
      * @param majorName  专业名字
      * @return 结果
      */
-    public int checkCourseUniqueByName(@Param("course") Course course,@Param("majorName") String majorName);
+    public int checkCourseUniqueByName( @Param("course")Course course,@Param("majorName") String majorName);
+
+    /**
+     * 校验课程是否唯一
+     *
+     * @Param course 课程信息
+     * @return 结果
+     */
+    public int checkCourseUniqueByMaiorId( Course course);
 
 
     /**

@@ -174,8 +174,4 @@
         </foreach>
     </delete>
 
-<!--    <select id="selectIdBySno" parameterType="String" resultType="Long">-->
-<!--        select user_id from sys_user where sno=#{sno}-->
-<!--    </select>-->
-
 </mapper>

@@ -59,24 +59,29 @@
             <if test="awardRank != null  and awardRank != ''">and award_rank = #{awardRank}</if>
             <if test="grade != null  and grade !=''">and b.grade = #{grade}</if>
             <if test="params.collegeId != null  and params.collegeId !=''">
-            and b.college_id = #{params.collegeId}
+                and b.college_id = #{params.collegeId}
             </if>
             <!--             <辅导员和学生查看时的数据过滤></辅导员和学生查看时的数据过滤>-->
             <if test="params.majorId != null  and params.majorId !=''">
                 and b.grade=#{params.grade} and b.major_id=#{params.majorId}
                 and b.stu_class=#{params.stuClass}
-                and a.is_public='1'
+                <!--             and a.is_public='1'-->
             </if>
             <if test="params.seeAward !=null and params.seeAward !=''">
-                and  a.award_rank is not null
+                and a.award_rank is not null
             </if>
-            <if test="params.guideGrade != null  and params.guideGrade != ''" >
+            <!--初始名单 学生和辅导员端-->
+            <if test="params.isPublic !=null and params.isPublic !=''">
+                and  a.is_public='1'
+            </if>
+            <!--辅导员查看-->
+            <if test="params.guideGrade != null  and params.guideGrade != ''">
                 and b.grade=#{params.guideGrade}
                 and b.major_id in
                 <foreach item="item" collection="params.majorIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
-                and a.is_public='1'
+<!--               and a.is_public='1'-->
             </if>
         </where>
         order by a.year_info,a.term_info,a.final_rank
@@ -125,7 +130,8 @@
     <insert id="batchAdd" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="initId">
         insert into award_init_list (sno,stu_name,major_name,year_info,term_info,total_score,grade_credit,grade_rank,all_extra_point,final_credit,final_rank,award_rank,grade) values
         <foreach collection="list" item="item" separator=",">
-            (#{item.sno},#{item.stuName},#{item.majorName},#{item.yearInfo},#{item.termInfo},#{item.totalScore},#{item.gradeCredit},#{item.gradeRank},#{item.allExtraPoint},#{item.finalCredit},#{item.finalRank},#{item.awardRank},#{item.grade} )
+            (#{item.sno},#{item.stuName},#{item.majorName},#{item.yearInfo},#{item.termInfo},#{item.totalScore},#{item.gradeCredit},#{item.gradeRank},#{item.allExtraPoint},#{item.finalCredit},#{item.finalRank},#{item.awardRank},#{item.grade}
+            )
         </foreach>
     </insert>
 
@@ -154,8 +160,10 @@
         </foreach>
     </delete>
     <update id="updateIsPublic">
-        update award_init_list set is_public ='1'
-        where year_info=#{yearInfo} and term_info=#{termInfo}
+        update award_init_list
+        set is_public ='1'
+        where year_info = #{yearInfo}
+          and term_info = #{termInfo}
     </update>
 
     <select id="selectAwardInitListBySno" parameterType="String" resultMap="AwardInitListResult">

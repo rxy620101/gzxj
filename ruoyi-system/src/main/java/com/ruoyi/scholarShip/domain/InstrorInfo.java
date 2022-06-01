@@ -1,6 +1,5 @@
 package com.ruoyi.scholarShip.domain;
 
-import com.ruoyi.common.core.domain.entity.SysColleageMajor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -8,7 +7,6 @@ import com.ruoyi.common.core.domain.BaseEntity;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-import java.util.List;
 
 /**
  * 辅导员基础信息对象 instror_info

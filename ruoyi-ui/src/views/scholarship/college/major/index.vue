@@ -10,7 +10,7 @@
         />
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="部门状态" clearable>
+        <el-select v-model="queryParams.status" placeholder="状态" clearable>
           <el-option
             v-for="dict in dict.type.sys_normal_disable"
             :key="dict.value"
@@ -63,7 +63,7 @@
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="200">
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -101,15 +101,15 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="24" v-if="form.parentId !== 0">
-            <el-form-item label="上级部门" prop="parentId">
+            <el-form-item label="上级" prop="parentId">
               <treeselect v-model="form.parentId" :options="deptOptions" :normalizer="normalizer" placeholder="选择上级部门" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="院系/专业名称" prop="name">
-              <el-input v-model="form.name" placeholder="请输入院系/专业名称" />
+            <el-form-item label="名称" prop="name">
+              <el-input v-model="form.name" placeholder="请输入名称" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -251,7 +251,7 @@ export default {
         this.form.parentId = row.collegeId;
       }
       this.open = true;
-      this.title = "添加部门";
+      this.title = "添加院系/专业";
       listDept().then(response => {
         this.deptOptions = this.handleTree(response.data, "collegeId");
       });
@@ -288,9 +288,11 @@ export default {
             });
           } else {
             addDept(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
+              if(response.code == 200 ){
+                this.$modal.msgSuccess("新增成功");
+                this.open = false;
+                this.getList();
+              }
             });
           }
         }

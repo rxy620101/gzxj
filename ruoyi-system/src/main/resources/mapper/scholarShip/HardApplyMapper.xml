@@ -203,7 +203,8 @@
                  join stu_info b on a.sno = b.sno
         where apply_year = #{applyYear}
           and b.college_id = #{collegeId}
-          and process = '1'
+          and process = '2'
+          and check_result='1'
           and hard_rank = #{rankId}
     </select>
 

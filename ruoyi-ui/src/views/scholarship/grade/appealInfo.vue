@@ -88,7 +88,7 @@
             type="text"
             icon="el-icon-edit"
             @click="handleCheck(scope.row)"
-            v-if="scope.row.appealResult=='0'"
+            v-if="scope.row.appealResult=='3'"
           >审核
           </el-button>
           <el-button
@@ -358,6 +358,7 @@
 
       /** 审核按钮操作 */
       handleCheck(row) {
+        this.single=true;
         this.reset();
         const appealId = row.appealId
         getDetail(appealId).then(response => {

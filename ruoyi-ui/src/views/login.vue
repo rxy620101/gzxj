@@ -54,10 +54,6 @@
         </div>
       </el-form-item>
     </el-form>
-    <!--  底部  -->
-    <!--<div class="el-login-footer">-->
-      <!--<span>Copyright © 2018-2022 ruoyi.vip All Rights Reserved.</span>-->
-    <!--</div>-->
   </div>
 </template>
 
@@ -65,6 +61,7 @@
 import { getCodeImg } from "@/api/login";
 import Cookies from "js-cookie";
 import { encrypt, decrypt } from '@/utils/jsencrypt'
+import global from '@/utils/loginUtil'
 
 export default {
   name: "Login",
@@ -73,7 +70,7 @@ export default {
       codeUrl: "",
       loginForm: {
         username: "admin",
-        password: "admin123",
+        password: "123456",
         rememberMe: false,
         code: "",
         uuid: ""
@@ -141,6 +138,7 @@ export default {
             Cookies.remove('rememberMe');
           }
           this.$store.dispatch("Login", this.loginForm).then(() => {
+            Cookies.set("username", this.loginForm.username, { expires: 30 });
             this.$router.push({ path: this.redirect || "/" }).catch(()=>{});
           }).catch(() => {
             this.loading = false;
